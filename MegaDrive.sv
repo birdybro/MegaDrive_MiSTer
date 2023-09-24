@@ -567,6 +567,7 @@ wire        VCLK, ZCLK;
 
 md_board md_board
 (
+	.MCLK(clk_sys),
 	.MCLK2(clk_md),
 
 	.ext_reset(md_reset),

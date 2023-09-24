@@ -28,6 +28,7 @@ module fc1004
 	(
 	input MCLK,
 	input MCLK_e,
+	input MCLK_slow,
 	input [7:0] SD,
 	output SE1,
 	output SE0,
@@ -496,7 +497,7 @@ module fc1004
 	
 	ym6046 ioc
 		(
-		.MCLK(MCLK),
+		.MCLK(MCLK_slow),
 		.PORT_A_i(PA_i),
 		.PORT_B_i(PB_i),
 		.PORT_C_i(PC_i),

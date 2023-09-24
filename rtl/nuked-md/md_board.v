@@ -27,7 +27,7 @@
 
 module md_board
 	(
-	// input MCLK,
+	input MCLK,
 	input MCLK2,
 	input ext_reset,
 	input reset_button,
@@ -306,6 +306,7 @@ module md_board
 		(
 		.MCLK(MCLK2),
 		.MCLK_e(MCLK_e),
+		.MCLK_slow(MCLK),
 		.SD(SD),
 		.SE1(SE1),
 		.SE0(SE0),
