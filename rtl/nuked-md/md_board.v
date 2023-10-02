@@ -88,6 +88,7 @@ module md_board
 `endif
 	
 	// video
+	input DAC_type,
 	output [7:0] V_R, V_G, V_B,
 	output V_HS, V_VS, V_CS,
 	
@@ -321,6 +322,7 @@ module md_board
 		.AD_i(AD),
 		.AD_o(ym_AD_o),
 		.AD_d(ym_AD_d),
+		.DAC_type(DAC_type),
 		.DAC_R(DAC_R),
 		.DAC_G(DAC_G),
 		.DAC_B(DAC_B),

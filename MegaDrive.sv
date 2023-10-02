@@ -240,6 +240,7 @@ localparam CONF_STR = {
 	"P1-;",
 	"P1O[30],320x224 Aspect,Original,Corrected;",
 	"P1O[29],Border,No,Yes;",
+	"P1O[64],RGB DAC,Non-Linear,Linear;",
 	"P1O[46],Composite Blend,Off,On;",
 	"P1O[10],CRAM Dots,Off,On;",
 	"P1-;",
@@ -518,6 +519,7 @@ end
 
 wire        PAL = status[7];
 wire        JAP = !status[7:6];
+wire   DAC_type = status[64];
 
 wire [15:0] cart_data;
 wire [23:1] cart_addr;
@@ -619,6 +621,7 @@ md_board md_board
 	.jap(JAP),
 
 	// video
+	.DAC_type(DAC_type),
 	.V_R(r),
 	.V_G(g),
 	.V_B(b),
