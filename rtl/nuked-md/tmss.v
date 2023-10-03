@@ -69,17 +69,6 @@ module tmss
 	wire w39;
 	wire [15:0] l2;
 	wire [15:0] w20;
-	wire w50;
-	wire w51;
-	wire w53;
-	wire w54;
-	wire w55;
-	wire w56;
-	wire w52;
-	wire w57;
-	wire w58;
-	wire w59;
-	wire w62;
 	
 	ym_sdffr dff1(.MCLK(MCLK), .clk(w40), .val(w3), .reset(SRES), .q(dff1_q));
 	ym_sdffs dff2(.MCLK(MCLK), .clk(w10), .val(dff1_q), .set(SRES), .nq(dff2_nq));
@@ -117,23 +106,10 @@ module tmss
 	
 	assign data_out_en = tmss_enable ? (w41 & w28) | test_4 : 1'h1;
 	
-	assign w50 = test[2:0] != 3'h0;
-	assign w51 = test[2:0] != 3'h1;
-	assign w53 = test[2:0] != 3'h2;
-	assign w54 = test[2:0] != 3'h3;
-	assign w55 = test[2:0] != 3'h4;
-	assign w56 = test[2:0] != 3'h7;
-	
-	assign w52 = w50 ^ w56;
-	assign w57 = w51 ^ w56;
-	assign w58 = w53 ^ w56;
-	assign w59 = w54 ^ w56;
-	assign w62 = w56 ^ w55;
-	
-	assign test_0 = ~w52;
-	assign test_1 = ~w57;
-	assign test_2 = ~w58;
-	assign test_3 = ~w59;
-	assign test_4 = ~w62;
+	assign test_0 = ~((test != 3'h0) ^ (test != 3'h7));
+	assign test_1 = ~((test != 3'h1) ^ (test != 3'h7));
+	assign test_2 = ~((test != 3'h2) ^ (test != 3'h7));
+	assign test_3 = ~((test != 3'h3) ^ (test != 3'h7));
+	assign test_4 = ~((test != 3'h7) ^ (test != 3'h4));
 
 endmodule
