@@ -12,7 +12,7 @@ module XE1AP
    input  [15:0] joystick_r_analog_0,
 
    input  req,					// signal requesting response from XE-1AP (on return to high)
-									// pin 8 on original 9-pin connector 
+									// pin 8 on original 9-pin connector
 
    output reg trg1,			// pin 6 on original 9-pin connector
    output reg trg2,			// pin 7 on original 9-pin connector
@@ -48,7 +48,7 @@ module XE1AP
 //
 
   // registers
- 
+
   reg [6:0]  clks_per_usec   = CLKPERUSEC[6:0];
 
   reg [6:0]  clk_counter     = 0;
@@ -59,7 +59,7 @@ module XE1AP
   reg        active          = 1'b0;
   reg        req_ff          = 1'b1;
   reg        req_fff         = 1'b1;
-  
+
   reg [2:0]  cycle_count     = 3'b0;	// 0   = wait before pulse train
 													// 1-6 = normal pulse cycles
 													// 7   = cycle train completed
@@ -69,7 +69,7 @@ module XE1AP
 
     req_ff <= req;
     req_fff <= req_ff;
-    
+
     if (reset == 1'b1) begin
       active       <= 1'b0;
       trg1         <= 1'b0;
