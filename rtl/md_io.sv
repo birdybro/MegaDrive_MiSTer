@@ -25,6 +25,7 @@ module md_io
 	input        MODE,
 	input        SMS,
 	input  [1:0] MULTITAP,
+	input        XE_1AP,
 
 	input        P1_UP,
 	input        P1_DOWN,

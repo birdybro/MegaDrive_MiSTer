@@ -221,7 +221,7 @@ localparam CONF_STR = {
 	"O[9:8],Auto Region,Header,File Ext,Disabled;",
 	"D2O[28:27],Priority,US>EU>JP,EU>US>JP,US>JP>EU,JP>US>EU;",
 	"d7O[12],TMSS,Disabled,Enabled;",
-	
+
 	"-;",
 	"C,Cheats;",
 	"H1O[24],Cheats Enabled,Yes,No;",
@@ -253,6 +253,7 @@ localparam CONF_STR = {
 	"P2O[4],Swap Joysticks,No,Yes;",
 	"P2O[5],6 Buttons Mode,No,Yes;",
 	"P2O[39:37],Multitap,Disabled,4-Way,TeamPlayer: Port1,TeamPlayer: Port2,J-Cart;",
+	"P2O[64],XE-1AP,Off,On;",
 	"P2-;",
 	"P2O[19:18],Mouse,None,Port1,Port2;",
 	"P2O[20],Mouse Flip Y,No,Yes;",
@@ -354,7 +355,7 @@ assign CLK_VIDEO = clk_107m;
 wire[127:0] status;
 wire  [1:0] buttons;
 wire [11:0] joystick_0,joystick_1,joystick_2,joystick_3,joystick_4;
-wire  [7:0] joy0_x,joy0_y,joy1_x,joy1_y;
+wire  [7:0] joyl0_x,joyl0_y,joyr0_x,joyr0_y,joyl1_x,joyl1_y;
 wire        ioctl_download;
 wire        ioctl_wr;
 wire [24:0] ioctl_addr;
@@ -391,8 +392,9 @@ hps_io #(.CONF_STR(CONF_STR), .WIDE(1)) hps_io
 	.joystick_2(joystick_2),
 	.joystick_3(joystick_3),
 	.joystick_4(joystick_4),
-	.joystick_l_analog_0({joy0_y, joy0_x}),
-	.joystick_l_analog_1({joy1_y, joy1_x}),
+	.joystick_l_analog_0({joyl0_y, joyl0_x}),
+	.joystick_r_analog_0({joyr0_y, joyr0_x}),
+	.joystick_l_analog_1({joyl1_y, joyl1_x}),
 
 	.buttons(buttons),
 	.forced_scandoubler(forced_scandoubler),
@@ -984,6 +986,8 @@ end
 wire [11:0] joy0 = status[4] ? joystick_1[11:0] : joystick_0[11:0];
 wire [11:0] joy1 = status[4] ? joystick_0[11:0] : joystick_1[11:0];
 
+wire xe_1ap = status[64];
+
 wire [6:0] md_io_port1, md_io_port2;
 
 wire [15:0] jcart_data;
@@ -997,6 +1001,7 @@ md_io md_io
 	.MODE(status[5]),
 	.SMS(cart_ms),
 	.MULTITAP(cart_ms ? {|status[39:37], 1'b0} : status[38:37]),
+	.XE_1AP(xe_1ap),
 
 	.P1_UP(joy0[3]),
 	.P1_DOWN(joy0[2]),
