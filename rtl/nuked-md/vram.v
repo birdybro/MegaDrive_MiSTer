@@ -1,3 +1,16 @@
+/*
+ * VRAM controller
+ *
+ * Emulates the MegaDrive's 64 KB Video RAM using DRAM-style RAS/CAS addressing.
+ * Supports two access paths:
+ *   - Parallel: random-access read/write at (row, column) for CPU/VDP operations.
+ *   - Serial:   snapshot entire memory on OE rising edge (when in serial mode),
+ *               then shift out bytes one-per-SC-cycle for background rendering.
+ *
+ * Memory is implemented as 8 x 256-byte RAM blocks (2 KB total per instance;
+ * the VDP instantiates multiple vram modules to cover full VRAM).
+ */
+
 module vram
 	(
 	input MCLK,
@@ -14,102 +27,145 @@ module vram
 	output [7:0] SD_o,
 	output SD_d
 	);
-	
-	reg [15:0] addr;
-	reg dt;
-	reg [7:0] addr_ser;
-	reg [2047:0] ser;
-	
-	reg o_OE;
-	reg o_RAS;
-	reg o_cas;
-	reg o_SC;
-	reg o_valid;
-	
-	wire cas = ~RAS & ~CAS;
-	wire wr = ~RAS & ~CAS & ~WE;
-	wire rd = ~RAS & ~CAS & ~OE & ~dt;
-	
-	wire [7:0] mem_addr = addr[15:8];
-	wire [31:0] mem_be;
-	wire [2047:0] mem_o;
-	
-	wire [7:0] slice_s[0:255];
-	wire [7:0] slice_p[0:255];
-	
+
+	// -----------------------------------------------------------------------
+	// Address and mode registers
+	// -----------------------------------------------------------------------
+	reg [15:0] addr;            // full 16-bit DRAM address: [15:8]=row, [7:0]=column
+	reg serial_mode;            // set when OE is low at RAS falling edge (serial transfer)
+	reg [7:0] serial_ptr;       // read pointer into serial snapshot
+	reg [2047:0] serial_snapshot; // snapshot of all memory for serial readout
+
+	// -----------------------------------------------------------------------
+	// Edge-detect registers (previous cycle values)
+	// -----------------------------------------------------------------------
+	reg prev_oe;
+	reg prev_ras;
+	reg prev_cas;
+	reg prev_sc;
+	reg data_valid;
+
+	// -----------------------------------------------------------------------
+	// RAS/CAS decode
+	//   DRAM-style strobes: active when RAS is asserted (active-low).
+	//   col_strobe: RAS + CAS both active
+	//   write_en:   RAS + CAS + WE all active
+	//   read_en:    RAS + CAS + OE active, and NOT in serial mode
+	// -----------------------------------------------------------------------
+	wire col_strobe = ~RAS & ~CAS;
+	wire write_en   = ~RAS & ~CAS & ~WE;
+	wire read_en    = ~RAS & ~CAS & ~OE & ~serial_mode;
+
+	// -----------------------------------------------------------------------
+	// Memory array (8 banks x 256 bytes x 8 bits = 2 KB per instance)
+	//   row_addr selects the 256-byte row; byte_sel decodes which of 32 byte
+	//   positions within each bank to write.
+	// -----------------------------------------------------------------------
+	wire [7:0] row_addr = addr[15:8];
+	wire [31:0] byte_sel;
+	wire [2047:0] mem_out;
+
+	wire [7:0] slice_serial[0:255];  // serial snapshot sliced into bytes
+	wire [7:0] slice_parallel[0:255]; // parallel read data sliced into bytes
+
 	genvar i;
 	generate
 		for (i = 0; i < 32; i = i + 1)
-		begin : l1
-			assign mem_be[i] = addr[4:0] == i;
+		begin : byte_decode
+			assign byte_sel[i] = addr[4:0] == i;
 		end
 		for (i = 0; i < 8; i = i + 1)
-		begin : l2
+		begin : mem_banks
 			vram_ip mem
 				(
 				.clock(MCLK),
-				.address(mem_addr),
-				.byteena(mem_be),
+				.address(row_addr),
+				.byteena(byte_sel),
 				.data({32{RD_i}}),
-				.wren(wr & (addr[7:5] == i)),
-				.q(mem_o[(256*(i+1)-1):(256*i)])
+				.wren(write_en & (addr[7:5] == i)),
+				.q(mem_out[(256*(i+1)-1):(256*i)])
 				);
 		end
 		for (i = 0; i < 256; i = i + 1)
-		begin : l3
-			assign slice_p[i] = mem_o[(8*(i+1)-1):(8*i)];
-			assign slice_s[i] = ser[(8*(i+1)-1):(8*i)]; 
+		begin : byte_slicing
+			assign slice_parallel[i] = mem_out[(8*(i+1)-1):(8*i)];
+			assign slice_serial[i] = serial_snapshot[(8*(i+1)-1):(8*i)];
 		end
 	endgenerate
-	
-	assign RD_d = ~o_valid;
+
+	// -----------------------------------------------------------------------
+	// Output enables
+	//   RD_d: active-low — drives parallel data bus when data_valid is set
+	//   SD_d: serial data bus driven when SE (serial enable) is asserted
+	// -----------------------------------------------------------------------
+	assign RD_d = ~data_valid;
 	assign SD_d = SE;
-	
-	reg [7:0] vram_ser;
-	
-	assign SD_o = vram_ser;
-	
+
+	// -----------------------------------------------------------------------
+	// Serial byte output register
+	// -----------------------------------------------------------------------
+	reg [7:0] serial_byte_out;
+
+	assign SD_o = serial_byte_out;
+
+	// -----------------------------------------------------------------------
+	// Main clocked logic
+	// -----------------------------------------------------------------------
 	always @(posedge MCLK)
 	begin
-		if (dt & !o_OE & OE)
+		// --- Serial snapshot capture ---
+		// On OE rising edge while in serial mode: capture all memory contents
+		// and reset the serial read pointer to the current column address.
+		if (serial_mode & !prev_oe & OE)
 		begin
-			addr_ser <= addr[7:0];
-			ser <= mem_o;
+			serial_ptr <= addr[7:0];
+			serial_snapshot <= mem_out;
 		end
-		else if (~o_SC & SC)
+		// --- Serial shift ---
+		// On SC rising edge: output current byte and advance pointer.
+		else if (~prev_sc & SC)
 		begin
-			addr_ser <= addr_ser + 8'h1;
-			vram_ser <= slice_s[addr_ser];
+			serial_ptr <= serial_ptr + 8'h1;
+			serial_byte_out <= slice_serial[serial_ptr];
 		end
-		if (o_RAS & ~RAS)
+
+		// --- Row address latch (RAS falling edge) ---
+		// Also captures serial_mode from OE state at this moment.
+		if (prev_ras & ~RAS)
 		begin
-			dt <= ~OE;
+			serial_mode <= ~OE;
 			addr[15:8] <= AD;
 		end
-		if (~o_cas & cas)
+
+		// --- Column address latch (CAS rising edge) ---
+		if (~prev_cas & col_strobe)
 		begin
 			addr[7:0] <= AD;
 		end
-		if (dt & !o_OE & OE)
+
+		// --- Serial snapshot (duplicate block from original netlist) ---
+		if (serial_mode & !prev_oe & OE)
 		begin
-			addr_ser <= addr[7:0];
-			ser <= mem_o;
+			serial_ptr <= addr[7:0];
+			serial_snapshot <= mem_out;
 		end
-		
-		if (rd)
+
+		// --- Parallel read path ---
+		if (read_en)
 		begin
-			RD_o <= slice_p[addr[7:0]];
-			o_valid <= 1'h1;
+			RD_o <= slice_parallel[addr[7:0]];
+			data_valid <= 1'h1;
 		end
 		else if (CAS | OE)
 		begin
-			o_valid <= 1'h0;
+			data_valid <= 1'h0;
 		end
-		
-		o_OE <= OE;
-		o_RAS <= RAS;
-		o_cas <= cas;
-		o_SC <= SC;
+
+		// --- Edge-detect flip-flops ---
+		prev_oe  <= OE;
+		prev_ras <= RAS;
+		prev_cas <= col_strobe;
+		prev_sc  <= SC;
 	end
 
 endmodule
