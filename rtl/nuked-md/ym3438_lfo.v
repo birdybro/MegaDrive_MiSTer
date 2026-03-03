@@ -1,3 +1,6 @@
+// Low-Frequency Oscillator — generates amplitude modulation (6-bit triangle
+// wave) and pitch modulation (signed frequency offset scaled by PMS
+// sensitivity).
 module ym3438_lfo
 	(
 	input MCLK,
@@ -13,6 +16,8 @@ module ym3438_lfo
 	output [11:0] fnum_lfo
 	);
 	
+	// LFO prescaler — 7-bit sub-counter with rate-dependent overflow
+	// (8 LFO rates via bit pattern matching)
 	wire [6:0] lfo_subcnt_sr_in;
 	wire [6:0] lfo_subcnt_sr_out;
 	
@@ -41,7 +46,7 @@ module ym3438_lfo
 		
 	generate
 		for (i = 0; i < 8; i=i+1)
-		begin : l1
+		begin : lfo_rate_decode
 			assign lfo_sel[i] = lfo[2:0] == i;
 		end
 	endgenerate
@@ -63,6 +68,8 @@ module ym3438_lfo
 	
 	assign lfo_subcnt_of = lfo_of_check != 8'h00;
 	
+	// LFO counter — 7-bit main counter incremented on prescaler overflow,
+	// latched at slot boundary
 	wire [6:0] lfo_cnt_sr_in;
 	wire [6:0] lfo_cnt_sr_out;
 	
@@ -111,6 +118,8 @@ module ym3438_lfo
 		.nval()
 		);
 	
+	// Amplitude modulation output — XOR fold of counter bits produces
+	// triangle wave
 	assign lfo_am = ~(lfo_cnt_lock[5:0] ^ {6{lfo_cnt_lock[6]}});
 	
 	wire lfo_pm_sign_l_o;
@@ -124,17 +133,21 @@ module ym3438_lfo
 		.nval()
 		);
 	
+	// Pitch modulation value decode — counter bits [4:2] XOR-folded by
+	// bit [5], decoded to 1-of-8
 	wire [2:0] lfo_pm_val = lfo_cnt_lock[4:2] ^ {3{lfo_cnt_lock[5]}};
 	
 	wire [7:0] lfo_pm_val_sel;
 		
 	generate
 		for (i = 0; i < 8; i=i+1)
-		begin : l2
+		begin : pm_val_decode
 			assign lfo_pm_val_sel[i] = lfo_pm_val == i;
 		end
 	endgenerate
 	
+	// PM sensitivity gating — PMS[2:0] selects which PM values produce
+	// shift amounts
 	wire lfo_pms_1 = pms == 3'h1;
 	wire lfo_pms_2 = pms == 3'h2;
 	wire lfo_pms_3 = pms == 3'h3;
@@ -192,6 +205,8 @@ module ym3438_lfo
 		.nval(lfo_pms_7_l_o)
 		);
 		
+	// PM shift and sign — two-addend shifted fnum lookup,
+	// PMS-dependent final shift, sign inversion
 	wire [6:0] lfo_pm_add_1_i =
 		~((fnum[10:4] & {7{lfo_pm_sel_sh1_0}}) | ({1'h0, fnum[10:5] } & {7{lfo_pm_sel_sh1_1}}));
 	wire [6:0] lfo_pm_add_2_i =
@@ -259,6 +274,7 @@ module ym3438_lfo
 		.nval()
 		);
 	
+	// Frequency modulation sum — adds PM offset to fnum with sign extension
 	wire [10:0] fnum_sr_o;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(11)) fnum_sr

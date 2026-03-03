@@ -1,3 +1,5 @@
+// Clock prescaler — divides PHI into c1/c2 internal clock enables,
+// synchronizes IC reset.
 module ym3438_prescaler(
 	input MCLK,
 	input PHI,
@@ -7,11 +9,13 @@ module ym3438_prescaler(
 	);
 	
 	
+	// IC synchronization — 12-stage SR detects IC assertion,
+	// 4-stage SR generates FSM reset pulse
 	wire nIC = ~IC;
-	
+
 	wire pc1 = ~PHI;
 	wire pc2 = PHI;
-	
+
 	wire ic_latch_out;
 	
 	ym_sr_bit #(.SR_LENGTH(12)) ic_latch(
@@ -36,14 +40,16 @@ module ym3438_prescaler(
 	
 	assign reset_fsm = fsm_res_latch_out;
 	
+	// Clock divider — 6-stage shift register ring counter produces
+	// c1 and c2 enables from PHI
 	wire [5:0] clkgen_sr_in;
 	wire [5:0] clkgen_sr_out;
 
 	genvar i;
-	
+
 	generate
 		for (i = 0; i < 6; i=i+1)
-		begin : l1
+		begin : clk_stages
 	
 			ym_sr_bit clkgen_sr(
 				.MCLK(MCLK),

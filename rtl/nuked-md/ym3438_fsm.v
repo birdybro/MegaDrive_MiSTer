@@ -1,3 +1,6 @@
+// Timing FSM and algorithm routing matrix — generates 24 time-slot
+// selectors and operator/channel routing signals based on the FM
+// algorithm (connect) value.
 module ym3438_fsm
 	(
 	input MCLK,
@@ -24,6 +27,8 @@ module ym3438_fsm
 	output fsm_dac_ch6
 	);
 	
+	// 5-bit slot counter — 2-bit low + 3-bit high counter,
+	// resets every 3 cycles (low), producing 24 slots
 	wire [1:0] cnt_low_out;
 	wire [2:0] cnt_high_out;
 	
@@ -55,15 +60,17 @@ module ym3438_fsm
 		
 	assign fsm_cnt = { cnt_high_out, cnt_low_out };
 	
+	// Slot decoder — decodes 24 slots into operator selectors (op1-op4),
+	// channel selectors, DAC timing
 	wire [23:0] fsm_sel;
-	
+
 	genvar i, j;
-		
+
 	generate
 		for (i = 0; i < 8; i=i+1)
-		begin : l1
+		begin : slot_rows
 			for (j = 0; j < 3; j=j+1)
-			begin : l2
+			begin : slot_cols
 				assign fsm_sel[i*3+j] = (cnt_high_out == i) & (cnt_low_out == j);
 			end
 		end
@@ -83,8 +90,9 @@ module ym3438_fsm
 	assign fsm_dac_ch6 = fsm_sel[4] | fsm_sel[5] | fsm_sel[6] | fsm_sel[7];
 	wire fsm_sel1 = fsm_sel[1];
 	
+	// Timer edge detect — generates timer update pulse at slot 2
 	wire fsm_timer_ed;
-	
+
 	ym_edge_detect ed
 		(
 		.MCLK(MCLK),
@@ -93,6 +101,7 @@ module ym3438_fsm
 		.outp(fsm_timer_ed)
 		);
 	
+	// Feedback select pipeline — 1-cycle delayed op2 select for feedback routing
 	wire alg_fb_sel_sr_out;
 	wire alg_fb_sel = ~alg_fb_sel_sr_out;
 		
@@ -105,11 +114,13 @@ module ym3438_fsm
 		.sr_out(alg_fb_sel_sr_out)
 		);
 
+	// Algorithm routing matrix — combinational logic mapping connect[2:0]
+	// to operator interconnect signals
 	wire [7:0] alg_sel;
-	
+
 	generate
 		for (i = 0; i < 8; i=i+1)
-		begin : l3
+		begin : alg_decode
 			assign alg_sel[i] = connect == i;
 		end
 	endgenerate

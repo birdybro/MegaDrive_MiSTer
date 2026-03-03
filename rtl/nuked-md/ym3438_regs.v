@@ -1,3 +1,6 @@
+// Register controller — handles FM register writes, key-on/off events,
+// and timer A/B with CSM mode. Contains helper sub-modules for operator
+// and channel register storage.
 module ym3438_reg_ctrl
 	(
 	input MCLK,
@@ -49,6 +52,8 @@ module ym3438_reg_ctrl
 	output [2:0] dac_index
 	);
 	
+	// Address/data write pipeline — captures write_addr_en/write_data_en
+	// into latched address and data
 	wire fm_addr_write = (data[7:4] != 0) & write_addr_en;
 	
 	wire fm_addr_sr_o;
@@ -106,9 +111,11 @@ module ym3438_reg_ctrl
 		.data_out(fm_data_out)
 		);
 	
+	// Register counter — 5-bit counter cycling through 24 operator slots,
+	// decoded into write enables
 	wire [1:0] cnt_low_out;
 	wire [2:0] cnt_high_out;
-	
+
 	wire [4:0] reg_cnt = { cnt_high_out, cnt_low_out };
 	
 	wire cnt_reset = nIC | fsm_sel_23;
@@ -160,6 +167,8 @@ module ym3438_reg_ctrl
 	wire op_write80 = op_write & (fm_address_out[7:4] == 4'h8);
 	wire op_write90 = op_write & (fm_address_out[7:4] == 4'h9);
 	
+	// Operator parameter registers — MULTI, DT, TL, KS, AR, AM_ON, DR, SR,
+	// RR, SL, SSG-EG
 	wire [3:0] reg_multi_o;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(4), .SR_LENGTH(2)) reg_multi_sr
@@ -336,6 +345,8 @@ module ym3438_reg_ctrl
 	assign ssg_type2 = ssgeg[1:0] == 2'h2;
 	assign ssg_type3 = ssgeg[1:0] == 2'h3;
 		
+	// Channel parameter registers — FNUM, BLOCK, FB, CONNECT, PMS, AMS,
+	// PAN L/R
 	wire [5:0] reg_a4_in;
 	wire [5:0] reg_a4_out;
 	
@@ -523,6 +534,8 @@ module ym3438_reg_ctrl
 	
 	// EXTRA end
 		
+	// Mode and test registers — REG_21 (test/LFO), REG_2C (DAC/debug),
+	// CH3 mode, timer mode
 	wire reg_21_wr;
 	
 	ym3438_reg_wr_ctrl #(.REG_ADDRESS(8'h21)) reg_21_ctrl
@@ -833,6 +846,8 @@ module ym3438_reg_ctrl
 		.data_o(reg_2c)
 		);
 	
+	// Key-on/off pipeline — complex multi-stage pipeline for KON event
+	// detection and propagation
 	wire kon_sr1_in;
 	wire kon_sr1_out;
 	
@@ -894,6 +909,7 @@ module ym3438_reg_ctrl
 	
 	wire mode_ch3 = reg_27_mode_o != 2'b00;
 	
+	// Timer A — 10-bit timer with CSM mode support
 	wire timer_test = reg_21[2];
 	
 	wire timer_a_inc;
@@ -976,6 +992,7 @@ module ym3438_reg_ctrl
 		);
 
 	
+	// Timer B — 8-bit timer with prescaler
 	wire timer_b_inc;
 	wire timer_b_load;
 	wire timer_b_load_cnt;
@@ -1090,6 +1107,7 @@ module ym3438_reg_ctrl
 		
 	assign kon_csm = kon_csm_o & ch3_sel;
 	
+	// Fnum/block selection mux — normal vs CH3 special mode frequency selection
 	wire [10:0] fnum_mux;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(11)) fnum_sr
@@ -1135,6 +1153,8 @@ module ym3438_reg_ctrl
 	
 endmodule
 
+// Parametric shift-register storage for per-operator values.
+// Two 12-stage banks (one per address bank), selected by obank.
 module ym3438_op_register #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -1180,6 +1200,8 @@ module ym3438_op_register #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Parametric shift-register storage for per-channel values.
+// 6-stage ring with write at position 0, outputs at all 6 taps.
 module ym3438_ch_register #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -1263,6 +1285,8 @@ module ym3438_ch_register #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Write-enable gating for operator registers — matches address bus
+// against REG_ADDRESS parameter, produces single-cycle write pulse.
 module ym3438_reg_wr_ctrl #(parameter REG_ADDRESS = 0)
 	(
 	input MCLK,
@@ -1294,6 +1318,8 @@ module ym3438_reg_wr_ctrl #(parameter REG_ADDRESS = 0)
 
 endmodule
 
+// Data capture latch for register writes — stores value on reg_wr pulse,
+// holds until next write or reset.
 module ym3438_reg_data #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,

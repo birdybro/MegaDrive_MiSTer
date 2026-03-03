@@ -1,3 +1,5 @@
+// Detune calculator — computes signed frequency offset from DT[2:0]
+// and key code using a lookup table.
 module ym3438_detune
 	(
 	input MCLK,
@@ -10,6 +12,8 @@ module ym3438_detune
 	output [4:0] dt_value
 	);
 	
+	// Detune sign pipeline — DT bit 2 is the sign;
+	// two pipeline stages for timing alignment
 	wire [2:0] dt_sr_o;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(3)) dt_sr
@@ -32,6 +36,8 @@ module ym3438_detune
 		.sr_out(dt_sign_2)
 		);
 	
+	// Detune index computation — combines DT magnitude with key code
+	// upper bits to select shift amount
 	wire dt_1_2_3 = dt_sr_o[0] | dt_sr_o[1];
 	wire dt_3 = dt_sr_o[0] & dt_sr_o[1];
 	
@@ -45,12 +51,14 @@ module ym3438_detune
 	wire dt_shift_8 = dt_sum[6:3] == 4'h8 & dt_1_2_3;
 	wire dt_shift_9 = dt_sum[6:3] == 4'h9 & dt_1_2_3;
 	
+	// Detune value lookup — barrel shifter producing 5-bit detune
+	// offset from index and shift select
 	wire [7:0] dt_index;
-	
+
 	genvar i;
 	generate
 		for (i = 0; i < 8; i = i + 1)
-		begin : l1
+		begin : dt_decode
 			assign dt_index[i] = dt_sum[2:0] == i;
 		end
 	endgenerate

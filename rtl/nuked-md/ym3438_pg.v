@@ -1,3 +1,5 @@
+// Phase Generator — computes instantaneous phase from frequency number,
+// block (octave), detune, and multiplier. Outputs 10-bit phase to operator.
 module ym3438_pg
 	(
 	input MCLK,
@@ -16,6 +18,7 @@ module ym3438_pg
 	output pg_dbg_o
 	);
 	
+	// Block-based frequency scaler — shifts fnum by block value (0-7 octaves)
 	wire [2:0] block_sr_o;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(3)) block_sr
@@ -66,6 +69,7 @@ module ym3438_pg
 		.nval(freq_l_o)
 		);
 	
+	// Detune adder — adds/subtracts detune offset based on dt_sign
 	wire [4:0] dt_value_sr_o;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(5)) dt_value_sr
@@ -92,13 +96,15 @@ module ym3438_pg
 		.nval()
 		);
 	
+	// Multiplier lookup — 16 multiplier values (x0.5, x1..x15) encoded
+	// as shift-and-add
 	wire [15:0] multi_sel;
-	
+
 	genvar i;
-	
+
 	generate
 		for (i = 0; i < 16; i = i + 1)
-		begin : l1
+		begin : multi_decode
 			assign multi_sel[i] = multi == i;
 		end
 	endgenerate
@@ -249,6 +255,8 @@ module ym3438_pg
 		.nval(multi_c_in)
 		);
 	
+	// Frequency accumulator — 20-bit phase accumulator with reset,
+	// pipelined through SR
 	wire [19:0] freq_multi_sum = freq_multi_add1_l_o + { freq_multi_add2_l_o, 2'h0 } + multi_c_in;
 	wire [19:0] freq_multi_sum_sr_o;
 	
@@ -378,6 +386,7 @@ module ym3438_pg
 		.data_out(o_phase)
 		);
 	
+	// Phase output — upper 10 bits of accumulator, plus debug readout
 	assign pg_out = pg_values_o[19:10];
 	
 	ym_dbg_read #(.DATA_WIDTH(10)) dbg_read

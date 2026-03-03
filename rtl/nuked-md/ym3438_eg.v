@@ -1,3 +1,6 @@
+// Envelope Generator — implements ADSR envelope with SSG-EG extensions.
+// Uses rate-dependent increment logic and a 10-bit envelope level with
+// logarithmic attack curve.
 module ym3438_eg
 	(
 	input MCLK,
@@ -34,8 +37,9 @@ module ym3438_eg
 	output eg_dbg
 	);
 	
+	// FSM timing synchronization — pipelines FSM selectors for EG timing alignment
 	wire nIC = ~IC;
-	
+
 	wire fsm_sel1;
 	
 	ym_sr_bit fsm_sel1_sr
@@ -58,6 +62,7 @@ module ym3438_eg
 		.sr_out(fsm_sel12)
 		);
 	
+	// Sub-counter — 2-bit counter determining increment magnitude per EG cycle
 	wire subcnt_rst;
 	wire [1:0] subcnt_o;
 	
@@ -96,8 +101,9 @@ module ym3438_eg
 		.sr_out(subcnt_of_sr_o)
 		);
 	
+	// Timer shift register — 12-stage SR for EG update timing
 	wire timer_bit;
-	
+
 	wire mask_bit_sr_o;
 	
 	wire mask_bit = ~(fsm_sel0 | fsm_sel12 | nIC) & (mask_bit_sr_o | timer_bit);
@@ -165,7 +171,7 @@ module ym3438_eg
 	genvar i;
 	generate
 		for (i = 11; i >= 0; i = i - 1)
-		begin : l1
+		begin : timer_bits
 			
 			if (i == 11)
 				assign timer_shift_i[i] = timer_bit_masked;
@@ -183,6 +189,7 @@ module ym3438_eg
 		end
 	endgenerate
 	
+	// Envelope counter and shift — selects which timer bit to use based on rate
 	wire eg_cnt_ed_o;
 	
 	ym_edge_detect eg_cnt_ed
@@ -226,6 +233,8 @@ module ym3438_eg
 		.nval()
 		);
 	
+	// Rate computation — combines ADSR rate with key scaling,
+	// generates inc1-4 conditions
 	wire rate_nz_sr_o;
 	
 	ym_sr_bit rate_nz_sr
@@ -379,6 +388,8 @@ module ym3438_eg
 		.nval(rate_hi_sel_l_o)
 		);
 	
+	// Envelope level increment — calculates level step (linear for
+	// decay/sustain/release, exponential for attack)
 	wire inc1 = subcnt_of_l_o & (step_low_l_o | (~rate_hi_sel_l_o & rate_12_l_o));
 	wire inc2 = subcnt_of_l_o & (rate_hi_sel_l_o ? rate_12_l_o : rate_13_l_o);
 	wire inc3 = subcnt_of_l_o & (rate_hi_sel_l_o ? rate_13_l_o : rate_14_l_o);
@@ -436,6 +447,8 @@ module ym3438_eg
 		.sr_out(test_inc)
 		);
 	
+	// ADSR state machine — Attack->Decay->Sustain->Release transitions,
+	// SSG-EG handling, key-on/off
 	wire [4:0] sl_sr_o;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(5), .SR_LENGTH(2)) sl_sr
@@ -794,6 +807,8 @@ module ym3438_eg
 		.data_out(eg_level_out_sr2_o)
 		);
 	
+	// Envelope level output — adds total level (TL), AM modulation,
+	// clamps to 10-bit output
 	wire [9:0] eg_level_out_test = lsi_21[5] ? 10'h0 : eg_level_out;
 	
 	wire [6:0] eg_lfo_mux;
@@ -903,6 +918,7 @@ module ym3438_eg
 		.nval(eg_out)
 		);
 	
+	// Debug readout — test register output
 	ym_dbg_read_eg #(.DATA_WIDTH(10)) dbg_read
 		(
 		.MCLK(MCLK),

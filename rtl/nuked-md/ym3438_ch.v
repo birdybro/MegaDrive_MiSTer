@@ -1,3 +1,6 @@
+// Channel accumulator — sums operator outputs for each channel with
+// overflow/underflow clamping, provides DAC output mux for CH6 direct
+// digital audio.
 module ym3438_ch
 	(
 	input MCLK,
@@ -18,6 +21,8 @@ module ym3438_ch
 	output dac_out_enable_2612
 	);
 	
+	// Operator accumulator — 6-stage SR pipeline accumulates operator
+	// values with saturation
 	wire dac_test = reg_2c[5];
 	
 	wire op_out_2 = op_out & ~dac_test;
@@ -50,6 +55,8 @@ module ym3438_ch
 	assign ch_accm_sr_i[7:0] = ~((ch_accm_sum[7:0] & {8{~ch_accm_uf}}) | {8{ch_accm_of}});
 	assign ch_accm_sr_i[8] = ~((ch_accm_sum[8] & ~ch_accm_of) | ch_accm_uf);
 	
+	// Channel value pipeline — 5+1 stage SR captures accumulated value,
+	// edge-detected load, output latch
 	wire [8:0] ch_value_sr_i;
 	wire [8:0] ch_value_sr_o1;
 	wire [8:0] ch_value_sr_o2;
@@ -105,6 +112,8 @@ module ym3438_ch
 	
 	assign ch_dbg = ch_value_lock_o;
 	
+	// DAC output mux — selects between channel accumulator and direct
+	// DAC data for CH6
 	wire [8:0] ch_dac_value = { ~dac[7], dac[6:0], reg_2c[3] };
 	
 	wire [8:0] ch_out_i = dac_sel ? ch_value_lock_o : ch_dac_value;

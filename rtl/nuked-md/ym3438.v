@@ -23,6 +23,9 @@
  * version: 1.0
  */
 
+// YM3438 (OPN2) top-level — instantiates all sub-modules and wires the
+// FM synthesis pipeline: prescaler -> FSM -> registers -> LFO/detune ->
+// PG -> EG -> OP -> CH -> DAC output.
 module ym3438(
 	input MCLK,
 	input PHI,
@@ -36,17 +39,15 @@ module ym3438(
 	input [1:0] ADDRESS,
 	output IRQ,
 	output [8:0] MOL, MOR,
-	//output d_c1,
-	//output d_c2,
 	output [9:0] MOL_2612, MOR_2612,
 	output fm_clk1,
 	output [2:0] DAC_ch_index,
-	input ym2612_status_enable
-	);
+	input ym2612_status_enable);
 	
+	// Clock generation
 	wire c1, c2;
 	wire reset_fsm;
-	
+
 	ym3438_prescaler prescaler(
 		.MCLK(MCLK),
 		.PHI(PHI),
@@ -56,6 +57,7 @@ module ym3438(
 		.reset_fsm(reset_fsm)
 		);
 		
+	// Timing FSM
 	wire fsm_sel0;
 	wire fsm_sel1;
 	wire fsm_sel2;
@@ -101,6 +103,7 @@ module ym3438(
 		.fsm_dac_ch6(fsm_dac_ch6)
 		);
 	
+	// I/O interface
 	wire [7:0] data_bus;
 	wire bank;
 	wire write_addr_en;
@@ -151,6 +154,7 @@ module ym3438(
 		.ym2612_status_enable(ym2612_status_enable)
 		);
 		
+	// Register control
 	wire [3:0] reg_lfo;
 	
 	wire [2:0] reg_pms;
@@ -243,9 +247,10 @@ module ym3438(
 		.dac_index(dac_index)
 		);
 	
+	// LFO
 	wire [11:0] fnum_lfo;
 	wire [5:0] lfo_am;
-		
+
 	ym3438_lfo lfo
 		(
 		.MCLK(MCLK),
@@ -261,6 +266,7 @@ module ym3438(
 		.lfo_am(lfo_am)
 		);
 	
+	// Detune
 	wire [4:0] kcode_sr1_o;
 	wire [4:0] kcode_sr2_o;
 	
@@ -298,10 +304,11 @@ module ym3438(
 		.dt_value(dt_value)
 		);
 	
+	// Phase generator
 	wire [9:0] pg_out;
-	
+
 	wire pg_reset;
-	
+
 	ym3438_pg pg
 		(
 		.MCLK(MCLK),
@@ -320,8 +327,9 @@ module ym3438(
 		.pg_dbg_o(pg_dbg)
 		);
 	
+	// Envelope generator
 	wire [9:0] eg_out;
-		
+
 	ym3438_eg eg
 		(
 		.MCLK(MCLK),
@@ -358,10 +366,11 @@ module ym3438(
 		.eg_dbg(eg_dbg)
 		);
 	
+	// Operator
 	wire [13:0] op_output;
-	
+
 	assign op_dbg = op_output;
-	
+
 	ym3438_op op
 		(
 		.MCLK(MCLK),
@@ -382,10 +391,11 @@ module ym3438(
 		.op_output(op_output)
 		);
 
+	// Channel accumulator and DAC output
 	wire [8:0] ch_out;
 	wire dac_out_enable;
 	wire dac_out_enable_2612;
-	
+
 	ym3438_ch ch
 		(
 		.MCLK(MCLK),
@@ -412,14 +422,9 @@ module ym3438(
 	reg dac_out_enable_2612_l;
 	reg [2:0] dac_index_l;
 	
-	//assign MOR = ch_pan[0] ? ch_out : 9'h100;
-	//assign MOL = ch_pan[1] ? ch_out : 9'h100;
 	assign MOR = (ch_pan_l[0] & dac_out_enable_l) ? ch_out_l : 9'h100;
 	assign MOL = (ch_pan_l[1] & dac_out_enable_l) ? ch_out_l : 9'h100;
-	
-	//assign d_c1 = c1;
-	//assign d_c2 = c2;
-	
+
 	wire DAC_2612_sign = ~ch_out_l[8];
 	wire [9:0] DAC_2612_matrix_out = DAC_2612_sign ? { 2'h3, ch_out_l[7:0] } : ({ 2'h0, ch_out_l[7:0] } + 10'h1);
 	wire [9:0] DAC_2612_silent = DAC_2612_sign ? 10'h3ff : 10'h1;

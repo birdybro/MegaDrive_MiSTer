@@ -101,7 +101,9 @@ The `rtl/nuked-md/` files have been partially annotated with descriptive signal 
 - **`ym6045.v`** — Bus arbiter. Outputs use descriptive names (e.g., `VD8_OE_n`, `VA_MID_OE_n`). Section comments mark major functional blocks.
 - **`ym6046.v`** — I/O controller. Bus direction outputs use descriptive names (e.g., `ZA_OE`, `VD_LO_OE_n`). Section comments throughout.
 - **`ym3438_io.v`** — FM synth I/O. Section comments mark the sync pipeline, busy counter, status readback, and debug mux.
+- **`ym3438.v`** — FM synth top-level. Section comments mark each pipeline stage (prescaler through DAC output).
+- **`ym3438_prescaler.v`**, **`ym3438_fsm.v`**, **`ym3438_detune.v`**, **`ym3438_ch.v`**, **`ym3438_lfo.v`**, **`ym3438_pg.v`**, **`ym3438_op.v`**, **`ym3438_eg.v`**, **`ym3438_regs.v`** — FM synth sub-modules. Each has a module doc comment and section comments marking functional blocks. Generate labels use descriptive names (e.g., `clk_stages`, `slot_rows`, `multi_decode`, `timer_bits`).
 - **`tmss.v`**, **`vram.v`** — Annotated in Phase 1.
-- **`ym7101.v`**, **`ym3438.v`**, **`68k.v`**, **`z80.v`** — Still use original opaque signal names (e.g., `w12`, `l136`). These files are very large and have NOT been annotated yet.
+- **`ym7101.v`**, **`68k.v`**, **`z80.v`** — Still use original opaque signal names (e.g., `w12`, `l136`). These files are very large and have NOT been annotated yet.
 
 **When renaming signals across files:** Always rename the port in the module definition AND update all instantiation sites (especially in `fc1004.v` and `md_board.v`).

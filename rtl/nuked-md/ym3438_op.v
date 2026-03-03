@@ -1,3 +1,5 @@
+// Operator — core FM synthesis unit. Computes sine(phase + modulation)
+// x attenuation using hardcoded sine and power lookup tables.
 module ym3438_op
 	(
 	input MCLK,
@@ -18,6 +20,7 @@ module ym3438_op
 	output [13:0] op_output
 	);
 	
+	// Phase modulation summer — adds feedback/modulation to phase input
 	wire [9:0] mod_add;
 	
 	wire [9:0] phase_sum = mod_add + pg_phase;
@@ -33,6 +36,8 @@ module ym3438_op
 		.data_out(phase_sr_o)
 		);
 	
+	// Sine lookup table — quarter-wave sine table (256 entries packed as
+	// 46-bit words), 4-bit interpolation
 	wire [7:0] sin_index = phase_sr_o[7:0] ^ {8{phase_sr_o[8]}};
 	
 	wire [4:0] sin_lut_index = sin_index[5:1];
@@ -164,6 +169,8 @@ module ym3438_op
 		.data_out(eg_att_sr_o)
 		);
 
+	// Attenuation computation — combines sine table output with EG
+	// attenuation, clamps to 12-bit
 	wire [12:0] att_sum = sin_sum + { eg_att_sr_o, 2'h0 };
 	//wire [12:0] att_sum = sin_sum + 100;
 	
@@ -180,6 +187,8 @@ module ym3438_op
 	
 	wire [11:0] att_clamp = ~(att_sum_sr_o[12] ? 12'hfff : att_sum_sr_o[11:0]);
 	
+	// Power/exponential table — converts log-domain attenuation to linear
+	// via exp2 LUT, barrel shifter
 	wire [7:0] pow_index = att_clamp[7:0];
 	
 	wire [4:0] pow_lut_index = pow_index[5:1];
@@ -320,6 +329,8 @@ module ym3438_op
 		| ({13{sh_sel2[1]}} & pow_shift1[12:8] )
 		| ({13{sh_sel2[0]}} & pow_shift1[12:12] );
 	
+	// Operator output + feedback history — sign restoration, 6-cycle deep
+	// shift registers for FM algorithm feedback
 	wire [13:0] op_value1 = { reg_21[4], pow_shift2 };
 	
 	wire [13:0] op_value2 = (op_value1 ^ {14{sign_sr_o}}) + sign_sr_o;
@@ -410,7 +421,7 @@ module ym3438_op
 	genvar i;
 	generate
 		for (i = 1; i < 8; i = i + 1)
-		begin : l1
+		begin : fb_levels
 			assign fb_sel[i] = is_fb & (fb == i);
 		end
 	endgenerate
