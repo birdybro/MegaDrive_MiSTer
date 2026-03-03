@@ -210,6 +210,9 @@ module fc1004
 	output vdp_dma
 	);
 	
+	// -------------------------------------------------------------------
+	// Internal wire declarations — VDP (ym7101)
+	// -------------------------------------------------------------------
 	wire vdp_ys; // w1009
 	wire vdp_vsync;
 	wire vdp_hsync_pull; // ~l136
@@ -231,6 +234,9 @@ module fc1004
 	wire vdp_cas0;
 	wire [7:0] vdp_ra;
 	
+	// -------------------------------------------------------------------
+	// Internal wire declarations — FM synthesizer (ym3438)
+	// -------------------------------------------------------------------
 	wire fm_clk;
 	wire [7:0] fm_data_o;
 	wire fm_data_d;
@@ -239,6 +245,9 @@ module fc1004
 	wire fm_cs;
 	wire fm_irq;
 	
+	// -------------------------------------------------------------------
+	// Internal wire declarations — Bus arbiter (ym6045)
+	// -------------------------------------------------------------------
 	wire arb_oe0;
 	wire arb_vd8_o;
 	wire arb_za0_o;
@@ -260,35 +269,42 @@ module fc1004
 	wire arb_intak;
 	wire arb_edclk;
 	wire arb_vtoz;
-	wire arb_w12;
-	wire arb_w131;
-	wire arb_w142;
-	wire arb_w310;
-	wire arb_w353;
+	wire arb_vd8_oe_n;
+	wire arb_va_mid_oe_n;
+	wire arb_va_hi_oe_n;
+	wire arb_vsync_test;
+	wire arb_ys_test;
 	
+	// -------------------------------------------------------------------
+	// Internal wire declarations — I/O controller (ym6046)
+	// -------------------------------------------------------------------
 	wire ioc_io;
 	wire ioc_zv;
 	wire ioc_vz;
 	wire ioc_hl;
 	wire ioc_fres;
-	wire ioc_bc1;
-	wire ioc_bc2;
-	wire ioc_bc3;
-	wire ioc_bc4;
-	wire ioc_bc5;
+	wire ioc_za_oe;
+	wire ioc_vd_lo_oe_n;
+	wire ioc_vd_hi_oe_n;
+	wire ioc_zd_oe_n;
+	wire ioc_va_lo_oe_n;
 	wire [7:0] ioc_vdata;
 	wire ioc_reg_3e_q;
 	wire [7:0] ioc_zdata;
 	wire [6:0] ioc_ztov_address;
 	
+	// -------------------------------------------------------------------
+	// Internal wire declarations — TMSS
+	// -------------------------------------------------------------------
 	wire tmss_test_0;
 	wire tmss_test_1;
 	wire tmss_test_2;
 	wire tmss_test_3;
 	wire tmss_test_4;
 	
-	wire no_tmss_flag;
-	
+	// ===================================================================
+	// VDP — Video Display Processor (ym7101)
+	// ===================================================================
 	ym7101 vdp(
 		.MCLK(MCLK),
 		.MCLK_e(MCLK_e),
@@ -377,6 +393,9 @@ module fc1004
 		.vdp_dma(vdp_dma)
 		);
 	
+	// ===================================================================
+	// FM Synthesizer (ym3438)
+	// ===================================================================
 	ym3438 fm
 		(
 		.MCLK(MCLK),
@@ -408,7 +427,10 @@ module fc1004
 	assign LDS_d = arb_strobe_dir;
 	assign WAIT_pull = ~arb_wait_o;
 	assign SOUND_o = arb_sound;
-	
+
+	// ===================================================================
+	// Bus Arbiter (ym6045)
+	// ===================================================================
 	ym6045 arb
 		(
 		.MCLK(MCLK),
@@ -487,13 +509,16 @@ module fc1004
 		.INTAK(arb_intak),
 		.EDCLK(arb_edclk),
 		.vtoz(arb_vtoz),
-		.w12(arb_w12),
-		.w131(arb_w131),
-		.w142(arb_w142),
-		.w310(arb_w310),
-		.w353(arb_w353)
+		.VD8_OE_n(arb_vd8_oe_n),
+		.VA_MID_OE_n(arb_va_mid_oe_n),
+		.VA_HI_OE_n(arb_va_hi_oe_n),
+		.VSYNC_TEST(arb_vsync_test),
+		.YS_TEST(arb_ys_test)
 		);
 	
+	// ===================================================================
+	// I/O Controller (ym6046)
+	// ===================================================================
 	ym6046 ioc
 		(
 		.MCLK(MCLK),
@@ -525,11 +550,11 @@ module fc1004
 		.PORT_C_o(PC_o),
 		.HL(ioc_hl),
 		.FRES(ioc_fres),
-		.bc1(ioc_bc1),
-		.bc2(ioc_bc2),
-		.bc3(ioc_bc3),
-		.bc4(ioc_bc4),
-		.bc5(ioc_bc5),
+		.ZA_OE(ioc_za_oe),
+		.VD_LO_OE_n(ioc_vd_lo_oe_n),
+		.VD_HI_OE_n(ioc_vd_hi_oe_n),
+		.ZD_OE_n(ioc_zd_oe_n),
+		.VA_LO_OE_n(ioc_va_lo_oe_n),
 		.vdata(ioc_vdata),
 		.reg_3e_q(ioc_reg_3e_q),
 		.zdata(ioc_zdata),
@@ -537,6 +562,9 @@ module fc1004
 		.tmss_enable(tmss_enable)
 		);
 	
+	// ===================================================================
+	// TMSS — Trademark Security System
+	// ===================================================================
 	wire tmss_ce0_i;
 	wire [15:0] tmss_vd_o;
 	wire tmss_dtack;
@@ -575,51 +603,66 @@ module fc1004
 		.tmss_address(tmss_address)
 		);
 	
+	// -------------------------------------------------------------------
+	// Z80 address bus mux
+	// -------------------------------------------------------------------
 	assign ZA_o[0] = arb_za0_o;
 	assign ZA_o[7:1] = VA_i[6:0];
 	assign ZA_o[15:8] = arb_vtoz ? 8'h0 : arb_za_o[15:8];
 	
 	assign ZA_d[0] = (tmss_test_1 ^ tmss_test_3) | arb_vz;
-	assign ZA_d[1] = (tmss_test_1 & ~tmss_test_3) | ioc_bc1;
-	assign ZA_d[6:2] = {5{ioc_bc1}};
-	assign ZA_d[7] = (tmss_test_1 & tmss_test_3) | ioc_bc1;
+	assign ZA_d[1] = (tmss_test_1 & ~tmss_test_3) | ioc_za_oe;
+	assign ZA_d[6:2] = {5{ioc_za_oe}};
+	assign ZA_d[7] = (tmss_test_1 & tmss_test_3) | ioc_za_oe;
 	assign ZA_d[15:8] = {8{arb_vz}};
 	
+	// -------------------------------------------------------------------
+	// 68K address bus mux
+	// -------------------------------------------------------------------
 	assign VA_o =
 		(vdp_ca_d ? 23'h0 : vdp_ca_o) |
-		(arb_w131 ? 23'h0 : { 3'h0, arb_va_o[19:7], 7'h0 }) |
-		(arb_w142 ? 23'h0 : { arb_va_o[22:20], 20'h0 }) |
-		(ioc_bc5 ? 23'h0 : { 16'h0, ioc_ztov_address });
+		(arb_va_mid_oe_n ? 23'h0 : { 3'h0, arb_va_o[19:7], 7'h0 }) |
+		(arb_va_hi_oe_n ? 23'h0 : { arb_va_o[22:20], 20'h0 }) |
+		(ioc_va_lo_oe_n ? 23'h0 : { 16'h0, ioc_ztov_address });
 	
 	assign VA_d =
-		((vdp_ca_d & arb_w142) ? 23'h700000 : 23'h0) |
-		((vdp_ca_d & arb_w131) ? 23'hfff80 : 23'h0) |
-		((vdp_ca_d & ioc_bc5) ? 23'h7f : 23'h0);
+		((vdp_ca_d & arb_va_hi_oe_n) ? 23'h700000 : 23'h0) |
+		((vdp_ca_d & arb_va_mid_oe_n) ? 23'hfff80 : 23'h0) |
+		((vdp_ca_d & ioc_va_lo_oe_n) ? 23'h7f : 23'h0);
 	
+	// -------------------------------------------------------------------
+	// Z80 data bus mux
+	// -------------------------------------------------------------------
 	wire colorbus = ~(tmss_test_1 & tmss_test_2 & tmss_test_3);
-	
+
 	assign fm_data_d2 = fm_data_d | tmss_test_3;
-	
+
 	assign ZD_o =
-		(ioc_bc4 ? 8'h0 : ioc_zdata) |
+		(ioc_zd_oe_n ? 8'h0 : ioc_zdata) |
 		(colorbus ? 8'h0 : vdp_ra) |
 		(fm_data_d2 ? 8'h0 : fm_data_o);
 	
-	assign ZD_d = (ioc_bc4 & colorbus & fm_data_d2) ? 8'hff : 8'h0;
+	assign ZD_d = (ioc_zd_oe_n & colorbus & fm_data_d2) ? 8'hff : 8'h0;
 	
+	// -------------------------------------------------------------------
+	// 68K data bus mux
+	// -------------------------------------------------------------------
 	wire [15:0] ioc_vdata_word = { ioc_vdata[7:1], M3 ? ioc_vdata[0] : ioc_reg_3e_q, ioc_vdata[7:0] };
-	
+
 	assign VD_o =
 		(vdp_cd_d ? 16'h0 : vdp_cd_o) |
-		(arb_w12 ? 16'h0 : { 7'h0, arb_vd8_o, 8'h0 }) |
-		(ioc_bc2 ? 16'h0 : { 8'h0, ioc_vdata_word[7:0] }) |
-		(ioc_bc3 ? 16'h0 : {ioc_vdata_word[15:8], 8'h0 }) |
+		(arb_vd8_oe_n ? 16'h0 : { 7'h0, arb_vd8_o, 8'h0 }) |
+		(ioc_vd_lo_oe_n ? 16'h0 : { 8'h0, ioc_vdata_word[7:0] }) |
+		(ioc_vd_hi_oe_n ? 16'h0 : {ioc_vdata_word[15:8], 8'h0 }) |
 		(tmss_data_out_en ? 16'h0 : tmss_vd_o);
 	
-	assign VD_d = { {7{vdp_cd_d & ioc_bc3 & tmss_data_out_en}}, vdp_cd_d & ioc_bc3 & tmss_data_out_en & arb_w12, {8{vdp_cd_d & ioc_bc2 & tmss_data_out_en}} };
+	assign VD_d = { {7{vdp_cd_d & ioc_vd_hi_oe_n & tmss_data_out_en}}, vdp_cd_d & ioc_vd_hi_oe_n & tmss_data_out_en & arb_vd8_oe_n, {8{vdp_cd_d & ioc_vd_lo_oe_n & tmss_data_out_en}} };
 	
-	assign YS = tmss_test_2 ? arb_w353 : vdp_ys;
-	assign VSYNC = tmss_test_2 ? arb_w310 : vdp_vsync;
+	// -------------------------------------------------------------------
+	// Test mode signal routing and clock/control wiring
+	// -------------------------------------------------------------------
+	assign YS = tmss_test_2 ? arb_ys_test : vdp_ys;
+	assign VSYNC = tmss_test_2 ? arb_vsync_test : vdp_vsync;
 	assign HSYNC_pull = vdp_hsync_pull & ~tmss_test_2;
 	wire cpu_reset = (tmss_test_0 | arb_vres) & tmss_reset;
 	assign HALT_pull = ~cpu_reset;
@@ -664,6 +707,9 @@ module fc1004
 	assign CAS0_d = tmss_test_2;
 	assign LWR_d = tmss_test_2;
 	
+	// -------------------------------------------------------------------
+	// Cross-chip signal overrides (test mux for inter-chip signals)
+	// -------------------------------------------------------------------
 	assign vdp_hl = tmss_test_1 ? ZBR_i : ioc_hl;
 	assign vdp_intak = tmss_test_0 ? DISK_i : arb_intak;
 	assign arb_oe0 = (~tmss_test_0 & tmss_test_2) ? JAP_i : vdp_oe0;

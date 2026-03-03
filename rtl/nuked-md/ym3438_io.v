@@ -29,14 +29,22 @@ module ym3438_io
 	);
 	
 	
+	// -------------------------------------------------------------------
+	// Read/write decode
+	// -------------------------------------------------------------------
 	wire read_en = (~RD & IC & ~CS) & (~ym2612_status_enable | address == 2'h0);
 	wire write_addr = (~WR & ~CS & ~address[0]) | ~IC;
 	wire write_data = ~WR & ~CS & address[0] & IC;
-	
+
 	wire io_IC = IC;
-	
+
+	// -------------------------------------------------------------------
+	// Address write synchronizer
+	//   async write_addr -> c1/c2 domain sync pipeline:
+	//   RS trig -> sync RS trig -> slatch -> SR bit -> edge detect
+	// -------------------------------------------------------------------
 	wire write_a_tr1_q, write_a_tr1_nq;
-	
+
 	wire write_a_sig;
 	
 	ym_rs_trig write_a_tr1
@@ -82,8 +90,11 @@ module ym3438_io
 	
 	assign write_addr_en = write_a_sig & ~write_a_sig_delay;
 	
+	// -------------------------------------------------------------------
+	// Data write synchronizer (identical pipeline for write_data)
+	// -------------------------------------------------------------------
 	wire write_d_tr1_q, write_d_tr1_nq;
-	
+
 	wire write_d_sig;
 	
 	ym_rs_trig write_d_tr1
@@ -129,6 +140,9 @@ module ym3438_io
 	
 	assign write_data_en = write_d_sig & ~write_d_sig_delay;
 	
+	// -------------------------------------------------------------------
+	// Data input latch — captures {bank, data} on bus write
+	// -------------------------------------------------------------------
 	wire [8:0] data_l_out;
 	wire [8:0] data_in = { address[1], data };
 	wire data_l_en = ~WR & ~CS;
@@ -142,8 +156,11 @@ module ym3438_io
 		.nval()
 		);
 	
+	// -------------------------------------------------------------------
+	// Busy counter — 5-bit counter counts 32 c1/c2 cycles after data write
+	// -------------------------------------------------------------------
 	wire busy_of;
-	
+
 	wire busy_state_o;
 	
 	ym_cnt_bit #(.DATA_WIDTH(5)) busy_cnt
@@ -174,6 +191,9 @@ module ym3438_io
 
 	assign bank = data_l_out[8];
 	
+	// -------------------------------------------------------------------
+	// Status readback — busy flag + timer A/B overflow flags
+	// -------------------------------------------------------------------
 	wire read_status = ~reg_21[6] & read_en;
 	wire read_debug = reg_21[6] & read_en;
 	
@@ -199,32 +219,33 @@ module ym3438_io
 		.nval(timer_b_status_sl_out)
 		);
 	
-	reg [7:0] data_o_r;
-	reg [25:0] status_time;
+	reg [7:0] status_reg;
+	reg [25:0] status_timeout;
 	
 	always @(posedge MCLK)
 	begin
 		if (read_status)
-			data_o_r <= { ~busy_state_o, 5'h0, timer_b_status_sl_out, timer_a_status_sl_out };
+			status_reg <= { ~busy_state_o, 5'h0, timer_b_status_sl_out, timer_a_status_sl_out };
 		if (read_debug)
-			data_o_r <= debug_data;
+			status_reg <= debug_data;
 
 		if (read_status | read_debug)
-			status_time <= 26'd40000000;
-		else if (status_time)
-			status_time <= status_time - 1;
+			status_timeout <= 26'd40000000;
+		else if (status_timeout)
+			status_timeout <= status_timeout - 1;
 		else
-			data_o_r <= 8'h0;
+			status_reg <= 8'h0;
 	end
-	assign data_o = data_o_r;
+	assign data_o = status_reg;
 	
 	assign irq = ~(timer_a_status_sl_out | timer_b_status_sl_out);
 	
+	// -------------------------------------------------------------------
+	// Debug data — test register mux for PG/EG/channel/operator debug
+	// -------------------------------------------------------------------
 	wire [7:0] debug_data;
 	wire [15:0] debug_data_w;
-	wire [6:0] debug_data1_1;
-	wire [6:0] debug_data1_2;
-	
+
 	assign debug_data = reg_21[7] ? debug_data_w[15:8] : debug_data_w[7:0];
 	
 	wire [8:0] ch_dbg_sr_o;

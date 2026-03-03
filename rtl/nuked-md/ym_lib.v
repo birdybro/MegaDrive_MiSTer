@@ -1,5 +1,6 @@
 // ym3438, ym7101, fc1004 common cells
 
+// Two-phase shift register bit: captures on c1, transfers on c2
 module ym_sr_bit #(parameter SR_LENGTH = 1)
 	(
 	input MCLK,
@@ -8,25 +9,25 @@ module ym_sr_bit #(parameter SR_LENGTH = 1)
 	input bit_in,
 	output sr_out
 	);
-	
-	reg [SR_LENGTH-1:0] v1 = 0;
-	reg [SR_LENGTH-1:0] v2 = 0;
-	
-	wire [SR_LENGTH-1:0] v2_assign = c2 ? v1 : v2;
-	
-	//assign sr_out = v2_assign[SR_LENGTH-1];
-	assign sr_out = v2[SR_LENGTH-1];
-	
+
+	reg [SR_LENGTH-1:0] master = 0;
+	reg [SR_LENGTH-1:0] slave = 0;
+
+	wire [SR_LENGTH-1:0] slave_next = c2 ? master : slave;
+
+	//assign sr_out = slave_next[SR_LENGTH-1];
+	assign sr_out = slave[SR_LENGTH-1];
+
 	always @(posedge MCLK)
 	begin
 		if (c1)
 		begin
 			if (SR_LENGTH == 1)
-				v1 <= bit_in;
+				master <= bit_in;
 			else
-				v1 <= { v2[SR_LENGTH-2:0], bit_in };
+				master <= { slave[SR_LENGTH-2:0], bit_in };
 		end
-		v2 <= v2_assign;
+		slave <= slave_next;
 	end
 endmodule
 
@@ -82,6 +83,7 @@ endmodule*/
 	end
 endmodule*/
 
+// Parallel array of ym_sr_bit instances
 module ym_sr_bit_array #(parameter SR_LENGTH = 1, DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -90,13 +92,13 @@ module ym_sr_bit_array #(parameter SR_LENGTH = 1, DATA_WIDTH = 1)
 	input [DATA_WIDTH-1:0] data_in,
 	output [DATA_WIDTH-1:0] data_out
 	);
-	
+
 	wire out[0:DATA_WIDTH-1];
-	
+
 	generate
 		genvar i;
 		for (i = 0; i < DATA_WIDTH; i = i + 1)
-		begin : l1
+		begin : bits
 			ym_sr_bit #(.SR_LENGTH(SR_LENGTH)) sr (
 			.MCLK(MCLK),
 			.c1(c1),
@@ -111,6 +113,7 @@ module ym_sr_bit_array #(parameter SR_LENGTH = 1, DATA_WIDTH = 1)
 
 endmodule
 
+// Binary counter built on shift register array
 module ym_cnt_bit #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -173,6 +176,7 @@ endmodule
 	
 endmodule*/
 
+// D-latch transparent during phase c1
 module ym_dlatch_1 #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -181,21 +185,21 @@ module ym_dlatch_1 #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] val,
 	output [DATA_WIDTH-1:0] nval
 	);
-	
+
 	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
-	
+
 	wire [DATA_WIDTH-1:0] mem_assign = c1 ? inp : mem;
-	
+
 	always @(posedge MCLK)
 	begin
 		mem <= mem_assign;
 	end
-	
+
 	//assign val = mem_assign;
 	//assign nval = ~mem_assign;
 	assign val = mem;
 	assign nval = ~mem;
-	
+
 endmodule
 
 /*module ym_dlatch_1 #(parameter DATA_WIDTH = 1)
@@ -220,6 +224,7 @@ endmodule
 	
 endmodule*/
 
+// D-latch transparent during phase c2
 module ym_dlatch_2 #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -228,21 +233,21 @@ module ym_dlatch_2 #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] val,
 	output [DATA_WIDTH-1:0] nval
 	);
-	
+
 	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
-	
+
 	wire [DATA_WIDTH-1:0] mem_assign = c2 ? inp : mem;
-	
+
 	always @(posedge MCLK)
 	begin
 		mem <= mem_assign;
 	end
-	
+
 	//assign val = mem_assign;
 	//assign nval = ~mem_assign;
 	assign val = mem;
 	assign nval = ~mem;
-	
+
 endmodule
 
 /*module ym_dlatch_2 #(parameter DATA_WIDTH = 1)
@@ -267,6 +272,7 @@ endmodule
 	
 endmodule*/
 
+// Rising-edge detector using c1-clocked latch
 module ym_edge_detect
 	(
 	input MCLK,
@@ -274,7 +280,7 @@ module ym_edge_detect
 	input inp,
 	output outp
 	);
-	
+
 	wire prev_out;
 	
 	ym_dlatch_1 prev
@@ -306,6 +312,7 @@ endmodule
 	assign outp = ~(prev_out | ~inp);
 endmodule*/
 
+// Simple enable-gated latch (active-high en)
 module ym_slatch #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -314,21 +321,21 @@ module ym_slatch #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] val,
 	output [DATA_WIDTH-1:0] nval
 	);
-	
+
 	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
-	
+
 	wire [DATA_WIDTH-1:0] mem_assign = en ? inp : mem;
-	
+
 	always @(posedge MCLK)
 	begin
 		mem <= mem_assign;
 	end
-	
+
 	//assign val = mem_assign;
 	//assign nval = ~mem_assign;
 	assign val = mem;
 	assign nval = ~mem;
-	
+
 endmodule
 
 /*module ym_slatch #(parameter DATA_WIDTH = 1)
@@ -378,6 +385,7 @@ endmodule*/
 	
 endmodule*/
 
+// Transparent variant of ym_slatch (combinational output)
 module ym_slatch_t #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -386,19 +394,19 @@ module ym_slatch_t #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] val,
 	output [DATA_WIDTH-1:0] nval
 	);
-	
+
 	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
-	
+
 	wire [DATA_WIDTH-1:0] mem_assign = en ? inp : mem;
-	
+
 	always @(posedge MCLK)
 	begin
 		mem <= mem_assign;
 	end
-	
+
 	assign val = mem_assign;
 	assign nval = ~mem_assign;
-	
+
 endmodule
 
 /*module ym_slatch_t #(parameter DATA_WIDTH = 1)
@@ -423,6 +431,7 @@ endmodule
 	
 endmodule*/
 
+// RS flip-flop (set/reset trigger)
 module ym_rs_trig
 	(
 	input MCLK,
@@ -454,6 +463,7 @@ endmodule
 	
 endmodule*/
 
+// RS flip-flop gated by clock phase c1
 module ym_rs_trig_sync
 	(
 	input MCLK,
@@ -487,6 +497,7 @@ endmodule
 	
 endmodule*/
 
+// Counter with parallel load
 module ym_cnt_bit_load #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -522,6 +533,7 @@ module ym_cnt_bit_load #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Debug scan chain (MSB-first readout)
 module ym_dbg_read #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -560,6 +572,7 @@ module ym_dbg_read #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Debug scan chain (LSB-first readout, EG variant)
 module ym_dbg_read_eg #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -598,6 +611,7 @@ module ym_dbg_read_eg #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Latch with synchronous reset
 module ym_slatch_r #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -607,21 +621,21 @@ module ym_slatch_r #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] val,
 	output [DATA_WIDTH-1:0] nval
 	);
-	
+
 	reg [DATA_WIDTH-1:0] mem = {DATA_WIDTH{1'h0}};
-	
+
 	wire [DATA_WIDTH-1:0] mem_assign = rst ? {DATA_WIDTH{1'h0}} : (en ? inp : mem);
-	
+
 	always @(posedge MCLK)
 	begin
 		mem <= mem_assign;
 	end
-	
+
 	//assign val = mem_assign;
 	//assign nval = ~mem_assign;
 	assign val = mem;
 	assign nval = ~mem;
-	
+
 endmodule
 
 /*module ym_slatch_r #(parameter DATA_WIDTH = 1)
@@ -649,6 +663,7 @@ endmodule
 	
 endmodule*/
 
+// Counter with set/reset
 module ym_cnt_bit_rs #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -684,6 +699,7 @@ module ym_cnt_bit_rs #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Reversible (up/down) counter
 module ym_cnt_bit_rev #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -716,6 +732,7 @@ module ym_cnt_bit_rev #(parameter DATA_WIDTH = 1)
 	
 endmodule
 
+// Shift register with shift/hold enable
 module ym_sr_bit_en #(parameter SR_LENGTH = 2)
 	(
 	input MCLK,
@@ -746,6 +763,7 @@ module ym_sr_bit_en #(parameter SR_LENGTH = 2)
 endmodule
 
 
+// Synchronous counter with master-slave latches
 module ym_scnt_bit #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -758,35 +776,36 @@ module ym_scnt_bit #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] nq,
 	output cout
 	);
-	
-	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
-	
-	wire [DATA_WIDTH:0] sum = { 1'h0, l2 } + {{DATA_WIDTH{1'h0}}, cin};
-	
+
+	reg [DATA_WIDTH-1:0] master = {DATA_WIDTH{1'h0}}, slave = {DATA_WIDTH{1'h0}};
+
+	wire [DATA_WIDTH:0] sum = { 1'h0, slave } + {{DATA_WIDTH{1'h0}}, cin};
+
 	assign cout = sum[DATA_WIDTH];
-	
-	assign q = l2;
-	assign nq = ~l2;
-	
+
+	assign q = slave;
+	assign nq = ~slave;
+
 	always @(posedge MCLK)
 	begin
 		if (~rst)
 		begin
-			l1 <= {DATA_WIDTH{1'h0}};
-			l2 <= {DATA_WIDTH{1'h0}};
+			master <= {DATA_WIDTH{1'h0}};
+			slave <= {DATA_WIDTH{1'h0}};
 		end
 		else
 		begin
 			if (~clk)
-				l1 <= ~load ? val : sum[DATA_WIDTH-1:0];
+				master <= ~load ? val : sum[DATA_WIDTH-1:0];
 			else
-				l2 <= l1;
+				slave <= master;
 		end
 	end
-	
+
 endmodule
 
 
+// Synchronous D flip-flop (master-slave)
 module ym_sdff #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -795,23 +814,24 @@ module ym_sdff #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] q,
 	output [DATA_WIDTH-1:0] nq
 	);
-	
-	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
-	
-	assign q = l2;
-	assign nq = ~l2;
-	
+
+	reg [DATA_WIDTH-1:0] master = {DATA_WIDTH{1'h0}}, slave = {DATA_WIDTH{1'h0}};
+
+	assign q = slave;
+	assign nq = ~slave;
+
 	always @(posedge MCLK)
 	begin
 		if (~clk)
-			l1 <= val;
+			master <= val;
 		else
-			l2 <= l1;
+			slave <= master;
 	end
-	
+
 endmodule
 
 
+// Synchronous D flip-flop with async set
 module ym_sdffs #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -821,27 +841,28 @@ module ym_sdffs #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] q,
 	output [DATA_WIDTH-1:0] nq
 	);
-	
-	reg [DATA_WIDTH-1:0] l1, l2;
-	
-	assign q = l2;
-	assign nq = ~l2;
-	
+
+	reg [DATA_WIDTH-1:0] master, slave;
+
+	assign q = slave;
+	assign nq = ~slave;
+
 	always @(posedge MCLK)
 	begin
 		if (~clk)
-			l1 <= val;
+			master <= val;
 		else if (~set)
-			l1 <= {DATA_WIDTH{1'h1}};
+			master <= {DATA_WIDTH{1'h1}};
 		if (~set)
-			l2 <= {DATA_WIDTH{1'h1}};
+			slave <= {DATA_WIDTH{1'h1}};
 		else if (clk)
-			l2 <= l1;
+			slave <= master;
 	end
-	
+
 endmodule
 
 
+// Synchronous D flip-flop with async reset
 module ym_sdffr #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -851,27 +872,28 @@ module ym_sdffr #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] q,
 	output [DATA_WIDTH-1:0] nq
 	);
-	
-	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
-	
-	assign q = l2;
-	assign nq = ~l2;
-	
+
+	reg [DATA_WIDTH-1:0] master = {DATA_WIDTH{1'h0}}, slave = {DATA_WIDTH{1'h0}};
+
+	assign q = slave;
+	assign nq = ~slave;
+
 	always @(posedge MCLK)
 	begin
 		if (~reset)
-			l1 <= {DATA_WIDTH{1'h0}};
+			master <= {DATA_WIDTH{1'h0}};
 		else if (~clk)
-			l1 <= val;
+			master <= val;
 		if (~reset)
-			l2 <= {DATA_WIDTH{1'h0}};
+			slave <= {DATA_WIDTH{1'h0}};
 		else if (clk)
-			l2 <= l1;
+			slave <= master;
 	end
-	
+
 endmodule
 
 
+// Synchronous D flip-flop with async set and reset
 module ym_sdffsr #(parameter DATA_WIDTH = 1)
 	(
 	input MCLK,
@@ -882,48 +904,49 @@ module ym_sdffsr #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] q,
 	output [DATA_WIDTH-1:0] nq
 	);
-	
-	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
-	
-	assign q = (~set & ~reset) ? {DATA_WIDTH{1'h0}} : l2;
-	assign nq = (~set & ~reset) ? {DATA_WIDTH{1'h0}} : ~l2;
-	
+
+	reg [DATA_WIDTH-1:0] master = {DATA_WIDTH{1'h0}}, slave = {DATA_WIDTH{1'h0}};
+
+	assign q = (~set & ~reset) ? {DATA_WIDTH{1'h0}} : slave;
+	assign nq = (~set & ~reset) ? {DATA_WIDTH{1'h0}} : ~slave;
+
 	always @(posedge MCLK)
 	begin
 		if (~reset)
-			l1 <= {DATA_WIDTH{1'h0}};
+			master <= {DATA_WIDTH{1'h0}};
 		else if (~set)
-			l1 <= {DATA_WIDTH{1'h1}};
+			master <= {DATA_WIDTH{1'h1}};
 		else if (~clk)
-			l1 <= val;
+			master <= val;
 		if (~set)
-			l2 <= {DATA_WIDTH{1'h1}};
+			slave <= {DATA_WIDTH{1'h1}};
 		else if (~reset)
-			l2 <= {DATA_WIDTH{1'h0}};
+			slave <= {DATA_WIDTH{1'h0}};
 		else if (clk)
-			l2 <= l1;
+			slave <= master;
 	end
-	
+
 endmodule
 
 
+// Multi-cycle delay line (shift register)
 module ym_delaychain #(parameter DELAY_CNT = 1)
 	(
 	input MCLK,
 	input inp,
 	output outp
 	);
-	
-	reg [DELAY_CNT-1:0] dl = {DELAY_CNT{1'h0}};
-	
+
+	reg [DELAY_CNT-1:0] delay_sr = {DELAY_CNT{1'h0}};
+
 	always @(posedge MCLK)
 	begin
 		if (DELAY_CNT == 1)
-			dl <= inp;
+			delay_sr <= inp;
 		else
-			dl <= { dl[DELAY_CNT-2:0], inp };
+			delay_sr <= { delay_sr[DELAY_CNT-2:0], inp };
 	end
-	
-	assign outp = dl[DELAY_CNT-1];
-	
+
+	assign outp = delay_sr[DELAY_CNT-1];
+
 endmodule

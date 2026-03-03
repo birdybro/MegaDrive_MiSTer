@@ -102,11 +102,11 @@ module ym6045
 	output INTAK,
 	output EDCLK,
 	output vtoz,
-	output w12,
-	output w131,
-	output w142,
-	output w310,
-	output w353
+	output VD8_OE_n,
+	output VA_MID_OE_n,
+	output VA_HI_OE_n,
+	output VSYNC_TEST,
+	output YS_TEST
 	);
 
 	wire pal_trap = ~1'h1; // PAL trap — disabled (active-low, always 0)
@@ -729,7 +729,7 @@ module ym6045
 	//   on write to $A11100 (va_bank_1 region, vdp_region_n decode).
 	// =======================================================================
 	assign zbr_write_gate = ~(va_bank_1 & ~vdp_region_n & ~UDS_i);
-	assign w12 = test | ~RW_i | zbr_write_gate;
+	assign VD8_OE_n = test | ~RW_i | zbr_write_gate;
 	assign zbr_clk = zbr_write_gate | RW_i;
 	ym_sdffr zbr(.MCLK(MCLK), .clk(zbr_clk), .val(vd8), .reset(sres_syncv_q), .nq(zbr_nq));
 	assign zbak_in = ZBAK;
@@ -967,11 +967,11 @@ module ym6045
 	assign time_sel = time_region_n | AS_i;
 	assign TIME = time_sel;
 
-	assign w131 = ztov | test | pal_trap;
+	assign VA_MID_OE_n = ztov | test | pal_trap;
 
 	assign strobe_dir_raw = ~(bus_released_2 | test | pal_trap);
 
-	assign w142 = ~strobe_dir_raw;
+	assign VA_HI_OE_n = ~strobe_dir_raw;
 
 	assign test = test_mode_0;
 
@@ -1020,7 +1020,7 @@ module ym6045
 	assign nmi_gate = ~(nmi_sres_term | d8_out);
 	assign nmi_sres_term = ~(d8_out | sres_syncv_q);
 
-	assign w353 = tmss_io_access;
+	assign YS_TEST = tmss_io_access;
 
 	assign fc00 = ~FC1 & ~FC0;
 	assign fc01 = ~FC1 & FC0;
@@ -1076,7 +1076,7 @@ module ym6045
 	//   Each signal is active-low: low when the address matches AND M3=1.
 	// =======================================================================
 	assign tmss_io_access = AS_i | LDS_i | UDS_i | VA_i[22:7] != 16'ha140; // $A14000 region
-	assign w310 = ~(VA_i[22:7] == 16'hc000 & ~AS_i);                       // $C00000 (VDP)
+	assign VSYNC_TEST = ~(VA_i[22:7] == 16'hc000 & ~AS_i);                  // $C00000 (VDP)
 
 	assign z80_region_n = ~(M3 & VA_i[22:15] == 8'ha0);    // $A00000-$A0FFFF (Z80 bus window)
 

@@ -56,11 +56,11 @@ module ym6046
 	output [6:0] PORT_C_o,
 	output HL,
 	output FRES,
-	output bc1,
-	output bc2,
-	output bc3,
-	output bc4,
-	output bc5,
+	output ZA_OE,
+	output VD_LO_OE_n,
+	output VD_HI_OE_n,
+	output ZD_OE_n,
+	output VA_LO_OE_n,
 	output [7:0] vdata,
 	output reg_3e_q,
 	output [7:0] zdata,
@@ -452,11 +452,11 @@ module ym6046
 	assign arb_gate1 = ~(io_chip_active & M3) & (ZV | ~CAS0) & (VZ | CAS0);
 	assign arb_gate2 = (ZV | CAS0) & (VZ | ~CAS0);
 
-	assign bc1 = VZ | t1;
-	assign bc2 = arb_gate1 | t1;
-	assign bc3 = (arb_gate1 & M3) | t1;
-	assign bc4 = arb_gate2 | t1;
-	assign bc5 = ZV | t1;
+	assign ZA_OE = VZ | t1;
+	assign VD_LO_OE_n = arb_gate1 | t1;
+	assign VD_HI_OE_n = (arb_gate1 & M3) | t1;
+	assign ZD_OE_n = arb_gate2 | t1;
+	assign VA_LO_OE_n = ZV | t1;
 
 	// -----------------------------------------------------------------------
 	// Data output mux
