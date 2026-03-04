@@ -45,7 +45,7 @@
 //     using pulldown-based read/write logic
 //   - Register file: r1[0:17] (18 entries: A0-A7, SSP, temps),
 //     r6[0:9] (10 entries: D0-D7, temps), r7[0:8] (9 entries: additional)
-//   - CCR flags: ccr_n(N), w751(Z), w752(V), w753(X), w754(C)
+//   - CCR flags: ccr_n(N), ccr_z(Z), ccr_v(V), ccr_x(X), ccr_c(C)
 //
 // Signal naming:
 //   Wire/reg names use original w### numbering from the netlist extraction.
@@ -346,7 +346,7 @@ module m68kcpu
 	reg w264;
 	wire w265;
 	wire w266;
-	reg w267;             // bus cycle state (active bus operation)
+	reg bus_cycle_state;             // bus cycle state (active bus operation)
 	reg w268[0:2];        // bus error pipeline
 	reg w269[0:2];        // bus error pipeline
 	reg [2:0] w270[0:1]; // interrupt priority mask latches
@@ -607,13 +607,13 @@ module m68kcpu
 	//wire w498;
 	//wire w499;
 	// --- Microcode ROM address/data decode ---
-	reg w500;  // ROM address bit
-	reg w501;  // ROM address bit
-	reg w502;  // ROM column decode
-	reg w503;  // ROM column decode
-	reg w504;  // ROM column decode
-	reg w505;  // ROM bank select
-	reg w506;  // ROM bank select
+	reg rom_addr_0;  // ROM address bit
+	reg rom_addr_1;  // ROM address bit
+	reg rom_col_0;  // ROM column decode
+	reg rom_col_1;  // ROM column decode
+	reg rom_col_2;  // ROM column decode
+	reg rom_bank_0;  // ROM bank select
+	reg rom_bank_1;  // ROM bank select
 	wire w507;
 	wire w508;
 	wire w509;
@@ -886,10 +886,10 @@ module m68kcpu
 	wire w749;
 	// --- CCR flags (condition code register) ---
 	reg ccr_n;  // N (Negative) flag
-	reg w751;  // Z (Zero) flag
-	reg w752;  // V (Overflow) flag
-	reg w753;  // X (Extend) flag
-	reg w754;  // C (Carry) flag
+	reg ccr_z;  // Z (Zero) flag
+	reg ccr_v;  // V (Overflow) flag
+	reg ccr_x;  // X (Extend) flag
+	reg ccr_c;  // C (Carry) flag
 	reg w755;
 	reg w756;
 	wire w757;
@@ -1839,13 +1839,13 @@ module m68kcpu
 			
 			w374 <= ~(w389[2] | ~w384);
 			
-			reset_out_drv <= ~(~w388 | (w389[7] & w397) | w267);
+			reset_out_drv <= ~(~w388 | (w389[7] & w397) | bus_cycle_state);
 			
-			halt_out_drv <= ~(w267 | w397 | w381);
+			halt_out_drv <= ~(bus_cycle_state | w397 | w381);
 			
-			w380 <= ~(w267 | ~w391 | ~w387);
+			w380 <= ~(bus_cycle_state | ~w391 | ~w387);
 			
-			w398 <= ~(~w397 | w381 | w267);
+			w398 <= ~(~w397 | w381 | bus_cycle_state);
 			
 			w414[0] <= w394;
 			
@@ -1884,7 +1884,7 @@ module m68kcpu
 			else if (w259[0] == 4'hc & ~w263)
 				w264 <= 1'h0;
 			
-			w267 <= w266;
+			bus_cycle_state <= w266;
 			
 			w268[0] <= ~BR;
 			w268[2] <= w268[1];
@@ -2100,7 +2100,7 @@ module m68kcpu
 			w326 <= w522[0];
 	end
 	
-	assign w327 = ~(w326 | w267);
+	assign w327 = ~(w326 | bus_cycle_state);
 	
 	assign w328 = w327 ? 1'h0 : c2;
 	
@@ -2180,11 +2180,11 @@ module m68kcpu
 	always @(posedge MCLK)
 	begin
 		if (c1)
-			w342 <= ncode_bank_2 | w267 | ~w343[2];
+			w342 <= ncode_bank_2 | bus_cycle_state | ~w343[2];
 		if (clk1)
 			w345 <= ~w294[1];
 		if (c1)
-			w344 <= w345 | w267 | w325;
+			w344 <= w345 | bus_cycle_state | w325;
 	end
 	
 	assign w346 = ~(~w435[2] | w340 | ~w325);
@@ -2305,7 +2305,7 @@ module m68kcpu
 	
 	assign w396 = ~(w414[2] | w415 | w416);
 	
-	assign w397 = ~(w267 | w419 | (~w421_1 & bus_cycle_active) | w426);
+	assign w397 = ~(bus_cycle_state | w419 | (~w421_1 & bus_cycle_active) | w426);
 	
 	assign w399 = w398 ? clk2 : 1'h0;
 	
@@ -2313,13 +2313,13 @@ module m68kcpu
 	begin
 		if (~w401 & clk1)
 			w400 <= 1'h1;
-		else if (w399 | (c2 & w267) | w401)
+		else if (w399 | (c2 & bus_cycle_state) | w401)
 			w400 <= 1'h0;
 	end
 	
 	assign w402 = ~(w404 | w422);
 	
-	assign w403 = w406 & ~w267 & w405;
+	assign w403 = w406 & ~bus_cycle_state & w405;
 	
 	assign w405 = ~w815;
 	
@@ -2347,7 +2347,7 @@ module m68kcpu
 		w421_mem <= w421_1;
 	end
 	
-	assign w418_1 = (w407 ? w568 : w418_mem) & ~w267;
+	assign w418_1 = (w407 ? w568 : w418_mem) & ~bus_cycle_state;
 	
 	assign w419 = ~(w392 | w432);
 	
@@ -2359,7 +2359,7 @@ module m68kcpu
 	
 	assign w421_1 = (w407 ? 1'h1 : w421_mem) & ~w425 & ~w428;
 	
-	assign w422 = ~(w428 | w425 | w267 | w424);
+	assign w422 = ~(w428 | w425 | bus_cycle_state | w424);
 	assign w423 = ~w422;
 	
 	always @(posedge MCLK)
@@ -2444,7 +2444,7 @@ module m68kcpu
 	
 	assign w990 = ~(w537 | w547);
 	
-	assign w992 = ~(w267 | w310);
+	assign w992 = ~(bus_cycle_state | w310);
 	
 	always @(posedge MCLK)
 	begin
@@ -2548,7 +2548,7 @@ module m68kcpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w267)
+		if (bus_cycle_state)
 		begin
 			w472 <= w274;
 			w473 <= w273;
@@ -2570,7 +2570,7 @@ module m68kcpu
 	
 	assign w476 = w482[3] | w482[4] | w482[2];
 	
-	assign w478 = ~(w267 & (w360 | w296[2]));
+	assign w478 = ~(bus_cycle_state & (w360 | w296[2]));
 	assign w477 = ~w478;
 	
 	always @(posedge MCLK)
@@ -2629,33 +2629,33 @@ module m68kcpu
 		if (c1)
 		begin
 			w495 <= ~(codebus2[3] | w508);
-			w500 <= ~(codebus2[2] | w508);
-			w501 <= ~(codebus2[5] | w508);
-			w502 <= ~(codebus2[4] | w508);
-			w503 <= ~(codebus2[8] | w508);
-			w504 <= ~(codebus2[9] | w508);
-			w505 <= ~((codebus2[1] & w507) | w358_1);
-			w506 <= ~((codebus2[0] & w507) | w356_1);
+			rom_addr_0 <= ~(codebus2[2] | w508);
+			rom_addr_1 <= ~(codebus2[5] | w508);
+			rom_col_0 <= ~(codebus2[4] | w508);
+			rom_col_1 <= ~(codebus2[8] | w508);
+			rom_col_2 <= ~(codebus2[9] | w508);
+			rom_bank_0 <= ~((codebus2[1] & w507) | w358_1);
+			rom_bank_1 <= ~((codebus2[0] & w507) | w356_1);
 		end
 	end
 	
 	assign w507 = ~(w356_1 | w357_1 | w358_1);
 	assign w508 = ~w507;
-	assign w509 = ~(~w495 | ~w500);
-	assign w510 = ~(~w495 | w500);
-	assign w511 = ~(w495 | ~w500);
-	assign w512 = ~(w495 | w500);
-	//assign w513 = ~(c1 | c2 | ~w501);
-	//assign w514 = ~(c1 | c2 | w501);
-	assign w515 = ~(w506 | w505);
-	assign w516 = ~(~w506 | w505);
-	assign w517 = ~(w506 | ~w505);
-	assign w518 = ~(~w506 | ~w505);
+	assign w509 = ~(~w495 | ~rom_addr_0);
+	assign w510 = ~(~w495 | rom_addr_0);
+	assign w511 = ~(w495 | ~rom_addr_0);
+	assign w512 = ~(w495 | rom_addr_0);
+	//assign w513 = ~(c1 | c2 | ~rom_addr_1);
+	//assign w514 = ~(c1 | c2 | rom_addr_1);
+	assign w515 = ~(rom_bank_1 | rom_bank_0);
+	assign w516 = ~(~rom_bank_1 | rom_bank_0);
+	assign w517 = ~(rom_bank_1 | ~rom_bank_0);
+	assign w518 = ~(~rom_bank_1 | ~rom_bank_0);
 	
-	assign ncode_bank_3 = ~(~w505 | ~w506);
-	assign ncode_bank_2 = ~(w505 | ~w506);
-	assign ncode_bank_1 = ~(~w505 | w506);
-	assign ncode_bank_0 = ~(w505 | w506);
+	assign ncode_bank_3 = ~(~rom_bank_0 | ~rom_bank_1);
+	assign ncode_bank_2 = ~(rom_bank_0 | ~rom_bank_1);
+	assign ncode_bank_1 = ~(~rom_bank_0 | rom_bank_1);
+	assign ncode_bank_0 = ~(rom_bank_0 | rom_bank_1);
 
 	// -------------------------------------------------------------------------
 	// Section 5: Microcode ROM & control word decode
@@ -2677,243 +2677,243 @@ module m68kcpu
 //		end
 //		else
 //		begin
-//			if (w513 | w502 | w503 | w504)
+//			if (w513 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[0] <= 1'h0;
-//			if (w514 | w502 | w503 | w504)
+//			if (w514 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[1] <= 1'h0;
-//			if (w513 | w502 | w503 | w504)
+//			if (w513 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[2] <= 1'h0;
-//			if (w514 | w502 | w503 | w504)
+//			if (w514 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[3] <= 1'h0;
-//			if (w513 | w502 | w503 | w504)
+//			if (w513 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[4] <= 1'h0;
-//			if (w514 | w502 | w503 | w504)
+//			if (w514 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[5] <= 1'h0;
-//			if (w513 | w502 | w503 | w504)
+//			if (w513 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[6] <= 1'h0;
-//			if (w514 | w502 | w503 | w504)
+//			if (w514 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[7] <= 1'h0;
-//			if (w513 | w502 | ~w503 | w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[8] <= 1'h0;
-//			if (w514 | w502 | ~w503 | w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[9] <= 1'h0;
-//			if (w513 | ~w502 | ~w503 | w504)
+//			if (w513 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[10] <= 1'h0;
-//			if (w514 | ~w502 | ~w503 | w504)
+//			if (w514 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[11] <= 1'h0;
-//			if (w513 | ~w502 | ~w503 | w504)
+//			if (w513 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[12] <= 1'h0;
-//			if (w514 | ~w502 | ~w503 | w504)
+//			if (w514 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[13] <= 1'h0;
-//			if (w513 | w502 | ~w503 | w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[14] <= 1'h0;
-//			if (w514 | w502 | ~w503 | w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[15] <= 1'h0;
-//			if (w513 | ~w502 | ~w503 | w504)
+//			if (w513 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[16] <= 1'h0;
-//			if (w514 | ~w502 | ~w503 | w504)
+//			if (w514 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[17] <= 1'h0;
-//			if (w513 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[18] <= 1'h0;
-//			if (w514 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[19] <= 1'h0;
-//			if (w513 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[20] <= 1'h0;
-//			if (w514 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[21] <= 1'h0;
-//			if (w513 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[22] <= 1'h0;
-//			if (w514 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[23] <= 1'h0;
-//			if (w513 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[24] <= 1'h0;
-//			if (w514 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[25] <= 1'h0;
-//			if (w513 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[26] <= 1'h0;
-//			if (w514 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[27] <= 1'h0;
-//			if (w513 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[28] <= 1'h0;
-//			if (w514 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[29] <= 1'h0;
-//			if (w513 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[30] <= 1'h0;
-//			if (w514 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[31] <= 1'h0;
-//			if (w513 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[32] <= 1'h0;
-//			if (w514 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[33] <= 1'h0;
 //
-//			if (w513 | w500 | w495 | w502 | w503 | w504)
+//			if (w513 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[34] <= 1'h0;
-//			if (w514 | w500 | w495 | w502 | w503 | w504)
+//			if (w514 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[35] <= 1'h0;
-//			if (w513 | ~w500 | w495 | w502 | w503 | w504)
+//			if (w513 | ~rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[36] <= 1'h0;
-//			if (w514 | ~w500 | w495 | w502 | w503 | w504)
+//			if (w514 | ~rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[37] <= 1'h0;
-//			if (w513 | ~w495 | w502 | w503 | w504)
+//			if (w513 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[38] <= 1'h0;
-//			if (w514 | ~w495 | w502 | w503 | w504)
+//			if (w514 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[39] <= 1'h0;
-//			if (w513 | w500 | w495 | w502 | w503 | w504)
+//			if (w513 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[40] <= 1'h0;
-//			if (w514 | w500 | w495 | w502 | w503 | w504)
+//			if (w514 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[41] <= 1'h0;
-//			if (w513 | ~w500 | w495 | w502 | w503 | w504)
+//			if (w513 | ~rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[42] <= 1'h0;
-//			if (w514 | ~w500 | w495 | w502 | w503 | w504)
+//			if (w514 | ~rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[43] <= 1'h0;
-//			if (w513 | ~w495 | w502 | w503 | w504)
+//			if (w513 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[44] <= 1'h0;
-//			if (w514 | ~w495 | w502 | w503 | w504)
+//			if (w514 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[45] <= 1'h0;
-//			if (w513 | w500 | w495 | w502 | w503 | w504)
+//			if (w513 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[46] <= 1'h0;
-//			if (w514 | w500 | w495 | w502 | w503 | w504)
+//			if (w514 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[47] <= 1'h0;
-//			if (w513 | ~w500 | w502 | w503 | w504)
+//			if (w513 | ~rom_addr_0 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[48] <= 1'h0;
-//			if (w514 | ~w500 | w502 | w503 | w504)
+//			if (w514 | ~rom_addr_0 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[49] <= 1'h0;
-//			if (w513 | w500 | ~w495 | w502 | w503 | w504)
+//			if (w513 | rom_addr_0 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[50] <= 1'h0;
-//			if (w514 | w500 | ~w495 | w502 | w503 | w504)
+//			if (w514 | rom_addr_0 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[51] <= 1'h0;
-//			if (w513 | w500 | w495 | w502 | w503 | w504)
+//			if (w513 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[52] <= 1'h0;
-//			if (w514 | w500 | w495 | w502 | w503 | w504)
+//			if (w514 | rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[53] <= 1'h0;
-//			if (w513 | ~w500 | w495 | w502 | w503 | w504)
+//			if (w513 | ~rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[54] <= 1'h0;
-//			if (w514 | ~w500 | w495 | w502 | w503 | w504)
+//			if (w514 | ~rom_addr_0 | w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[55] <= 1'h0;
-//			if (w513 | ~w495 | w502 | w503 | w504)
+//			if (w513 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[56] <= 1'h0;
-//			if (w514 | ~w495 | w502 | w503 | w504)
+//			if (w514 | ~w495 | rom_col_0 | rom_col_1 | rom_col_2)
 //				w519[57] <= 1'h0;
-//			if (w513 | w502 | ~w503 | w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[58] <= 1'h0;
-//			if (w514 | w502 | ~w503 | w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[59] <= 1'h0;
-//			if (w513 | ~w502 | ~w503 | w504)
+//			if (w513 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[60] <= 1'h0;
-//			if (w514 | ~w502 | ~w503 | w504)
+//			if (w514 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[61] <= 1'h0;
-//			if (w513 | w500 | w495 | ~w502 | ~w503 | w504)
+//			if (w513 | rom_addr_0 | w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[62] <= 1'h0;
-//			if (w514 | w500 | w495 | ~w502 | ~w503 | w504)
+//			if (w514 | rom_addr_0 | w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[63] <= 1'h0;
-//			if (w513 | ~w500 | w495 | ~w502 | ~w503 | w504)
+//			if (w513 | ~rom_addr_0 | w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[64] <= 1'h0;
-//			if (w514 | ~w500 | w495 | ~w502 | ~w503 | w504)
+//			if (w514 | ~rom_addr_0 | w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[65] <= 1'h0;
-//			if (w513 | w500 | ~w495 | ~w502 | ~w503 | w504)
+//			if (w513 | rom_addr_0 | ~w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[66] <= 1'h0;
-//			if (w514 | w500 | ~w495 | ~w502 | ~w503 | w504)
+//			if (w514 | rom_addr_0 | ~w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[67] <= 1'h0;
-//			if (w513 | ~w500 | ~w495 | ~w502 | ~w503 | w504)
+//			if (w513 | ~rom_addr_0 | ~w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[68] <= 1'h0;
-//			if (w514 | ~w500 | ~w495 | ~w502 | ~w503 | w504)
+//			if (w514 | ~rom_addr_0 | ~w495 | ~rom_col_0 | ~rom_col_1 | rom_col_2)
 //				w519[69] <= 1'h0;
-//			if (w513 | ~w503 | w504)
+//			if (w513 | ~rom_col_1 | rom_col_2)
 //				w519[70] <= 1'h0;
-//			if (w514 | ~w503 | w504)
+//			if (w514 | ~rom_col_1 | rom_col_2)
 //				w519[71] <= 1'h0;
-//			if (w513 | w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w513 | rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[72] <= 1'h0;
-//			if (w514 | w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w514 | rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[73] <= 1'h0;
-//			if (w513 | ~w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[74] <= 1'h0;
-//			if (w514 | ~w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[75] <= 1'h0;
 //
-//			if (w513 | w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w513 | rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[76] <= 1'h0;
-//			if (w514 | w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w514 | rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[77] <= 1'h0;
-//			if (w513 | ~w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[78] <= 1'h0;
-//			if (w514 | ~w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[79] <= 1'h0;
-//			if (w513 | w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w513 | rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[80] <= 1'h0;
-//			if (w514 | w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w514 | rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[81] <= 1'h0;
-//			if (w513 | ~w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[82] <= 1'h0;
-//			if (w514 | ~w500 | w495 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[83] <= 1'h0;
-//			if (w513 | w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w513 | rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[84] <= 1'h0;
-//			if (w514 | w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w514 | rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[85] <= 1'h0;
-//			if (w513 | ~w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[86] <= 1'h0;
-//			if (w514 | ~w500 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[87] <= 1'h0;
-//			if (w513 | w495 | ~w502 | w503 | ~w504)
+//			if (w513 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[88] <= 1'h0;
-//			if (w514 | w495 | ~w502 | w503 | ~w504)
+//			if (w514 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[89] <= 1'h0;
-//			if (w513 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w513 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[90] <= 1'h0;
-//			if (w514 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w514 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[91] <= 1'h0;
-//			if (w513 | w495 | ~w502 | w503 | ~w504)
+//			if (w513 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[92] <= 1'h0;
-//			if (w514 | w495 | ~w502 | w503 | ~w504)
+//			if (w514 | w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[93] <= 1'h0;
-//			if (w513 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w513 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[94] <= 1'h0;
-//			if (w514 | ~w495 | ~w502 | w503 | ~w504)
+//			if (w514 | ~w495 | ~rom_col_0 | rom_col_1 | ~rom_col_2)
 //				w519[95] <= 1'h0;
-//			if (w513 | w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[96] <= 1'h0;
-//			if (w514 | w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[97] <= 1'h0;
-//			if (w513 | ~w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[98] <= 1'h0;
-//			if (w514 | ~w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[99] <= 1'h0;
-//			if (w513 | w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[100] <= 1'h0;
-//			if (w514 | w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[101] <= 1'h0;
-//			if (w513 | ~w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[102] <= 1'h0;
-//			if (w514 | ~w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[103] <= 1'h0;
-//			if (w513 | w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[104] <= 1'h0;
-//			if (w514 | w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[105] <= 1'h0;
-//			if (w513 | ~w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[106] <= 1'h0;
-//			if (w514 | ~w500 | w495 | w502 | ~w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[107] <= 1'h0;
-//			if (w513 | w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[108] <= 1'h0;
-//			if (w514 | w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[109] <= 1'h0;
-//			if (w513 | ~w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w513 | ~rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[110] <= 1'h0;
-//			if (w514 | ~w500 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w514 | ~rom_addr_0 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[111] <= 1'h0;
-//			if (w513 | w495 | w502 | ~w503 | ~w504)
+//			if (w513 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[112] <= 1'h0;
-//			if (w514 | w495 | w502 | ~w503 | ~w504)
+//			if (w514 | w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[113] <= 1'h0;
-//			if (w513 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w513 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[114] <= 1'h0;
-//			if (w514 | ~w495 | w502 | ~w503 | ~w504)
+//			if (w514 | ~w495 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[115] <= 1'h0;
-//			if (w513 | w502 | ~w503 | ~w504)
+//			if (w513 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[116] <= 1'h0;
-//			if (w514 | w502 | ~w503 | ~w504)
+//			if (w514 | rom_col_0 | ~rom_col_1 | ~rom_col_2)
 //				w519[117] <= 1'h0;
 //		end
 //
@@ -3315,7 +3315,7 @@ module m68kcpu
 	reg [7:0] ncode_addr = 8'h0;
 	reg [5:0] ucode_addr = 6'h0;
 	
-	wire [9:0] code_addr = { w504, w503, w490, w489, w501, w502, w495, w500, w505, w506 };
+	wire [9:0] code_addr = { rom_col_2, rom_col_1, w490, w489, rom_addr_1, rom_col_0, w495, rom_addr_0, rom_bank_0, rom_bank_1 };
 	
 	reg [271:0] ucode_out;
 	reg [271:0] ncode_out;
@@ -4235,7 +4235,7 @@ module m68kcpu
 			w538 <= w530;
 	end
 
-	assign irdbus = (~w267 ? irdbus_normal : 16'h0) | irdbus_dbg;
+	assign irdbus = (~bus_cycle_state ? irdbus_normal : 16'h0) | irdbus_dbg;
 	
 	assign irdbus_normal = {
 		~w538[15], w538[15],
@@ -4280,11 +4280,11 @@ module m68kcpu
 
 	assign w539 = w540 ? c2 : 1'h0;
 	
-	assign w540 = ~(w267 | ~w529[0]);
+	assign w540 = ~(bus_cycle_state | ~w529[0]);
 	assign w541 = ~(w522[0] | w477);
 	assign w542 = ~(w540 | w541);
 	
-	assign w543 = w477 | (w529[1] & ~w267);
+	assign w543 = w477 | (w529[1] & ~bus_cycle_state);
 	
 	assign w544 = ~(w529[7] | w529[1]);
 	
@@ -4296,9 +4296,9 @@ module m68kcpu
 	
 	assign w546 = ~(w545 & w529[25]);
 	
-	assign w547 = ~w267 & w607;
+	assign w547 = ~bus_cycle_state & w607;
 	
-	assign w548 = ~(w267 | ~w605);
+	assign w548 = ~(bus_cycle_state | ~w605);
 	
 	always @(posedge MCLK)
 	begin
@@ -4318,31 +4318,31 @@ module m68kcpu
 	
 	assign w560 = { irdbus[22], irdbus[20], irdbus[18], irdbus[16] };
 	
-	assign cond_pla1[0] = w560 == 4'hf & ~w754 & w752 & w753;
-	assign cond_pla1[1] = w560 == 4'hf & ~w754 & ~w752 & ~w753;
-	assign cond_pla1[2] = w560 == 4'he & w754;
-	assign cond_pla1[3] = w560 == 4'hd & w752 & w753;
-	assign cond_pla1[4] = w560 == 4'hd & ~w752 & ~w753;
-	assign cond_pla1[5] = (w560 & 4'hd) == 4'hc & ~w752 & w753;
-	assign cond_pla1[6] = (w560 & 4'hd) == 4'hc & w752 & ~w753;
-	assign cond_pla1[7] = w560 == 4'hb & ~w753;
-	assign cond_pla1[8] = w560 == 4'ha & w753;
-	assign cond_pla1[9] = w560 == 4'h9 & ~w752;
-	assign cond_pla1[10] = w560 == 4'h8 & w752;
-	assign cond_pla1[11] = w560 == 4'h7 & ~w754;
-	assign cond_pla1[12] = w560 == 4'h5 & ~w751;
-	assign cond_pla1[13] = w560 == 4'h4 & w751;
-	assign cond_pla1[14] = w560 == 4'h3 & ~w754 & ~w751;
-	assign cond_pla1[15] = (w560 & 4'hb) == 4'h2 & w754;
-	assign cond_pla1[16] = w560 == 4'h2 & w751;
+	assign cond_pla1[0] = w560 == 4'hf & ~ccr_c & ccr_v & ccr_x;
+	assign cond_pla1[1] = w560 == 4'hf & ~ccr_c & ~ccr_v & ~ccr_x;
+	assign cond_pla1[2] = w560 == 4'he & ccr_c;
+	assign cond_pla1[3] = w560 == 4'hd & ccr_v & ccr_x;
+	assign cond_pla1[4] = w560 == 4'hd & ~ccr_v & ~ccr_x;
+	assign cond_pla1[5] = (w560 & 4'hd) == 4'hc & ~ccr_v & ccr_x;
+	assign cond_pla1[6] = (w560 & 4'hd) == 4'hc & ccr_v & ~ccr_x;
+	assign cond_pla1[7] = w560 == 4'hb & ~ccr_x;
+	assign cond_pla1[8] = w560 == 4'ha & ccr_x;
+	assign cond_pla1[9] = w560 == 4'h9 & ~ccr_v;
+	assign cond_pla1[10] = w560 == 4'h8 & ccr_v;
+	assign cond_pla1[11] = w560 == 4'h7 & ~ccr_c;
+	assign cond_pla1[12] = w560 == 4'h5 & ~ccr_z;
+	assign cond_pla1[13] = w560 == 4'h4 & ccr_z;
+	assign cond_pla1[14] = w560 == 4'h3 & ~ccr_c & ~ccr_z;
+	assign cond_pla1[15] = (w560 & 4'hb) == 4'h2 & ccr_c;
+	assign cond_pla1[16] = w560 == 4'h2 & ccr_z;
 	assign cond_pla1[17] = w560 == 4'h1;
 	
 	assign cond_pla2[0] = w559 == 4'h9;
 	assign cond_pla2[1] = w559 == 4'he & ~w170 & ~irdbus[12];
 	assign cond_pla2[2] = w559 == 4'he & w170;
-	assign cond_pla2[3] = w559 == 4'hd & w752;
+	assign cond_pla2[3] = w559 == 4'hd & ccr_v;
 	assign cond_pla2[4] = w559 == 4'hc & ~w554;
-	assign cond_pla2[5] = w559 == 4'hb & ~w753 & ~w752;
+	assign cond_pla2[5] = w559 == 4'hb & ~ccr_x & ~ccr_v;
 	assign cond_pla2[6] = w559 == 4'ha & ~w800;
 	assign cond_pla2[7] = w559 == 4'h8 & ~w560[0] & w901;
 	assign cond_pla2[8] = w559 == 4'h8 & w560[0] & ~w901 & w899;
@@ -4350,14 +4350,14 @@ module m68kcpu
 	assign cond_pla2[10] = w559 == 4'h8 & w560[0] & w901 & ~w899;
 	assign cond_pla2[11] = w559 == 4'h7 & w560[0] & w899;
 	assign cond_pla2[12] = w559 == 4'h7 & ~w560[0] & w899;
-	assign cond_pla2[13] = w559 == 4'h6 & w754;
-	assign cond_pla2[14] = w559 == 4'h6 & w753;
-	assign cond_pla2[15] = w559 == 4'h5 & ~w753;
-	assign cond_pla2[16] = w559 == 4'h4 & w753 & ~w754;
-	assign cond_pla2[17] = w559 == 4'h4 & ~w753 & ~w754;
-	assign cond_pla2[18] = w559 == 4'h3 & ~w754;
+	assign cond_pla2[13] = w559 == 4'h6 & ccr_c;
+	assign cond_pla2[14] = w559 == 4'h6 & ccr_x;
+	assign cond_pla2[15] = w559 == 4'h5 & ~ccr_x;
+	assign cond_pla2[16] = w559 == 4'h4 & ccr_x & ~ccr_c;
+	assign cond_pla2[17] = w559 == 4'h4 & ~ccr_x & ~ccr_c;
+	assign cond_pla2[18] = w559 == 4'h3 & ~ccr_c;
 	assign cond_pla2[19] = w559 == 4'h2;
-	assign cond_pla2[20] = w559 == 4'h2 & w751;
+	assign cond_pla2[20] = w559 == 4'h2 & ccr_z;
 	assign cond_pla2[21] = w559 == 4'h1 & w157;
 	assign cond_pla2[22] = w559 == 4'h0 & ~w553;
 	
@@ -4415,14 +4415,14 @@ module m68kcpu
 		cond_pla2[21]
 		);
 	
-	assign w561 = ~(w267 | w522[6]);
-	assign w562 = ~(w561 | w267);
+	assign w561 = ~(bus_cycle_state | w522[6]);
+	assign w562 = ~(w561 | bus_cycle_state);
 	
 	assign ird_mux_ctl_0 = ~(w578 | (w529[25] & ird_pla1[0]));
 	
-	assign ird_mux_ctl_1 = ~(~w320 | ~w267 | ~w321);
-	assign ird_mux_ctl_2 = ~(w320 | ~w267 | ~w321);
-	assign ird_mux_ctl_3 = ~(~w320 | ~w267 | w321);
+	assign ird_mux_ctl_1 = ~(~w320 | ~bus_cycle_state | ~w321);
+	assign ird_mux_ctl_2 = ~(w320 | ~bus_cycle_state | ~w321);
+	assign ird_mux_ctl_3 = ~(~w320 | ~bus_cycle_state | w321);
 	
 	assign bus_cycle_active = ~(w529[63] | w529[64]);
 	
@@ -4611,7 +4611,7 @@ module m68kcpu
 		(ird_pla1[40] ? 15'h7fed : 15'h7fff) &
 		(ird_pla1[41] ? 15'h7fed : 15'h7fff) &
 		(ird_pla1[42] ? 15'h0802 : 15'h7fff) &
-		(w267 ? 15'h0000 : 15'h7fff);
+		(bus_cycle_state ? 15'h0000 : 15'h7fff);
 	
 	assign w570 = ird_pla1[44] | ird_pla1[45] | ird_pla1[46];
 	
@@ -4752,7 +4752,7 @@ module m68kcpu
 			alu_io <= 16'hffff;
 		else if (w597[11])
 		begin
-			alu_io <= { w606, 1'h0, w607, 2'h0, w609, w610, w611, 3'h0, ccr_n, w753, w754, w752, w751 };
+			alu_io <= { w606, 1'h0, w607, 2'h0, w609, w610, w611, 3'h0, ccr_n, ccr_x, ccr_c, ccr_v, ccr_z };
 		end
 		else if (w180)
 		begin
@@ -4907,7 +4907,7 @@ module m68kcpu
 	// -------------------------------------------------------------------------
 	// Section 9: ALU, flags & bus control
 	// -------------------------------------------------------------------------
-	// ALU operations, CCR flag logic (ccr_n=N, w751=Z, w752=V, w753=X, w754=C),
+	// ALU operations, CCR flag logic (ccr_n=N, ccr_z=Z, ccr_v=V, ccr_x=X, ccr_c=C),
 	// address output multiplexer (address_mux[22:0]), bus strobe generation
 	// (AS, UDS, LDS pipeline), and read/write control.
 	// -------------------------------------------------------------------------
@@ -5117,13 +5117,13 @@ module m68kcpu
 		
 	//assign ccr_n = w749 ? alu_io[4] : (w790 ? ~w791 : ccr_n_mem);
 	//
-	//assign w751 = w749 ? alu_io[0] : (w792 ? ~w791 : w751_mem);
+	//assign ccr_z = w749 ? alu_io[0] : (w792 ? ~w791 : ccr_z_mem);
 	//
-	//assign w752 = w749 ? alu_io[1] : (w794 ? ~w795 : w752_mem);
+	//assign ccr_v = w749 ? alu_io[1] : (w794 ? ~w795 : ccr_v_mem);
 	//
-	//assign w753 = w749 ? alu_io[3] : (w797 ? w798 : w753_mem);
+	//assign ccr_x = w749 ? alu_io[3] : (w797 ? w798 : ccr_x_mem);
 	//
-	//assign w754 = w749 ? alu_io[2] : (w799 ? ~w800 : w754_mem);
+	//assign ccr_c = w749 ? alu_io[2] : (w799 ? ~w800 : ccr_c_mem);
 	
 	always @(posedge MCLK)
 	begin
@@ -5152,13 +5152,13 @@ module m68kcpu
 		
 		ccr_n <= w749 ? alu_io[4] : (w790 ? ~w791 : ccr_n);
 		
-		w751 <= w749 ? alu_io[0] : (w792 ? ~w791 : w751);
+		ccr_z <= w749 ? alu_io[0] : (w792 ? ~w791 : ccr_z);
 		
-		w752 <= w749 ? alu_io[1] : (w794 ? ~w795 : w752);
+		ccr_v <= w749 ? alu_io[1] : (w794 ? ~w795 : ccr_v);
 		
-		w753 <= w749 ? alu_io[3] : (w797 ? w798 : w753);
+		ccr_x <= w749 ? alu_io[3] : (w797 ? w798 : ccr_x);
 		
-		w754 <= w749 ? alu_io[2] : (w799 ? ~w800 : w754);
+		ccr_c <= w749 ? alu_io[2] : (w799 ? ~w800 : ccr_c);
 		
 		if (c3)
 			w755 <= 1'h1;
@@ -5196,7 +5196,7 @@ module m68kcpu
 			w779 <= ~irdbus[16];
 	end
 	
-	assign w780 = w779 ? w751 : w805;
+	assign w780 = w779 ? ccr_z : w805;
 	
 	always @(posedge MCLK)
 	begin
@@ -5222,7 +5222,7 @@ module m68kcpu
 	
 	assign w787 = w774 ? w784 : ~w784;
 	
-	assign w791 = ~(w787 | (w769 & w751));
+	assign w791 = ~(w787 | (w769 & ccr_z));
 	
 	assign w790 = w758 ? 1'h0 : w757;
 	
@@ -5239,7 +5239,7 @@ module m68kcpu
 	assign w794 = w760 ? 1'h0 : w757;
 	
 	assign w795 = ~(w767 | (w796 & ~w766)
-		| (w752 & w765) | (w783 & w765));
+		| (ccr_v & w765) | (w783 & w765));
 	
 	assign w796 = w771 ? w977 : w971;
 	
@@ -5251,14 +5251,14 @@ module m68kcpu
 	
 	assign w800 = w801 | w804;
 	
-	assign w801 = ~(w754 | ~w768);
+	assign w801 = ~(ccr_c | ~w768);
 	
 	assign w802 = ~w975;
 	assign w803 = ~(w975 & w976);
 	
 	assign w804 = w771 ? w803 : w802;
 	
-	assign w805 = w753 ^ w752;
+	assign w805 = ccr_x ^ ccr_v;
 	
 	assign w806 = ~(~w724 & ~w529[17]);
 	
@@ -5295,7 +5295,7 @@ module m68kcpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w267)
+		if (bus_cycle_state)
 		begin
 			w818 <= 1'h0;
 			w819 <= 1'h0;
@@ -5315,12 +5315,12 @@ module m68kcpu
 	
 	assign w823 = ~(w529[11] | w529[14]);
 	
-	assign w824 = ~(w823 | w529[12] | w267);
-	assign w825 = ~(w823 | w267 | w578 | w529[13]);
+	assign w824 = ~(w823 | w529[12] | bus_cycle_state);
+	assign w825 = ~(w823 | bus_cycle_state | w578 | w529[13]);
 	
 	assign w826 = w529[13] ^ w529[12];
 	
-	assign w827 = ~(~w267 & (w826 | w578));
+	assign w827 = ~(~bus_cycle_state & (w826 | w578));
 	
 	assign w828 = ~w529[14];
 	
@@ -5814,7 +5814,7 @@ module m68kcpu
 	assign DATA_o = ~data_io;
 	assign DATA_z = ~w361;
 	
-	assign address_mux = w267 ?
+	assign address_mux = bus_cycle_state ?
 		{ irdbus[23], irdbus[21], irdbus[19], irdbus[17], irdbus[15], irdbus[13], irdbus[11], irdbus[9],
 			irdbus[31], irdbus[30], irdbus[29], irdbus[28], irdbus[27], irdbus[26], irdbus[25], irdbus[24],
 			irdbus[22], irdbus[20], irdbus[18], irdbus[16], irdbus[14], irdbus[12], irdbus[10] }
