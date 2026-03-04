@@ -83,12 +83,12 @@ module z80cpu
 	wire clk = CLK; // gated Z80 clock (active-high phase)
 
 	// --- Clock synchronizers, interrupt detection, and bus control ---
-	wire w1; // MREQ/RD generation trigger
+	wire mreq_rd_trig; // MREQ/RD generation trigger
 	wire w2;
 	wire w3;
 	wire w4, w4_i;
-	wire w5; // INT input synchronized
-	wire w6, w6_i; // NMI edge detector
+	wire int_sync; // INT input synchronized
+	wire nmi_edge, nmi_edge_i; // NMI edge detector
 	wire w7;
 	wire w8, w8_i;
 	wire w9_n, w9_i;
@@ -122,24 +122,24 @@ module z80cpu
 	wire w39, w39_i;
 	reg w40 = 1'h0, w40_i = 1'h1;
 	wire w41; // sequencer phase: early execution phase
-	wire w42; // data bus write enable to w145
+	wire dbus_wr_en; // data bus write enable to w145
 	wire w43;
-	wire w44, w44_n, w44_i; // data bus output enable (active-low)
+	wire dbus_oe, dbus_oe_n, dbus_oe_i; // data bus output enable (active-low)
 	wire w45;
 	wire w46;
 	wire w47;
 	wire w48, w48_i;
 	wire w49;
-	wire w50, w50_i; // RESET edge detect
-	wire w51, w51_i; // RESET synchronized
+	wire reset_edge, reset_edge_i; // RESET edge detect
+	wire reset_sync, reset_sync_i; // RESET synchronized
 	wire w52;
 	wire w53;
 	wire w54;
 	wire w55; // reset active (internal reset state)
 	wire w56;
 	wire w57;
-	wire w58, w58_i; // BUSRQ edge detect
-	wire w59; // BUSRQ synchronized
+	wire busrq_edge, busrq_edge_i; // BUSRQ edge detect
+	wire busrq_sync; // BUSRQ synchronized
 	wire w60;
 	wire w61, w61_i;
 	wire w62;
@@ -151,16 +151,16 @@ module z80cpu
 	wire w68, w68_i; // sequencer phase: memory access phase
 	wire w69;
 	wire w71;
-	reg w73 = 1'h0; // IFF1 (interrupt flip-flop 1)
-	reg w74 = 1'h0; // IFF2 (interrupt flip-flop 2)
+	reg iff1 = 1'h0; // IFF1 (interrupt flip-flop 1)
+	reg iff2 = 1'h0; // IFF2 (interrupt flip-flop 2)
 	wire w75;
 	wire w76;
 	wire w77;
-	reg w78_i = 1'h0; // interrupt mode bit 0
+	reg im_bit0 = 1'h0; // interrupt mode bit 0
 	wire w78;
 	wire w79;
-	reg w80 = 1'h0; // interrupt mode bit 1
-	wire w81; // IM2 vector fetch qualifier
+	reg im_bit1 = 1'h0; // interrupt mode bit 1
+	wire im2_fetch_qual; // IM2 vector fetch qualifier
 	wire w82; // ALU operation group qualifier (~(pla[33] | pla[34]))
 	wire w83;
 	wire w84;
@@ -168,13 +168,13 @@ module z80cpu
 	wire w86;
 	wire w87;
 	wire w88;
-	wire w89; // prefix decode state active
+	wire prefix_active; // prefix decode state active
 	wire w90; // unprefixed instruction qualifier (no CB/ED prefix)
 	wire w91;
 	reg w92; // ED prefix active
 	wire w93;
 	wire w94;
-	reg w95_i; // CB prefix state latch
+	reg cb_prefix_latch; // CB prefix state latch
 	wire w95;
 	wire w96; // CB-prefixed instruction qualifier
 	wire w97;
@@ -215,7 +215,7 @@ module z80cpu
 	wire w128;
 	wire w129;
 	wire rfsh_rs, rfsh; // refresh cycle control
-	wire w130; // next-instruction trigger
+	wire next_instr_trig; // next-instruction trigger
 	wire w131, w131_i; // sequencer step S0 (opcode fetch / initial step)
 	wire w132;
 	wire w133;
@@ -627,7 +627,7 @@ module z80cpu
 	reg [15:0] w521 = 16'h0; // address register pair 1 (also alt bank bus latch)
 	reg [15:0] w522 = 16'h0; // incrementer input register
 	wire [15:0] w523; // carry-lookahead adder output (inc/dec result)
-	reg w524 = 1'h0; // decrementer zero detect (w522 != 1)
+	reg dec_zero_det = 1'h0; // decrementer zero detect (w522 != 1)
 	wire [14:0] w525; // CLA propagate/generate signals
 	reg [15:0] w526 = 16'h0; // address output register (active-low, drives ADDRESS)
 	reg [15:0] w527 = 16'h0; // incrementer result latch
@@ -737,7 +737,7 @@ module z80cpu
 
 	wire w1_i;
 	
-	assign w1 = ~w1_i;
+	assign mreq_rd_trig = ~w1_i;
 	
 	z80_rs_trig_nor rs1
 		(
@@ -784,7 +784,7 @@ module z80cpu
 		.MCLK(MCLK),
 		.rst(clk & w4_i),
 		.set(clk & w4),
-		.q(w5),
+		.q(int_sync),
 		.nq()
 		);
 		
@@ -812,16 +812,16 @@ module z80cpu
 		.MCLK(MCLK),
 		.rst(~l2 | (nmi & ~w7)),
 		.set(nmi & w7),
-		.q(w6),
-		.nq(w6_i)
+		.q(nmi_edge),
+		.nq(nmi_edge_i)
 		);
 	
 	
 	z80_rs_trig_nand rs8
 		(
 		.MCLK(MCLK),
-		.nset(clk | w6_i),
-		.nrst(clk | w6),
+		.nset(clk | nmi_edge_i),
+		.nrst(clk | nmi_edge),
 		.q(w8),
 		.nq(w8_i)
 		);
@@ -851,11 +851,11 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~w73 | pla[1]),
+		.inp(~iff1 | pla[1]),
 		.outp(l3)
 		);
 	
-	assign w12 = ~(w5 | w9 | l3);
+	assign w12 = ~(int_sync | w9 | l3);
 	
 	assign w13 = ~((w16 & ~w10) | w18 | w19 | halt);
 	
@@ -955,7 +955,7 @@ module z80cpu
 		.outp(l7)
 		);
 	
-	assign w28 = ~(halt | (w18 & w80) | w55 | w19 | ~(w18 | l7));
+	assign w28 = ~(halt | (w18 & im_bit1) | w55 | w19 | ~(w18 | l7));
 	
 	always @(posedge MCLK)
 	begin
@@ -1096,7 +1096,7 @@ module z80cpu
 	
 	assign w41 = ~w40 & ~w34;
 	
-	assign w42 = ~clk & ~w43;
+	assign dbus_wr_en = ~clk & ~w43;
 	
 	assign w43 = ~(~pla[35] & l13);
 	
@@ -1113,8 +1113,8 @@ module z80cpu
 		.MCLK(MCLK),
 		.rst(w45),
 		.set(l14 | (clk & w110)),
-		.q(w44_n),
-		.nq(w44_i)
+		.q(dbus_oe_n),
+		.nq(dbus_oe_i)
 		);
 	
 	z80_dlatch dl14
@@ -1125,7 +1125,7 @@ module z80cpu
 		.outp(l14)
 		);
 		
-	assign w44 = ~w44_i;
+	assign dbus_oe = ~dbus_oe_i;
 	
 	z80_dlatch dl15
 		(
@@ -1181,17 +1181,17 @@ module z80cpu
 		.MCLK(MCLK),
 		.nset(clk | RESET),
 		.nrst(clk | ~RESET),
-		.q(w50),
-		.nq(w50_i)
+		.q(reset_edge),
+		.nq(reset_edge_i)
 		);
 	
 	z80_rs_trig_nor rs51
 		(
 		.MCLK(MCLK),
-		.rst(clk & w50_i),
-		.set(clk & w50),
-		.q(w51),
-		.nq(w51_i)
+		.rst(clk & reset_edge_i),
+		.set(clk & reset_edge),
+		.q(reset_sync),
+		.nq(reset_sync_i)
 		);
 		
 	assign w52 = ~clk & l19;
@@ -1217,8 +1217,8 @@ module z80cpu
 	z80_rs_trig_nor rs54
 		(
 		.MCLK(MCLK),
-		.rst(w52 & w51),
-		.set(w52 & w51_i),
+		.rst(w52 & reset_sync),
+		.set(w52 & reset_sync_i),
 		.q(w54),
 		.nq()
 		);
@@ -1228,8 +1228,8 @@ module z80cpu
 	z80_rs_trig_nor rs56
 		(
 		.MCLK(MCLK),
-		.rst(w53 & w51),
-		.set((w53 & w104 & ~w51) | w55),
+		.rst(w53 & reset_sync),
+		.set((w53 & w104 & ~reset_sync) | w55),
 		.q(w56),
 		.nq()
 		);
@@ -1241,16 +1241,16 @@ module z80cpu
 		.MCLK(MCLK),
 		.nset(clk | BUSRQ),
 		.nrst(clk | ~BUSRQ),
-		.q(w58),
-		.nq(w58_i)
+		.q(busrq_edge),
+		.nq(busrq_edge_i)
 		);
 	
 	z80_rs_trig_nor rs59
 		(
 		.MCLK(MCLK),
-		.rst(clk & w58_i),
-		.set(clk & w58),
-		.q(w59),
+		.rst(clk & busrq_edge_i),
+		.set(clk & busrq_edge),
+		.q(busrq_sync),
 		.nq()
 		);
 	
@@ -1316,7 +1316,7 @@ module z80cpu
 		.outp(l24)
 		);
 	
-	assign w65 = ~(~l24 | clk | ~w59);
+	assign w65 = ~(~l24 | clk | ~busrq_sync);
 	
 	z80_rs_trig_nor rs66
 		(
@@ -1327,7 +1327,7 @@ module z80cpu
 		.nq(w66_i)
 		);
 	
-	assign w67 = ~clk & ~w59;
+	assign w67 = ~clk & ~busrq_sync;
 	
 	z80_dlatch dl25
 		(
@@ -1365,23 +1365,23 @@ module z80cpu
 	always @(posedge MCLK)
 	begin
 		if (w19 | w18 | w55)
-			w73 <= 0;
+			iff1 <= 0;
 		else if (clk)
-			w73 <= w73;
+			iff1 <= iff1;
 		else if (w71)
-			w73 <= w147[3];
+			iff1 <= w147[3];
 		else if (w75)
-			w73 <= w74;
+			iff1 <= iff2;
 	end
 	
 	always @(posedge MCLK)
 	begin
 		if (w18 | w55)
-			w74 <= 0;
+			iff2 <= 0;
 		else if (clk)
-			w74 <= w74;
+			iff2 <= iff2;
 		else if (w71)
-			w74 <= w147[3];
+			iff2 <= w147[3];
 	end
 	
 	z80_dlatch dl27
@@ -1396,19 +1396,19 @@ module z80cpu
 	
 	assign w76 = ~(pla[52] & w131 & w114);
 	
-	assign w77 = w89 & w19;
+	assign w77 = prefix_active & w19;
 	
 	always @(posedge MCLK)
 	begin
 		if (w55)
-			w78_i <= 0;
+			im_bit0 <= 0;
 		else if (clk)
-			w78_i <= w78_i;
+			im_bit0 <= im_bit0;
 		else if (w79)
-			w78_i <= w147[3];
+			im_bit0 <= w147[3];
 	end
 	
-	assign w78 = ~w78_i;
+	assign w78 = ~im_bit0;
 	
 	z80_dlatch dl28
 		(
@@ -1424,30 +1424,30 @@ module z80cpu
 	always @(posedge MCLK)
 	begin
 		if (w55)
-			w80 <= 0;
+			im_bit1 <= 0;
 		else if (clk)
-			w80 <= w80;
+			im_bit1 <= im_bit1;
 		else if (w79)
-			w80 <= w147[4];
+			im_bit1 <= w147[4];
 	end
 	
-	assign w81 = w80 & (w89 & w78 & w18);
+	assign im2_fetch_qual = im_bit1 & (prefix_active & w78 & w18);
 	
 	assign w82 = ~(pla[33] | pla[34]);
 	
 	assign w83 = ~(w77 | ~w86);
 	
-	assign w84 = ~(~w80 | w85);
+	assign w84 = ~(~im_bit1 | w85);
 	
 	assign w85 = ~(w78 & w18);
 	
-	assign w86 = (w89 & (w84 | w19)) | (~w89 & pla[42]);
+	assign w86 = (prefix_active & (w84 | w19)) | (~prefix_active & pla[42]);
 	
-	assign w87 = ~(w78 | ~w80);
+	assign w87 = ~(w78 | ~im_bit1);
 	
-	assign w88 = ~(w87 & w89 & w18);
+	assign w88 = ~(w87 & prefix_active & w18);
 	
-	assign w89 = ~(w103 | ~w30);
+	assign prefix_active = ~(w103 | ~w30);
 	
 	assign w90 = ~(~w91 | w30);
 	
@@ -1478,14 +1478,14 @@ module z80cpu
 	always @(posedge MCLK)
 	begin
 		if (w55)
-			w95_i <= 0;
+			cb_prefix_latch <= 0;
 		else if (clk)
-			w95_i <= w95_i;
+			cb_prefix_latch <= cb_prefix_latch;
 		else if (w103)
-			w95_i <= w98;
+			cb_prefix_latch <= w98;
 	end
 	
-	assign w95 = ~w95_i;
+	assign w95 = ~cb_prefix_latch;
 	
 	assign w96 = w95 | w103;
 	
@@ -1640,7 +1640,7 @@ module z80cpu
 		.outp(l32)
 		);
 	
-	assign w119 = l32 & ~w134 & ~w130;
+	assign w119 = l32 & ~w134 & ~next_instr_trig;
 	
 	z80_rs_trig_nor rs120
 		(
@@ -1672,7 +1672,7 @@ module z80cpu
 		.outp(l33)
 		);
 	
-	assign w122 = l33 & ~w130;
+	assign w122 = l33 & ~next_instr_trig;
 	
 	z80_rs_trig_nor rs123
 		(
@@ -1693,7 +1693,7 @@ module z80cpu
 		.outp(l34)
 		);
 	
-	assign w124 = ~w130 & (l34 | w134);
+	assign w124 = ~next_instr_trig & (l34 | w134);
 	
 	assign w125 = ~((~w169 & ~w100) | (w169 & w161));
 	
@@ -1718,7 +1718,7 @@ module z80cpu
 		.outp(l35)
 		);
 	
-	assign w128 = ~(w134 | w130 | ~l35);
+	assign w128 = ~(w134 | next_instr_trig | ~l35);
 	
 	assign w129 = ~(w131 & (w109 | w41));
 	
@@ -1735,19 +1735,19 @@ module z80cpu
 	
 	assign RFSH = ~rfsh;
 	
-	z80_dlatch dw130
+	z80_dlatch dnext_instr_trig
 		(
 		.MCLK(MCLK),
 		.en(clk),
 		.inp(w118),
-		.outp(w130)
+		.outp(next_instr_trig)
 		);
 	
 	z80_rs_trig_nor rs131
 		(
 		.MCLK(MCLK),
-		.rst(w132 & ~w130),
-		.set(w132 & w130),
+		.rst(w132 & ~next_instr_trig),
+		.set(w132 & next_instr_trig),
 		.q(),
 		.nq(w131_i)
 		);
@@ -1822,7 +1822,7 @@ module z80cpu
 	begin
 		if (w2)
 			w145 <= ~DATA_i;
-		else if (w42)
+		else if (dbus_wr_en)
 			w145 <= w146;
 		else
 			w145 <= w145;
@@ -1858,7 +1858,7 @@ module z80cpu
 	assign pla[12] = (w147 & 8'h38) == 8'h30 & ~w82; // or
 	assign pla[13] = (w147 & 8'h38) == 8'h20 & ~w82; // and
 	assign pla[14] = (w147 & 8'h38) == 8'h00 & ~w82; // add
-	assign pla[15] = (w147 & 8'hf7) == 8'h57 & w92 & w74; // ld a,i/r with IFF2 set (P/V flag source)
+	assign pla[15] = (w147 & 8'hf7) == 8'h57 & w92 & iff2; // ld a,i/r with IFF2 set (P/V flag source)
 	assign pla[16] = (w147 & 8'hc7) == 8'h44 & w92; // neg
 	assign pla[17] = w147 == 8'h2f & w90; // cpl
 	assign pla[18] = (w147 & 8'h38) == 8'h08 & ~w82; // adc
@@ -2422,7 +2422,7 @@ module z80cpu
 		| (w114 & w120 & (w255 | w256))
 		);
 	
-	assign w284 = ~(w68 & w131 & w81);
+	assign w284 = ~(w68 & w131 & im2_fetch_qual);
 	
 	assign w285 = ~(
 		(w110 & w120 & pla[0])
@@ -3283,7 +3283,7 @@ module z80cpu
 	
 	assign w437 = ~clk & ~l60;
 	
-	assign w438 = ~w524;
+	assign w438 = ~dec_zero_det;
 	
 	assign w439 = ~clk & ~w162 & ~w429;
 	
@@ -3594,7 +3594,7 @@ module z80cpu
 	
 	assign w481 = ~w468;
 	
-	assign w483 = ~w1 & w2;
+	assign w483 = ~mreq_rd_trig & w2;
 	
 	assign w485 = ~w441;
 	
@@ -3908,7 +3908,7 @@ module z80cpu
 	always @(posedge MCLK)
 	begin
 		if (clk & w210)
-			w524 <= w522 != 16'h1;
+			dec_zero_det <= w522 != 16'h1;
 	end
 	
 	always @(posedge MCLK)
@@ -4021,7 +4021,7 @@ module z80cpu
 	end
 	
 	assign DATA_o = ~w145;
-	assign DATA_z = w44;
+	assign DATA_z = dbus_oe;
 	
 	z80_rs_trig_nor haltrs
 		(
@@ -4057,8 +4057,8 @@ module z80cpu
 	// bus states when enabled, implementing the silicon pass-transistor network.
 	// -----------------------------------------------------------------------
 
-	wire [7:0] bus1_pulld = {8{w1}} & ~w145;
-	wire [7:0] bus1_pullu = ({8{w1}} & w145) | {8{w483}};
+	wire [7:0] bus1_pulld = {8{mreq_rd_trig}} & ~w145;
+	wire [7:0] bus1_pullu = ({8{mreq_rd_trig}} & w145) | {8{w483}};
 	
 	wire [7:0] bcd_val = { 1'b1, ~w443, ~w443, 2'b11, ~w444, ~w444, 1'b1 }; 
 	wire [7:0] status_val = { ~w450, ~w486, 1'b0, ~w476, 1'b0, ~w441, ~w481, ~w473 };
