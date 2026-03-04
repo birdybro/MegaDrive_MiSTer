@@ -26,6 +26,50 @@
  *
  */
 
+// YM7101 — Sega MegaDrive/Genesis Video Display Processor (VDP)
+//
+// Custom Yamaha gate-array responsible for all video output. Implements:
+//   - Two scroll planes (A & B) with per-tile and per-line scrolling
+//   - 80-entry sprite engine with per-line rendering and priority
+//   - 64-entry color RAM (CRAM) with 9-bit RGB (512-color palette)
+//   - 40-entry vertical scroll RAM (VSRAM)
+//   - 64 KB VRAM interface with RAS/CAS/WE timing for two DRAM chips
+//   - DMA engine (68K→VRAM, VRAM fill, VRAM copy) with 4-word FIFO
+//   - H/V counter with programmable interrupts (HINT, VINT, EINT)
+//   - Programmable display modes: H32/H40, V28/V30, interlace
+//   - Shadow/highlight priority processing
+//   - Integrated SN76489-compatible PSG (3 tone + 1 noise channel)
+//   - Non-linear DAC with 17-level RGB output
+//
+// Architecture:
+//   The VDP is clocked from MCLK (~53.7 MHz NTSC / ~54.2 MHz PAL).
+//   A prescaler generates dot clocks (clk1/clk2) and half-rate pixel
+//   clocks (hclk1/hclk2). Most rendering logic runs on hclk1/hclk2.
+//   The CPU interface accepts both 68K and Z80 bus transactions.
+//
+// Major functional blocks (in source order):
+//   1. Prescaler & clock generation — MCLK dividers, CPU/PSG clock
+//   2. I/O, DMA & FIFO — CPU bus decode, register writes, DMA FSM
+//   3. Timing FSM — H/V counters, sync generation, display enable
+//   4. H/V counter PLAs — timing event comparators for mode variants
+//   5. Scroll plane rendering — planes A/B tile fetch & pixel serialize
+//   6. VSRAM — 40-entry vertical scroll RAM
+//   7. Sprite processing — SAT traversal, Y-test, tile fetch, X-sort
+//   8. SAT cache / sprite render data / line buffer — sprite storage
+//   9. VRAM interface — RAS/CAS/WE sequencer, serial data, refresh
+//  10. Video priority MUX — sprite/plane/BG priority, shadow/highlight
+//  11. DAC & color output — non-linear RGB DAC, color RAM
+//  12. PSG (SN76489) — 3 tone + noise channels, audio output
+//  13. VRAM/IO/color bus drive — wired-AND val/pull bus patterns
+//  14. Miscellaneous outputs — VDP status to fc1004, CRAM display pipe
+//
+// Signal naming:
+//   w### = combinational wire, l### = latch/register, t### = trigger/RS-FF,
+//   dff###_l2 = DFF slave output, reg_* = named config register bits,
+//   pla_vcnt/pla_hcnt1/pla_hcnt2 = timing event PLAs.
+//   Original opaque names are preserved (not renamed) due to the ~1800
+//   signal count; grouped comments and inline annotations identify roles.
+
 module ym7101
 	(
 	input MCLK,
@@ -117,6 +161,10 @@ module ym7101
 	output vdp_dma
 	);
 
+	// --- Wire/register declarations ---------------------------------------------------
+	// Grouped by functional area. Opaque w###/l###/t### names preserved from netlist.
+
+	// CPU interface signals (active-high internal equivalents of active-low bus pins)
 	wire cpu_sel;
 	wire cpu_as;
 	wire cpu_uds;
@@ -132,21 +180,27 @@ module ym7101
 	wire cpu_bgack;
 	wire cpu_pal;
 	wire cpu_pen;
-	
+
+	// CPU clock outputs
 	wire cpu_clk0;
 	wire cpu_clk1;
-	
+
+	// Active-high sync/sprite input inversions
 	wire i_csync = ~CSYNC_i;
 	wire i_hsync = ~HSYNC_i;
-	
+
 	wire i_spa = ~SPA_B_i;
-	
+
 	wire reset_ext = ~RESET;
-	
+
+	// Master dot clocks and half-rate pixel clocks
 	wire clk1, clk2;
 	wire hclk1, hclk2;
 	
+	// Reset
 	wire reset_comb;
+
+	// Prescaler DFF chain (MCLK divider for clk1/clk2/hclk1/hclk2)
 	wire mclk_and1;
 	//reg prescaler_dff1 = 1'h0;
 	//reg prescaler_dff2 = 1'h0;
@@ -159,7 +213,7 @@ module ym7101
 	//reg prescaler_dff9 = 1'h0;
 	//reg prescaler_dff10 = 1'h0;
 	//reg prescaler_dff11 = 1'h0;
-	
+
 	wire prescaler_dff1_l2;
 	wire prescaler_dff2_l2;
 	wire prescaler_dff3_l2;
@@ -171,23 +225,26 @@ module ym7101
 	wire prescaler_dff9_l2;
 	wire prescaler_dff10_l2;
 	wire prescaler_dff11_l2;
-	
+
 	wire prescaler_dff12_l2;
 	wire prescaler_dff13_l2;
 	wire prescaler_dff14_l2;
 	wire prescaler_dff15_l2;
 	wire prescaler_dff16_l2;
 	wire prescaler_dff17_l2;
-	wire mclk_clk1;
-	wire mclk_clk2;
-	wire mclk_clk3;
-	wire mclk_clk4;
-	wire mclk_clk5;
-	wire mclk_sbcr;
-	wire mclk_cpu_clk0;
-	wire mclk_cpu_clk1;
-	wire mclk_dclk;
+
+	// Prescaler-derived clock selects
+	wire mclk_clk1;  // dot clock phase 1 select
+	wire mclk_clk2;  // dot clock phase 2 select
+	wire mclk_clk3;  // inverted prescaler stage
+	wire mclk_clk4;  // PAL SBCR clock candidate
+	wire mclk_clk5;  // NTSC SBCR / CPU clock candidate
+	wire mclk_sbcr;  // selected sub-carrier clock
+	wire mclk_cpu_clk0; // CPU clock 0 source
+	wire mclk_cpu_clk1; // CPU clock 1 source
+	wire mclk_dclk;  // dot clock (pixel rate)
 	
+	// Z80 M1 cycle synchronizer chain
 	wire io_m1_dff1_l2;
 	wire io_m1_dff2_l2;
 	wire io_m1_dff3_l2;
@@ -197,18 +254,22 @@ module ym7101
 	wire io_m1_s3;
 	wire io_m1_s4;
 	wire io_m1_s5;
+
+	// I/O bus registers and control
 	reg [22:0] io_address;
 	wire io_address_22o;
-	wire io_oe0;
+	wire io_oe0;   // RAM output enable
 	wire w1153;
-	wire io_cas0;
-	wire io_ras0;
-	wire io_lwr;
-	wire io_uwr;
-	wire io_wr;
-	wire io_ipl1;
-	wire io_ipl2;
+	wire io_cas0;  // RAM CAS
+	wire io_ras0;  // RAM RAS
+	wire io_lwr;   // lower byte write
+	wire io_uwr;   // upper byte write
+	wire io_wr;    // write strobe
+	wire io_ipl1;  // interrupt priority level bit 1
+	wire io_ipl2;  // interrupt priority level bit 2
 	reg [15:0] io_data;
+
+	// I/O block: CPU bus decode, DTACK, register access, DMA/FIFO (w1-w290)
 	wire w1;
 	wire dff1_l2;
 	wire dff2_l2;
@@ -284,7 +345,7 @@ module ym7101
 	wire dff20_l2;
 	wire dff21_l2;
 	wire dff22_l2;
-	wire w42;
+	wire w42; // BR pull control (bus request)
 	wire dff23_l2;
 	wire dff24_l2;
 	wire dff25_l2;
@@ -326,7 +387,7 @@ module ym7101
 	wire w61;
 	wire w62;
 	wire w63;
-	wire w64;
+	wire w64; // BGACK pull control (bus grant acknowledge)
 	wire w65;
 	wire w66;
 	wire t9;
@@ -366,16 +427,16 @@ module ym7101
 	wire w97;
 	wire w98;
 	wire w99;
-	wire w100;
+	wire w100; // internal reset state
 	wire w101;
 	wire w102;
-	wire [7:0] w103;
+	wire [7:0] w103; // RA[7:0] output (VRAM row address)
 	wire w104;
 	wire [7:0] l16;
 	wire w105;
-	wire w106;
-	wire w107;
-	wire w108;
+	wire w106; // interlace double-res mode (reg_lsm0_latch & reg_lsm1_latch)
+	wire w107; // V28 mode detect (~reg_m2 & reg_m5)
+	wire w108; // V30 mode detect (reg_m2 & reg_m5)
 	wire w109;
 	wire w110;
 	wire w111;
@@ -384,14 +445,14 @@ module ym7101
 	wire w114;
 	wire w115;
 	wire w116;
-	wire w117;
+	wire w117; // DTACK pull control
 	wire w118;
 	wire l17;
 	wire w119;
 	wire w120;
 	wire w121;
 	wire t12;
-	wire w122;
+	wire w122; // INT pull control
 	wire w123;
 	wire w124;
 	wire w125;
@@ -431,7 +492,7 @@ module ym7101
 	wire w149;
 	wire t21;
 	wire w150;
-	wire w151;
+	wire w151; // CPU data bus drive enable
 	wire w152;
 	wire w153;
 	wire w154;
@@ -517,26 +578,29 @@ module ym7101
 	wire w213;
 	wire w214;
 	wire w215;
-	wire w216;
-	wire w217;
-	wire w218;
-	wire w219;
-	wire w220;
-	wire w221;
-	wire w222;
-	wire w223;
-	wire w224;
-	wire w225;
-	wire w226;
-	wire w227;
-	wire w228;
-	wire w229;
-	wire w230;
+	// Register write strobes (active for one cycle when CPU writes reg 0x80-0x97)
+	wire w216; // reg 0x80 write strobe
+	wire w217; // reg 0x81 write strobe
+	wire w218; // reg 0x82 write strobe
+	wire w219; // reg 0x83 write strobe
+	wire w220; // reg 0x84 write strobe
+	wire w221; // reg 0x85 write strobe
+	wire w222; // reg 0x86 write strobe
+	wire w223; // reg 0x87 write strobe
+	wire w224; // reg 0x88 write strobe
+	wire w225; // reg 0x89 write strobe
+	wire w226; // reg 0x8A write strobe
+	wire w227; // reg 0x8B write strobe
+	wire w228; // reg 0x8C write strobe
+	wire w229; // reg 0x8D write strobe
+	wire w230; // reg 0x8E-0x97 write range
 	wire w231;
 	wire w232;
 	wire w233;
 	wire w234;
 	wire w235;
+
+	// VRAM address pipeline latches (DMA/FIFO address stages, 17-bit)
 	wire [16:0] l35;
 	wire [16:0] l36;
 	wire [16:0] l37;
@@ -573,14 +637,14 @@ module ym7101
 	wire w265;
 	wire l47;
 	wire w266;
-	wire w267;
+	wire w267; // DMA address bus drive enable
 	wire l48;
 	wire w268;
 	wire w269;
 	wire l49;
 	wire w270;
 	wire w271;
-	wire t28;
+	wire t28; // DMA active trigger
 	wire l50;
 	wire w272;
 	wire w273;
@@ -696,6 +760,7 @@ module ym7101
 	wire w344;
 	wire w345;
 	wire w346;
+	// VRAM data pipeline latches (4 pairs of 8-bit read stages: l90-l104)
 	wire [7:0] l90;
 	wire [7:0] l91;
 	wire [7:0] w347;
@@ -721,9 +786,10 @@ module ym7101
 	wire [7:0] w354;
 	wire [7:0] l104;
 	
-	wire [8:0] l105;
-	wire [9:0] w355;
-	wire [8:0] l106;
+	// H/V counters and timing FSM (l105-l176, w355-w466)
+	wire [8:0] l105; // vertical counter (9-bit)
+	wire [9:0] w355; // extended vcnt (interlace: {l105, field}, normal: {0, l105})
+	wire [8:0] l106; // horizontal counter (9-bit)
 	wire l107;
 	wire l108;
 	wire l109;
@@ -735,10 +801,10 @@ module ym7101
 	wire w360;
 	wire l111;
 	wire l112;
-	wire w361;
+	wire w361; // hcnt load enable
 	wire w362;
-	wire w363;
-	wire [8:0] w364;
+	wire w363; // hcnt increment enable
+	wire [8:0] w364; // hcnt load value
 	wire w365;
 	wire w366;
 	wire w367;
@@ -785,7 +851,7 @@ module ym7101
 	wire w391;
 	wire l130;
 	wire w392;
-	wire t29;
+	wire t29; // horizontal display enable trigger
 	wire l131;
 	wire w393;
 	wire l132;
@@ -847,7 +913,7 @@ module ym7101
 	wire l157;
 	wire w422;
 	wire l158;
-	wire t33;
+	wire t33; // horizontal sync trigger
 	wire w423;
 	wire w424;
 	wire w425;
@@ -856,7 +922,7 @@ module ym7101
 	wire w426;
 	wire l161;
 	wire w427;
-	wire [8:0] w428;
+	wire [8:0] w428; // vcnt load value (mode/region-dependent)
 	wire w429;
 	wire w430;
 	wire w431;
@@ -864,24 +930,24 @@ module ym7101
 	wire w433;
 	wire w434;
 	wire w435;
-	wire w436;
-	wire w437;
+	wire w436; // vcnt increment enable
+	wire w437; // vcnt load enable
 	wire w438;
-	wire l162;
-	wire w439;
+	wire l162; // display active region flag
+	wire w439; // active display gating (~(reg_disp & (l162 | t38)))
 	wire l163;
 	wire w440;
 	wire t34;
 	wire w441;
 	wire l164;
 	wire w442;
-	wire t35;
+	wire t35; // field bit trigger
 	wire w443;
 	wire l165;
 	wire w444;
 	wire w445;
 	wire t36;
-	wire w446;
+	wire w446; // interlace field bit (even/odd frame)
 	wire l167;
 	wire w447;
 	wire w448;
@@ -900,7 +966,7 @@ module ym7101
 	wire w457;
 	wire w458;
 	wire w459;
-	wire t38;
+	wire t38; // vertical display enable trigger
 	wire l171;
 	wire l172;
 	wire t39;
@@ -915,9 +981,10 @@ module ym7101
 	wire l176;
 	wire w465;
 	wire w466;
-	wire [47:0] pla_vcnt;
-	wire [62:0] pla_hcnt1;
-	wire [45:0] pla_hcnt2;
+	// H/V counter PLAs — timing event comparators for mode variants
+	wire [47:0] pla_vcnt;  // 48 vertical timing events
+	wire [62:0] pla_hcnt1; // 63 horizontal timing events (group 1)
+	wire [45:0] pla_hcnt2; // 46 horizontal timing events (group 2)
 	wire w467;
 	wire w468;
 	wire w469;
@@ -966,15 +1033,16 @@ module ym7101
 	wire w512;
 	wire l663;
 
+	// Scroll plane rendering: tilemap address, tile fetch, pixel serialization
 	wire w513;
 	wire l178;
 	wire w514;
-	wire [7:0] l179;
+	wire [7:0] l179; // H-scroll data latch (from reg write)
 	wire [10:0] w515; // 11 bits
-	wire [10:0] l180; // 11 bits
+	wire [10:0] l180; // VSRAM read latch (11 bits)
 	wire [10:0] l181;
 	wire [2:0] l182;
-	wire l183;
+	wire l183; // VSRAM data bus drive
 	wire w516;
 	wire w517;
 	wire [10:0] l184;
@@ -985,8 +1053,8 @@ module ym7101
 	wire w520;
 	wire [10:0] w521;
 	wire [10:0] w522;
-	wire [1:0] reg_hsz;
-	wire [1:0] reg_vsz;
+	wire [1:0] reg_hsz; // horizontal scroll size (00=32, 01=64, 11=128)
+	wire [1:0] reg_vsz; // vertical scroll size (00=32, 01=64, 11=128)
 	wire w523;
 	wire w524;
 	wire w525;
@@ -996,9 +1064,10 @@ module ym7101
 	wire w529;
 	wire w530;
 	wire w531;
-	wire [3:0] reg_sa;
-	wire [1:0] reg_nt; // m4
-	wire [3:0] reg_sb;
+	// Nametable base address registers
+	wire [3:0] reg_sa; // plane A nametable base (reg 0x82)
+	wire [1:0] reg_nt; // m4 nametable (reg 0x82, SMS mode)
+	wire [3:0] reg_sb; // plane B nametable base (reg 0x84)
 	wire [3:0] w532;
 	wire [1:0] w533;
 	wire reg_8e_b0;
@@ -1006,17 +1075,18 @@ module ym7101
 	wire w534;
 	wire [7:0] w535; // 8 bits
 	wire [5:0] w536; // 6 bits
-	wire [5:0] reg_wd;
-	wire [6:0] reg_hs;
+	// Window plane registers
+	wire [5:0] reg_wd; // window nametable base (reg 0x83)
+	wire [6:0] reg_hs; // H-scroll table base (reg 0x8D)
 	wire [7:0] w537;
 	wire w538;
 	wire w539;
 	wire w540;
 	wire w541;
-	wire [4:0] reg_whp;
-	wire reg_rigt;
-	wire [4:0] reg_wvp;
-	wire reg_down;
+	wire [4:0] reg_whp; // window H position (reg 0x91)
+	wire reg_rigt;       // window right flag (reg 0x91 bit 7)
+	wire [4:0] reg_wvp; // window V position (reg 0x92)
+	wire reg_down;       // window down flag (reg 0x92 bit 7)
 	wire w542;
 	wire w543;
 	wire w544;
@@ -1092,6 +1162,7 @@ module ym7101
 	wire w582;
 	wire l218;
 	wire w583;
+	// Plane A tile pixel shift registers (4 × 8-bit bitplanes)
 	wire [7:0] l219;
 	wire [7:0] l220;
 	wire [7:0] l221;
@@ -1100,6 +1171,7 @@ module ym7101
 	wire w585;
 	wire [1:0] w586;
 	wire w587;
+	// Plane A tile attribute pipeline (4 × 8-bit)
 	wire [7:0] l223;
 	wire [7:0] l224;
 	wire [7:0] l225;
@@ -1179,6 +1251,7 @@ module ym7101
 	wire l273;
 	wire l274;
 	wire w614;
+	// Plane B tile pixel shift registers + attribute pipeline (8 × 8-bit)
 	wire [7:0] l275;
 	wire [7:0] l276;
 	wire [7:0] l277;
@@ -1354,9 +1427,10 @@ module ym7101
 	wire [6:0] w695;
 	wire [6:0] w696;
 	wire [4:0] l365;
-	wire [6:0] sat_link;
-	wire [3:0] sat_size;
-	wire [9:0] sat_ypos;
+	// SAT field decodes
+	wire [6:0] sat_link; // sprite link (next sprite index)
+	wire [3:0] sat_size; // sprite size {HS1, HS0, VS1, VS0}
+	wire [9:0] sat_ypos; // sprite Y position
 	wire [3:0] l366;
 	wire [4:0] w697;
 	wire l367;
@@ -1413,7 +1487,7 @@ module ym7101
 	wire [3:0] w728;
 	wire [2:0] w729;
 	wire [1:0] w730;
-	wire [5:0] yoff;
+	wire [5:0] yoff; // sprite Y offset into current tile row
 	wire [7:0] l386;
 	wire [7:0] l387;
 	wire [7:0] w731;
@@ -1487,14 +1561,15 @@ module ym7101
 	wire [1:0] l416;
 	wire [1:0] l417;
 	wire [5:0] l418;
-	wire [10:0] sprdata_pattern_o;
-	wire [8:0] sprdata_hpos_o;
-	wire sprdata_hflip_o;
-	wire [1:0] sprdata_pal_o;
-	wire sprdata_priority_o;
-	wire [1:0] sprdata_xs_o;
-	wire [1:0] sprdata_ys_o;
-	wire [5:0] sprdata_yoffset_o;
+	// Sprite render data outputs (read from sprdata[] buffer)
+	wire [10:0] sprdata_pattern_o; // tile pattern index
+	wire [8:0] sprdata_hpos_o;     // X position on screen
+	wire sprdata_hflip_o;          // horizontal flip
+	wire [1:0] sprdata_pal_o;      // palette select
+	wire sprdata_priority_o;       // priority over planes
+	wire [1:0] sprdata_xs_o;       // horizontal size (tiles)
+	wire [1:0] sprdata_ys_o;       // vertical size (tiles)
+	wire [5:0] sprdata_yoffset_o;  // Y offset within sprite
 	wire l419;
 	wire [1:0] l420;
 	wire w771;
@@ -1703,6 +1778,7 @@ module ym7101
 	wire w882;
 	wire w883;
 	wire w884;
+	// Sprite pixel data pipeline (8 pixels × 4-bit: l515-l530)
 	wire [3:0] l515;
 	wire [3:0] l516;
 	wire [3:0] l517;
@@ -1822,9 +1898,10 @@ module ym7101
 	wire [1:0] l553;
 	wire l554;
 	wire [3:0] l555;
-	wire [1:0]spr_pal;
-	wire spr_priority;
-	wire [3:0] spr_index;
+	// Final sprite pixel attributes (fed to priority MUX)
+	wire [1:0]spr_pal;      // sprite palette select
+	wire spr_priority;      // sprite priority flag
+	wire [3:0] spr_index;   // sprite color index
 	wire [1:0] w970;
 	wire w971;
 	wire [3:0] w972;
@@ -1850,10 +1927,12 @@ module ym7101
 	wire w1020;
 	wire w1154;
 	
-	wire [1:0] linebuffer_out_pal[0:7];
-	wire linebuffer_out_priority[0:7];
-	wire [3:0] linebuffer_out_index[0:7];
+	// Line buffer output: 8 pixels unpacked from 56-bit entry
+	wire [1:0] linebuffer_out_pal[0:7];      // palette per pixel
+	wire linebuffer_out_priority[0:7];        // priority per pixel
+	wire [3:0] linebuffer_out_index[0:7];     // color index per pixel
 
+	// VRAM interface: RAS/CAS/WE sequencer, serial data, refresh (w985-w1020)
 	wire l564;
 	wire l565;
 	wire l566;
@@ -1926,9 +2005,10 @@ module ym7101
 	wire [7:0] w1018;
 	wire [7:0] w1019;
 	
+	// Video MUX: sprite/plane/background priority, shadow/highlight (w1021-w1073)
 	wire w1021;
-	wire l601;
-	wire l602;
+	wire l601; // CRAM upper write enable (color bus → CRAM[8:6])
+	wire l602; // CRAM lower write enable (color bus → CRAM[5:0])
 	wire w1022;
 	wire w1023;
 	wire w1024;
@@ -1992,8 +2072,9 @@ module ym7101
 	wire l613;
 	wire w1072;
 	wire w1073;
-	wire [3:0] reg_col_index;
-	wire [1:0] reg_col_pal;
+	// Background color registers (reg 0x87)
+	wire [3:0] reg_col_index; // background color index
+	wire [1:0] reg_col_pal;   // background palette
 	wire reg_col_b6;
 	wire reg_col_b7;
 	wire l614;
@@ -2035,15 +2116,17 @@ module ym7101
 	wire w1098;
 	wire w1099;
 	wire w1100;
-	wire [2:0] l626; // r
-	wire [2:0] l627; // g
-	wire [2:0] l628; // b
-	wire l629;
-	wire l630;
-	wire w1101;
+	// DAC & color output
+	wire [2:0] l626; // R post-processing (3-bit CRAM red)
+	wire [2:0] l627; // G post-processing (3-bit CRAM green)
+	wire [2:0] l628; // B post-processing (3-bit CRAM blue)
+	wire l629; // shadow mode flag
+	wire l630; // highlight mode flag
+	wire w1101; // normal intensity select
 	wire w1102;
-	wire [16:0] w1103[0:2];
+	wire [16:0] w1103[0:2]; // 17-level non-linear DAC thermometer code (R/G/B)
 	
+	// PSG (SN76489) signals
 	wire psg_clk1;
 	wire psg_clk2;
 	wire l631;
@@ -2132,99 +2215,115 @@ module ym7101
 	wire [3:0] w1151;
 	wire [3:0] w1152;
 
-	wire [14:0] reg_test0;
-	wire [11:0] reg_test_18;
-	wire [7:0] reg_hit;
-	wire [10:0] reg_test1;
+	// VDP configuration registers (directly named from register map)
+	wire [14:0] reg_test0;   // test register 0
+	wire [11:0] reg_test_18; // test register 0x18
+	wire [7:0] reg_hit;      // H-interrupt counter (reg 0x8A)
+	wire [10:0] reg_test1;   // test register 1
+	// Mode register 0x80
 	wire reg_80_b7;
 	wire reg_80_b6;
-	wire reg_lcb;
-	wire reg_ie1;
+	wire reg_lcb;   // left column blank (reg 0x80 bit 5)
+	wire reg_ie1;   // H-interrupt enable (reg 0x80 bit 4)
 	wire reg_80_b3;
 	wire reg_80_b2;
-	wire reg_m3;
+	wire reg_m3;    // H/V counter latch (reg 0x80 bit 1)
 	wire reg_80_b0;
-	wire reg_lsm0;
-	wire reg_lsm1;
-	wire reg_ste;
+	// Mode register 0x8C
+	wire reg_lsm0;  // interlace mode bit 0 (reg 0x8C bit 1)
+	wire reg_lsm1;  // interlace mode bit 1 (reg 0x8C bit 2)
+	wire reg_ste;   // shadow/highlight enable (reg 0x8C bit 3)
 	wire reg_8c_b4;
 	wire reg_8c_b5;
 	wire reg_8c_b6;
-	wire reg_rs0;
-	wire reg_rs1; // h40
+	wire reg_rs0;   // external pixel clock select (reg 0x8C bit 7)
+	wire reg_rs1;   // H40 mode (reg 0x8C bit 0)
+	// Mode register 0x81
 	wire reg_81_b0;
 	wire reg_81_b1;
-	wire reg_m5;
-	wire reg_m2;
-	wire reg_m1;
-	wire reg_ie0;
-	wire reg_disp;
+	wire reg_m5;    // MegaDrive (MD) mode (reg 0x81 bit 2)
+	wire reg_m2;    // V30 mode (reg 0x81 bit 3)
+	wire reg_m1;    // DMA enable (reg 0x81 bit 4)
+	wire reg_ie0;   // V-interrupt enable (reg 0x81 bit 5)
+	wire reg_disp;  // display enable (reg 0x81 bit 6)
 	wire reg_81_b7;
-	wire reg_lscr;
-	wire reg_hscr;
-	wire reg_vscr;
-	wire reg_ie2;
+	// Scroll mode register 0x8B
+	wire reg_lscr;  // full-screen/per-line scroll select
+	wire reg_hscr;  // H-scroll mode (reg 0x8B bit 0)
+	wire reg_vscr;  // V-scroll per-2-cell mode (reg 0x8B bit 2)
+	wire reg_ie2;   // external interrupt enable (reg 0x8B bit 3)
 	wire reg_8b_b4;
 	wire reg_8b_b5;
 	wire reg_8b_b6;
 	wire reg_8b_b7;
+	// Interlace latch (latched at vsync)
 	wire reg_lsm0_latch;
 	wire reg_lsm1_latch;
-	wire [4:0] reg_code;
-	wire [16:0] reg_addr;
-	wire [7:0] reg_inc;
-	wire [16:0] reg_data_l2;
-	wire [5:0] reg_sa_high;
-	wire [1:0] reg_dmd;
-	wire [15:0] reg_lg;
-	wire [15:0] reg_sa_low;
+	// VRAM access control registers
+	wire [4:0] reg_code;     // VRAM/CRAM/VSRAM access mode code
+	wire [16:0] reg_addr;    // VRAM address register (17-bit)
+	wire [7:0] reg_inc;      // auto-increment value (reg 0x8F)
+	wire [16:0] reg_data_l2; // data port latch
+	// DMA registers
+	wire [5:0] reg_sa_high;  // DMA source address high (reg 0x97)
+	wire [1:0] reg_dmd;      // DMA mode (reg 0x97 bits 7:6)
+	wire [15:0] reg_lg;      // DMA length counter (reg 0x93-0x94)
+	wire [15:0] reg_sa_low;  // DMA source address low (reg 0x95-0x96)
 	
 	assign reset_comb = ~(RESET & w100);
-	
-	reg [16:0] vram_address;
-	reg [15:0] vram_data;
-	wire [7:0] vram_serial;
-	
+
+	// VRAM bus registers
+	reg [16:0] vram_address;  // current VRAM address (active on bus)
+	reg [15:0] vram_data;     // VRAM data register (active on bus)
+	wire [7:0] vram_serial;   // serial VRAM data captured from SD pins
+
 	//reg [16:0] vram_address_mem;
 	//reg [15:0] vram_data_mem;
-	
-	wire [3:0] color_index;
-	wire color_priority;
-	wire [1:0] color_pal;
-	
-	reg [10:0] vsram[0:39];
+
+	// Color bus outputs (from priority MUX to CRAM)
+	wire [3:0] color_index;   // pixel color index
+	wire color_priority;      // pixel priority flag
+	wire [1:0] color_pal;     // pixel palette select
+
+	// On-chip memory arrays
+	reg [10:0] vsram[0:39];       // Vertical Scroll RAM (40 entries × 11 bits)
 	reg [10:0] vsram_out;
 	reg [10:0] vsram_out_0;
 	reg [10:0] vsram_out_1;
-	
-	reg [20:0] sat[0:79];
+
+	reg [20:0] sat[0:79];         // Sprite Attribute Table cache (80 entries × 21 bits)
 	reg [20:0] sat_out;
 	reg [20:0] sat_out_0;
 	reg [20:0] sat_out_1;
 	reg [20:0] sat_out_2;
 	reg [20:0] sat_out_3;
-	
-	reg [33:0] sprdata[0:19];
+
+	reg [33:0] sprdata[0:19];     // Sprite render data buffer (20 entries × 34 bits)
 	reg [33:0] sprdata_out;
 	reg [33:0] sprdata_out_0;
 	reg [33:0] sprdata_out_1;
-	
-	reg [55:0] linebuffer[0:39];
+
+	reg [55:0] linebuffer[0:39];  // Line buffer (40 entries × 56 bits, 8 pixels each)
 	reg [55:0] linebuffer_out;
 	reg [55:0] linebuffer_out_0;
 	reg [55:0] linebuffer_out_1;
-	
-	reg [8:0] color_ram[0:63];
+
+	reg [8:0] color_ram[0:63];    // Color RAM (64 entries × 9 bits, 3×3-bit RGB)
 	reg [8:0] color_ram_out;
-	
-	// extra
+
+	// Display pipeline CRAM readout (active display, bypasses normal bus)
 	wire [5:0] w1076_dp;
 	wire [5:0] l617_dp;
 	reg [8:0] color_ram_out_dp;
 	
 	
-	// prescaler
-	
+	// -------------------------------------------------------------------------
+	// Prescaler & clock generation
+	// -------------------------------------------------------------------------
+	// Divides MCLK (~53.7 MHz NTSC / ~54.2 MHz PAL) into dot clocks
+	// (clk1/clk2) and CPU clock (cpu_clk0/cpu_clk1). Also generates
+	// sub-carrier reference (SBCR) and the per-pixel dot clock (dclk).
+
 	assign mclk_and1 = prescaler_dff2_l2 & ~prescaler_dff1_l2;
 	
 	assign mclk_clk1 = prescaler_dff4_l2;
@@ -2320,7 +2419,7 @@ module ym7101
 	assign cpu_clk0 = mclk_cpu_clk0;
 	assign cpu_clk1 = CLK1_i;
 	
-	// clk1, clk2
+	// --- clk1, clk2 (master dot clock phases) ---
 	
 	
 	reg dclk_l;
@@ -2357,7 +2456,7 @@ module ym7101
 	assign clk2 = tclk2 | tclk2_l;*/
 	
 	
-	// hclk1, hclk2 (half clock)
+	// --- hclk1, hclk2 (half-rate pixel clocks, main rendering clock) ---
 	
 	wire reset_l1_o;
 	wire reset_l2_o;
@@ -2378,8 +2477,15 @@ module ym7101
 	ym7101_dff dclk_prescaler_dff1(.MCLK(MCLK), .clk(~clk1), .inp(1'h1), .rst(dclk_prescaler_l2_o & clk2), .outp(dclk_prescaler_dff1_l2));
 	ym7101_dff dclk_prescaler_dff2(.MCLK(MCLK), .clk(~clk1), .inp(1'h1), .rst(dclk_prescaler_l3_o & clk2), .outp(dclk_prescaler_dff2_l2));
 	
-	// IO, DMA/FIFO block
-	
+	// -------------------------------------------------------------------------
+	// I/O, DMA & FIFO
+	// -------------------------------------------------------------------------
+	// CPU bus decode for both 68K (active-low AS/UDS/LDS/RW) and Z80
+	// (active-low M1/RD/WR/MREQ/IORQ). Generates DTACK, handles VDP
+	// register writes (0x80-0x97), VRAM/CRAM/VSRAM read/write via the
+	// 4-word FIFO, DMA state machine (68K→VRAM, fill, copy), HV counter
+	// read, interrupt generation (VINT, HINT, EINT), and bus arbitration.
+
 	assign cpu_sel = SEL0;
 	assign cpu_as = ~AS & cpu_sel;
 	assign cpu_uds = ~UDS & cpu_sel;
@@ -3427,8 +3533,14 @@ module ym7101
 	assign RA = w103[7:0];
 	assign INT_pull = ~w122;
 	
-	// FSM block
-	
+	// -------------------------------------------------------------------------
+	// Timing FSM
+	// -------------------------------------------------------------------------
+	// H/V counter state machine. l106 is the 9-bit horizontal counter,
+	// l105 is the 9-bit vertical counter. Together with the PLA comparators
+	// (pla_vcnt, pla_hcnt1, pla_hcnt2), they generate sync pulses, blanking
+	// intervals, display enable, and all per-line/per-frame timing events.
+
 	ym_cnt_bit_load #(.DATA_WIDTH(9)) cnt105(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
 		.c_in(w436), .reset(1'h0), .load(w437), .load_val(w428), .val(l105));
 	
@@ -3827,7 +3939,18 @@ module ym7101
 	assign w465 = w460 & l173;
 	
 	assign w466 = ~w439;
-	
+
+	// -------------------------------------------------------------------------
+	// H/V counter PLAs
+	// -------------------------------------------------------------------------
+	// Combinational comparators against H/V counter values. Each PLA entry
+	// fires for a specific counter value in a specific display mode (PAL/NTSC,
+	// H32/H40, V28/V30, interlace). These drive all per-scanline and
+	// per-frame timing events (sync, blanking, VRAM access slots, etc.).
+	//   pla_vcnt[47:0]  — 48 vertical counter events
+	//   pla_hcnt1[62:0] — 63 horizontal counter events (group 1)
+	//   pla_hcnt2[45:0] — 46 horizontal counter events (group 2)
+
 	assign pla_vcnt[0] = l105 == 9'd511;
 	assign pla_vcnt[1] = w446 & cpu_pal & w108 & l105 == 9'd471;
 	assign pla_vcnt[2] = w446 & cpu_pal & w107 & l105 == 9'd463;
@@ -4062,8 +4185,17 @@ module ym7101
 	assign CSYNC_pull = ~l128;
 	assign HSYNC_pull = ~l136;
 
-	// Plane block
-	
+	// -------------------------------------------------------------------------
+	// Scroll plane rendering
+	// -------------------------------------------------------------------------
+	// Planes A and B tile fetch and pixel serialization pipeline:
+	//   1. VSRAM read → per-column vertical scroll offset
+	//   2. H-scroll table read → per-line/per-tile horizontal scroll offset
+	//   3. Nametable address calculation (reg_sa/reg_sb base + scroll)
+	//   4. Tile pattern fetch from VRAM (4 bitplanes × 8 pixels)
+	//   5. Pixel shift registers → 4-bit color index output per pixel
+	// Also handles the window plane (overrides plane A in a rectangular region).
+
 	assign w513 = (hclk1 & w379) | reg_test1[7];
 	
 	ym_sr_bit sr178(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l106[3]), .sr_out(l178));
@@ -4742,8 +4874,13 @@ module ym7101
 	
 	assign w649 = w92 | w415;
 	
-	// vsram
-	
+	// -------------------------------------------------------------------------
+	// VSRAM (Vertical Scroll RAM)
+	// -------------------------------------------------------------------------
+	// 40 entries × 11 bits. Each entry provides the vertical scroll offset
+	// for a 2-cell (16-pixel) column. Directly indexed by the scroll plane
+	// rendering logic. Dual-ported: write from FIFO, read during tile fetch.
+
 	wire [5:0] vsram_index = l212;
 	
 	always @(posedge MCLK)
@@ -4773,8 +4910,17 @@ module ym7101
 	end
 	
 	
-	// Sprite block
-	
+	// -------------------------------------------------------------------------
+	// Sprite processing
+	// -------------------------------------------------------------------------
+	// Multi-stage sprite engine:
+	//   1. SAT cache traversal — follow link chain, Y-range test vs scanline
+	//   2. Attribute fetch — read size, link, pattern, palette, priority, flip
+	//   3. Sprite line render — fetch tile patterns for visible sprites
+	//   4. X-position sort — place sprite pixels into the line buffer
+	//   5. Pixel data pipeline — read line buffer during active display
+	// Supports up to 80 sprites total, 20 per scanline (H40) or 16 (H32).
+
 	assign w650 = l325 ? { sat_size, sat_link } : sat_ypos;
 	
 	ym_slatch #(.DATA_WIDTH(11)) sl324(.MCLK(MCLK), .en(w651), .inp(w650), .val(l324));
@@ -5969,8 +6115,13 @@ module ym7101
 	
 	assign w1154 = t41 & l115;
 	
-	// sat cache
-	
+	// -------------------------------------------------------------------------
+	// SAT cache (Sprite Attribute Table)
+	// -------------------------------------------------------------------------
+	// 80-entry × 21-bit on-chip cache of sprite attributes. Populated from
+	// VRAM during vertical blanking. Each entry stores Y-position (10 bits),
+	// size (4 bits), and link (7 bits).
+
 	wire [6:0] sat_index = w695;
 	
 	wire [20:0] sat_data_in;
@@ -6017,8 +6168,14 @@ module ym7101
 		end
 	end
 	
-	// sprdata
-	
+	// -------------------------------------------------------------------------
+	// Sprite render data buffer
+	// -------------------------------------------------------------------------
+	// 20-entry × 34-bit buffer holding the attributes of sprites visible on
+	// the current scanline. Fields: pattern index (11), H-position (9),
+	// H-flip (1), palette (2), priority (1), X-size (2), Y-size (2),
+	// Y-offset (6).
+
 	wire [4:0] sprdata_index = w697;
 	
 	wire [33:0] sprdata_in;
@@ -6064,8 +6221,13 @@ module ym7101
 		end
 	end
 	
-	// linebuffer
-	
+	// -------------------------------------------------------------------------
+	// Line buffer
+	// -------------------------------------------------------------------------
+	// 40-entry × 56-bit buffer (8 pixels packed per entry). Each pixel has
+	// 4-bit index + 2-bit palette + 1-bit priority = 7 bits × 8 = 56 bits.
+	// Written during sprite render, read during active display.
+
 	wire [5:0] linebuffer_index = w825;
 	
 	wire [55:0] linebuffer_data_in;
@@ -6151,8 +6313,13 @@ module ym7101
 		end
 	end
 	
-	// VRAM interface block
-	
+	// -------------------------------------------------------------------------
+	// VRAM interface
+	// -------------------------------------------------------------------------
+	// Read/write sequencer for the two 32K×8 DRAM chips. Generates RAS/CAS/WE
+	// timing, captures serial data from the SD bus, and manages DRAM refresh
+	// cycles. The VRAM address and data buses use a wired-AND val/pull pattern.
+
 	ym_dlatch_1 dl564(.MCLK(MCLK), .c1(hclk1), .inp(l116), .nval(l564));
 	
 	ym_sr_bit sr565(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(l564), .sr_out(l565));
@@ -6319,8 +6486,14 @@ module ym7101
 	
 	assign SPA_B_pull = ~l613;
 	
-	// Video MUX block
-	
+	// -------------------------------------------------------------------------
+	// Video priority MUX
+	// -------------------------------------------------------------------------
+	// Resolves pixel priority between sprite, plane A, plane B, and background
+	// color. Implements shadow/highlight mode (reg_ste): priority bit and
+	// palette index 14/15 control normal/shadow/highlight intensity levels.
+	// Output is a 7-bit color bus: {priority, pal[1:0], index[3:0]}.
+
 	assign w1021 = w302 | w178 | w303;
 	
 	ym_sr_bit sr601(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w302), .sr_out(l601));
@@ -6683,7 +6856,14 @@ module ym7101
 		(w1103[2][15] ? 8'd236 : 8'd0) |
 		(w1103[2][16] ? 8'd255 : 8'd0);
 */
-	// non-linear DAC (caused by voltage divider on MD board)
+	// -------------------------------------------------------------------------
+	// DAC & color output (non-linear)
+	// -------------------------------------------------------------------------
+	// 17-level non-linear RGB DAC. The thermometer-coded w1103[0..2] signals
+	// (one per color channel) are weighted with non-linear values that model
+	// the voltage divider on the original MegaDrive board. Shadow/highlight
+	// modes shift the intensity range via l629/l630 flags.
+	// (The commented-out linear DAC above was the original uniform version.)
 	assign DAC_R =
 		(w1103[0][0] ? 8'd0 : 8'd0) |
 		(w1103[0][1] ? 8'd27 : 8'd0) |
@@ -6741,8 +6921,12 @@ module ym7101
 		(w1103[2][15] ? 8'd228 : 8'd0) |
 		(w1103[2][16] ? 8'd255 : 8'd0);
 	
-	// color ram
-	
+	// -------------------------------------------------------------------------
+	// Color RAM (CRAM)
+	// -------------------------------------------------------------------------
+	// 64 entries × 9 bits (3×3-bit RGB). Indexed by the 6-bit color bus
+	// {pal[1:0], index[3:0]}. Written via the video MUX during active display.
+
 	wire [5:0] color_ram_index = l617;
 	
 	wire [8:0] color_ram_data_in = { l620, w1079, w1078 };
@@ -6759,8 +6943,14 @@ module ym7101
 		color_ram_out <= color_ram[color_ram_index];
 	end
 	
-	// PSG block
-	
+	// -------------------------------------------------------------------------
+	// PSG (SN76489)
+	// -------------------------------------------------------------------------
+	// Integrated SN76489-compatible Programmable Sound Generator.
+	// 3 square-wave tone channels + 1 noise channel, each with 4-bit
+	// volume attenuation. Clocked from the CPU clock. Output is a 16-bit
+	// sum of all four channel values.
+
 	assign psg_clk1 = cpu_clk0;
 	assign psg_clk2 = ~cpu_clk0;
 	
@@ -6970,8 +7160,13 @@ module ym7101
 		SOUND <= psg_val[0] + psg_val[1] + psg_val[2] + psg_val[3];
 	end
 	
-	// vram bus
-	
+	// -------------------------------------------------------------------------
+	// VRAM bus drive
+	// -------------------------------------------------------------------------
+	// Wired-AND bus pattern for VRAM address and data. Multiple drivers
+	// assert val/pull pairs; the final bus value is the AND of all active
+	// drivers. The serial data latch captures SD[7:0] on clk1.
+
 	ym_dlatch_1 #(.DATA_WIDTH(8)) dl_vs(.MCLK(MCLK), .c1(clk1), .inp(SD), .val(vram_serial));
 	
 	wire [15:0] vram_data_val =
@@ -7081,8 +7276,13 @@ module ym7101
 		vram_address <= (vram_address_pull & vram_address_val) | (~vram_address_pull & vram_address);
 	end
 	
-	// io bus
-	
+	// -------------------------------------------------------------------------
+	// I/O bus drive
+	// -------------------------------------------------------------------------
+	// CPU address and data bus drivers. Same wired-AND val/pull pattern as
+	// the VRAM bus. During DMA, the VDP drives the address bus with the DMA
+	// source address (reg_sa_high/reg_sa_low).
+
 	wire vdp_data_dir = ~w151 | ext_test_2;
 	wire vdp_address_dir = ~w267 | ext_test_2;
 	
@@ -7165,8 +7365,12 @@ module ym7101
 		io_address[17:0] <= io_address_t[17:0];
 	end
 	
-	// color bus
-	
+	// -------------------------------------------------------------------------
+	// Color bus
+	// -------------------------------------------------------------------------
+	// 7-bit color bus: {priority, pal[1:0], index[3:0]}. Arbitrated between
+	// background color, plane A/B, and sprite sources via the priority MUX.
+
 	wire [6:0] color_bus;
 	
 	assign color_index = color_bus[3:0];
@@ -7188,8 +7392,14 @@ module ym7101
 		color_bus_mem <= color_bus;
 	end
 	
-	// extra
-	
+	// -------------------------------------------------------------------------
+	// Miscellaneous outputs
+	// -------------------------------------------------------------------------
+	// VDP status signals exported to fc1004 for system integration:
+	// pixel clock, interlace field, display enable, mode flags, hsync,
+	// DMA status, and the color RAM display pipeline (bypasses priority MUX
+	// for direct CRAM dot output used by the MiSTer framework).
+
 	assign vdp_hclk1 = hclk1;
 	
 	assign vdp_intfield = w446;
@@ -7237,6 +7447,13 @@ module ym7101
 
 endmodule
 
+// ym7101_rs_trig — RS (set/reset) flip-flop
+//
+// Priority: set > rst > hold. On each MCLK posedge:
+//   set=1 → q=1, nq=0
+//   rst=1 → q=0, nq=1
+//   else  → q holds, nq = ~q
+// Used throughout ym7101 for timing triggers (t1-t44).
 module ym7101_rs_trig
 	(
 	input MCLK,
