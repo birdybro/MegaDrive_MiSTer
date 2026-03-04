@@ -24,7 +24,36 @@ quartus_sh --flow compile MegaDrive
 
 **Verilog macros defined in QSF:** `M68K_CHEAT=1`, `Z80_CHEAT=1`, `EXT_CLOCKS=1`
 
-There are no testbenches, linters, or CI pipelines in this project.
+There are no testbenches or CI pipelines in this project.
+
+## Verification with Verilator
+
+Verilator is available for lint-checking Verilog files. **You MUST run a Verilator lint check before and after any signal renaming, port changes, or structural edits to Nuked-MD files.** The lint must pass cleanly (no new warnings) before committing.
+
+**Lint command for a single module (e.g., ym7101.v):**
+```
+verilator --lint-only -Wno-PINMISSING -Wno-DECLFILENAME -Wno-MULTITOP \
+  -Wno-GENUNNAMED -Wno-UNOPTFLAT -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  -Wno-SELRANGE -Wno-PINCONNECTEMPTY \
+  rtl/nuked-md/ym7101.v rtl/nuked-md/ym_lib.v
+```
+
+**Lint command for cross-file changes (port renames touching fc1004.v/md_board.v):**
+```
+verilator --lint-only -Wno-PINMISSING -Wno-DECLFILENAME -Wno-MULTITOP \
+  -Wno-GENUNNAMED -Wno-UNOPTFLAT -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  -Wno-SELRANGE -Wno-PINCONNECTEMPTY \
+  rtl/nuked-md/md_board.v rtl/nuked-md/ym_lib.v rtl/nuked-md/*.v
+```
+
+**Suppressed warnings explained:**
+- `PINMISSING` — ym_lib primitives have optional `val`/`nval`/`q`/`nq` outputs; unused ones are intentionally unconnected
+- `WIDTHEXPAND`/`WIDTHTRUNC`/`SELRANGE` — ym_lib shift register parameterization edge cases
+- `DECLFILENAME`, `MULTITOP`, `GENUNNAMED`, `UNOPTFLAT`, `PINCONNECTEMPTY` — benign structural warnings
+
+**What Verilator catches:** undeclared signals (missed renames), port mismatches, width errors — all common mechanical renaming mistakes.
+
+**What it does NOT catch:** swapped signals (e.g., renaming `w100` to `hsync` when it should be `vsync`). Verify signal semantics manually.
 
 ## Architecture
 
@@ -108,4 +137,4 @@ The `rtl/nuked-md/` files have been annotated with descriptive signal names and 
 - **`68k.v`** — 68000 CPU. Module doc comment describes architecture (microcode ROMs, PLAs, internal buses, register file). Section comments mark 11 functional blocks (wire declarations, initialization, clock phases, microcode sequencer, microcode ROM decode, instruction decode PLA, secondary decode & IRD PLAs, execution control, ALU/flags/bus control, internal bus bridge, register file & data I/O). Key wire declarations have inline comments identifying signal roles (clocks, microcode control word, instruction register, CCR flags, bus control strobes, register file, internal buses). PLA entries for a0_pla[0-19] have instruction mnemonic comments. Original `w###` signal names are preserved (not renamed) due to file size (929 signals); annotations provide navigation via section headers and inline comments.
 - **`ym7101.v`** — VDP (Video Display Processor). Module doc comment describes architecture (scroll planes, sprites, DMA, VRAM, color RAM, DAC, PSG). Section comments with `// ---...` banners mark 14 functional blocks (prescaler, I/O & DMA, timing FSM, H/V PLAs, scroll planes, VSRAM, sprite processing, SAT/sprdata/linebuffer, VRAM interface, video MUX, DAC, color RAM, PSG, bus drive, misc outputs). Wire/reg declarations have grouped sub-section comments identifying signal roles (CPU interface, prescaler, counters, PLAs, registers, sprite pipeline, pixel data, memory arrays, video output). Key opaque signals have inline annotations. Helper submodule `ym7101_rs_trig` has a doc comment. Original `w###`/`l###` signal names are preserved (not renamed) due to the ~1800 signal count; annotations provide navigation via section headers and inline comments.
 
-**When renaming signals across files:** Always rename the port in the module definition AND update all instantiation sites (especially in `fc1004.v` and `md_board.v`).
+**When renaming signals across files:** Always rename the port in the module definition AND update all instantiation sites (especially in `fc1004.v` and `md_board.v`). Run the Verilator lint check (see "Verification with Verilator" section) before and after every rename batch to catch missed references.
