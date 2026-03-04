@@ -33,7 +33,7 @@
 // Architecture overview:
 //   - Instruction decode PLA: 99 entries matching opcode byte against patterns
 //     qualified by prefix state (unprefixed, CB, ED, DD/FD).
-//   - Microsequencer: steps through T-states (w131/w120/w127/w123/w121) to
+//   - Microsequencer: steps through T-states (step_s0/step_s1/step_s2/step_s3/step_s4) to
 //     generate control signals for each phase of instruction execution.
 //   - 8-bit ALU: 4-bit carry-lookahead adder run twice per operation (low
 //     nibble then high nibble), controlled by w446 half-cycle select.
@@ -121,7 +121,7 @@ module z80cpu
 	wire w38;
 	wire w39, w39_i;
 	reg w40 = 1'h0, w40_i = 1'h1;
-	wire w41; // sequencer phase: early execution phase
+	wire exec_early; // sequencer phase: early execution phase
 	wire dbus_wr_en; // data bus write enable to w145
 	wire w43;
 	wire dbus_oe, dbus_oe_n, dbus_oe_i; // data bus output enable (active-low)
@@ -135,7 +135,7 @@ module z80cpu
 	wire w52;
 	wire w53;
 	wire w54;
-	wire w55; // reset active (internal reset state)
+	wire reset_active; // reset active (internal reset state)
 	wire w56;
 	wire w57;
 	wire busrq_edge, busrq_edge_i; // BUSRQ edge detect
@@ -148,7 +148,7 @@ module z80cpu
 	wire w66, w66_i;
 	wire w67;
 	wire o_busak; // bus acknowledge output (active high internal)
-	wire w68, w68_i; // sequencer phase: memory access phase
+	wire mem_access, mem_access_i; // sequencer phase: memory access phase
 	wire w69;
 	wire w71;
 	reg iff1 = 1'h0; // IFF1 (interrupt flip-flop 1)
@@ -169,9 +169,9 @@ module z80cpu
 	wire w87;
 	wire w88;
 	wire prefix_active; // prefix decode state active
-	wire w90; // unprefixed instruction qualifier (no CB/ED prefix)
+	wire unprefixed; // unprefixed instruction qualifier (no CB/ED prefix)
 	wire w91;
-	reg w92; // ED prefix active
+	reg ed_prefix; // ED prefix active
 	wire w93;
 	wire w94;
 	reg cb_prefix_latch; // CB prefix state latch
@@ -180,7 +180,7 @@ module z80cpu
 	wire w97;
 	wire w98;
 	wire w99;
-	reg w100; // DD/FD prefix active (IX/IY index register select)
+	reg dd_fd_prefix; // DD/FD prefix active (IX/IY index register select)
 	wire w101;
 	wire w102;
 	wire w103;
@@ -190,33 +190,33 @@ module z80cpu
 	wire w107;
 	// --- Microsequencer T-state signals ---
 	// The Z80 microsequencer steps through states to execute each instruction.
-	// State progression: w131 -> w120 -> w127 -> w123 -> w121
-	// w109/w110/w114 provide additional timing phases within each state.
-	wire w109_i;
-	wire w109; // sequencer phase: T2 (second phase within machine cycle)
-	wire w110; // sequencer phase: active execution (not bus-ack or halted)
+	// State progression: step_s0 -> step_s1 -> step_s2 -> step_s3 -> step_s4
+	// t2_phase/exec_active/exec_late provide additional timing phases within each state.
+	wire t2_phase_i;
+	wire t2_phase; // sequencer phase: T2 (second phase within machine cycle)
+	wire exec_active; // sequencer phase: active execution (not bus-ack or halted)
 	wire w111;
 	wire w112;
 	wire w113;
-	wire w114, w114_i; // sequencer phase: late execution phase
+	wire exec_late, exec_late_i; // sequencer phase: late execution phase
 	wire w115, w115_i; // ALU operation active
 	wire w116;
 	wire w117;
 	wire w118;
 	wire w119;
-	wire w120, w120_i; // sequencer step S1 (first execution step)
-	wire w121, w121_i; // sequencer step S4 (fourth execution step)
+	wire step_s1, step_s1_i; // sequencer step S1 (first execution step)
+	wire step_s4, step_s4_i; // sequencer step S4 (fourth execution step)
 	wire w122;
-	wire w123, w123_i; // sequencer step S3 (third execution step)
+	wire step_s3, step_s3_i; // sequencer step S3 (third execution step)
 	wire w124;
 	wire w125;
 	wire w126;
-	wire w127, w127_i; // sequencer step S2 (second execution step)
+	wire step_s2, step_s2_i; // sequencer step S2 (second execution step)
 	wire w128;
 	wire w129;
 	wire rfsh_rs, rfsh; // refresh cycle control
 	wire next_instr_trig; // next-instruction trigger
-	wire w131, w131_i; // sequencer step S0 (opcode fetch / initial step)
+	wire step_s0, step_s0_i; // sequencer step S0 (opcode fetch / initial step)
 	wire w132;
 	wire w133;
 	wire w134;
@@ -742,8 +742,8 @@ module z80cpu
 	z80_rs_trig_nor rs1
 		(
 		.MCLK(MCLK),
-		.rst(clk & w3 & w41),
-		.set(w55 | (clk & (w114 | w201))),
+		.rst(clk & w3 & exec_early),
+		.set(reset_active | (clk & (exec_late | w201))),
 		.q(w1_i),
 		.nq()
 		);
@@ -759,7 +759,7 @@ module z80cpu
 	z80_rs_trig_nor rs2
 		(
 		.MCLK(MCLK),
-		.rst((clk & w131 & w41) | (~clk & ~l1)),
+		.rst((clk & step_s0 & exec_early) | (~clk & ~l1)),
 		.set(clk & w15),
 		.q(w2),
 		.nq()
@@ -792,7 +792,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w55 | w19)),
+		.inp(~(reset_active | w19)),
 		.outp(l2)
 		);
 	
@@ -861,13 +861,13 @@ module z80cpu
 	
 	assign w14 = ~(w13 | (w16 & w10));
 	
-	assign w15 = ~(~w114 | w202 | w201);
+	assign w15 = ~(~exec_late | w202 | w201);
 		
 	z80_dlatch dl4
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w55 | ~w97 | ~w118 | w133)),
+		.inp(~(reset_active | ~w97 | ~w118 | w133)),
 		.outp(l4)
 		);
 	
@@ -877,7 +877,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.rst(w16 & w12),
-		.set((w16 & ~w12) | w55),
+		.set((w16 & ~w12) | reset_active),
 		.q(w18_i),
 		.nq()
 		);
@@ -888,7 +888,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.rst(w16 & w9),
-		.set((w16 & ~w9) | w55),
+		.set((w16 & ~w9) | reset_active),
 		.q(w19_i),
 		.nq()
 		);
@@ -943,9 +943,9 @@ module z80cpu
 	
 	assign w25 = ~(w24 | w23 | (w36 & clk));
 	
-	assign w26 = w131 & w41 & clk;
+	assign w26 = step_s0 & exec_early & clk;
 	
-	assign w27 = !((w110 & w93) | (w131 & (w41 | (w110 & ~w18))));
+	assign w27 = !((exec_active & w93) | (step_s0 & (exec_early | (exec_active & ~w18))));
 		
 	z80_dlatch dl7
 		(
@@ -955,11 +955,11 @@ module z80cpu
 		.outp(l7)
 		);
 	
-	assign w28 = ~(halt | (w18 & im_bit1) | w55 | w19 | ~(w18 | l7));
+	assign w28 = ~(halt | (w18 & im_bit1) | reset_active | w19 | ~(w18 | l7));
 	
 	always @(posedge MCLK)
 	begin
-		if (w55)
+		if (reset_active)
 			w30 <= 1'h1;
 		else if (clk)
 			w30 <= w30;
@@ -1004,7 +1004,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.rst(~clk & ~l10),
-		.set(~l11 | (clk & w106 & w114 & w201)),
+		.set(~l11 | (clk & w106 & exec_late & w201)),
 		.q(w33),
 		.nq(w33_i)
 		);
@@ -1017,7 +1017,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~w41 & ~w55),
+		.inp(~exec_early & ~reset_active),
 		.outp(l10)
 		);
 		
@@ -1025,7 +1025,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w114 & w201)),
+		.inp(~(exec_late & w201)),
 		.outp(l11)
 		);
 	
@@ -1044,23 +1044,23 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~w41 & ~(~w114 & ~w34_i)),
+		.inp(~exec_early & ~(~exec_late & ~w34_i)),
 		.outp(l12)
 		);
 	
-	assign w35 = ~(~w37 & w131 & w18);
+	assign w35 = ~(~w37 & step_s0 & w18);
 	
-	assign w36 = w114 & w106;
+	assign w36 = exec_late & w106;
 		
 	z80_dlatch dl82
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w114),
+		.inp(exec_late),
 		.outp(l82)
 		);
 	
-	assign w531 = ~(w131 & w18 & l82);
+	assign w531 = ~(step_s0 & w18 & l82);
 	
 	z80_rs_trig_nand rs37
 		(
@@ -1075,7 +1075,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(((w18 & w131) | w106) & (~w37 | w114))),
+		.inp(~(((w18 & step_s0) | w106) & (~w37 | exec_late))),
 		.outp(w38)
 		);
 	
@@ -1094,7 +1094,7 @@ module z80cpu
 		w40_i <= ~(w40 & (clk | w39_i));
 	end
 	
-	assign w41 = ~w40 & ~w34;
+	assign exec_early = ~w40 & ~w34;
 	
 	assign dbus_wr_en = ~clk & ~w43;
 	
@@ -1104,7 +1104,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w110 & w201),
+		.inp(exec_active & w201),
 		.outp(l13)
 		);
 	
@@ -1112,7 +1112,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.rst(w45),
-		.set(l14 | (clk & w110)),
+		.set(l14 | (clk & exec_active)),
 		.q(dbus_oe_n),
 		.nq(dbus_oe_i)
 		);
@@ -1131,13 +1131,13 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w201 & w110)),
+		.inp(~(w201 & exec_active)),
 		.outp(l15)
 		);
 	
 	assign w45 = ~clk & ~l15;
 	
-	assign w46 = ~(w131 | (w127 & pla[35]) | (w127 & w107));
+	assign w46 = ~(step_s0 | (step_s2 & pla[35]) | (step_s2 & w107));
 	
 	assign w47 = ~clk & ~l16;
 	
@@ -1145,7 +1145,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w107 & w127 & w41)),
+		.inp(~(w107 & step_s2 & exec_early)),
 		.outp(l16)
 		);
 	
@@ -1153,7 +1153,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w114 & w131)),
+		.inp(~(exec_late & step_s0)),
 		.outp(l17)
 		);
 	
@@ -1161,7 +1161,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w41 | w55)),
+		.inp(~(exec_early | reset_active)),
 		.outp(l18)
 		);
 	
@@ -1200,17 +1200,17 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w131 & w114)),
+		.inp(~(step_s0 & exec_late)),
 		.outp(l19)
 		);
 		
-	assign w53 = ~clk & ~l20 & ~w55;
+	assign w53 = ~clk & ~l20 & ~reset_active;
 	
 	z80_dlatch dl20
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w131 & w114)),
+		.inp(~(step_s0 & exec_late)),
 		.outp(l20)
 		);
 	
@@ -1223,13 +1223,13 @@ module z80cpu
 		.nq()
 		);
 	
-	assign w55 = ~w54;
+	assign reset_active = ~w54;
 	
 	z80_rs_trig_nor rs56
 		(
 		.MCLK(MCLK),
 		.rst(w53 & reset_sync),
-		.set((w53 & w104 & ~reset_sync) | w55),
+		.set((w53 & w104 & ~reset_sync) | reset_active),
 		.q(w56),
 		.nq()
 		);
@@ -1258,7 +1258,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w68),
+		.inp(mem_access),
 		.outp(l21)
 		);
 	
@@ -1293,7 +1293,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w55),
+		.inp(reset_active),
 		.outp(l23)
 		);
 	
@@ -1333,30 +1333,30 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w109),
+		.inp(t2_phase),
 		.outp(l25)
 		);
 	
-	assign w68 = ~w68_i;
+	assign mem_access = ~mem_access_i;
 	
-	wire w68_v = ~(l25 & w112);
+	wire mem_access_v = ~(l25 & w112);
 	
 	z80_rs_trig_nand rs68
 		(
 		.MCLK(MCLK),
-		.nset(clk | w68_v),
-		.nrst(clk | ~w68_v),
+		.nset(clk | mem_access_v),
+		.nrst(clk | ~mem_access_v),
 		.q(),
-		.nq(w68_i)
+		.nq(mem_access_i)
 		);
 	
-	assign w69 = ~(w55 | (w41 & ~w131));
+	assign w69 = ~(reset_active | (exec_early & ~step_s0));
 	
 	z80_dlatch dl26
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(w131 & pla[1] & w110)),
+		.inp(~(step_s0 & pla[1] & exec_active)),
 		.outp(l26)
 		);
 	
@@ -1364,7 +1364,7 @@ module z80cpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w19 | w18 | w55)
+		if (w19 | w18 | reset_active)
 			iff1 <= 0;
 		else if (clk)
 			iff1 <= iff1;
@@ -1376,7 +1376,7 @@ module z80cpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w18 | w55)
+		if (w18 | reset_active)
 			iff2 <= 0;
 		else if (clk)
 			iff2 <= iff2;
@@ -1394,13 +1394,13 @@ module z80cpu
 	
 	assign w75 = ~clk & ~l27 & ~w19;
 	
-	assign w76 = ~(pla[52] & w131 & w114);
+	assign w76 = ~(pla[52] & step_s0 & exec_late);
 	
 	assign w77 = prefix_active & w19;
 	
 	always @(posedge MCLK)
 	begin
-		if (w55)
+		if (reset_active)
 			im_bit0 <= 0;
 		else if (clk)
 			im_bit0 <= im_bit0;
@@ -1414,7 +1414,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~(pla[2] & w131 & w110)),
+		.inp(~(pla[2] & step_s0 & exec_active)),
 		.outp(l28)
 		);
 	
@@ -1423,7 +1423,7 @@ module z80cpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w55)
+		if (reset_active)
 			im_bit1 <= 0;
 		else if (clk)
 			im_bit1 <= im_bit1;
@@ -1449,9 +1449,9 @@ module z80cpu
 	
 	assign prefix_active = ~(w103 | ~w30);
 	
-	assign w90 = ~(~w91 | w30);
+	assign unprefixed = ~(~w91 | w30);
 	
-	assign w91 = ~(w92 | ~w95);
+	assign w91 = ~(ed_prefix | ~w95);
 	
 	z80_dlatch dl43
 		(
@@ -1463,21 +1463,21 @@ module z80cpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w55)
-			w92 <= 0;
+		if (reset_active)
+			ed_prefix <= 0;
 		else if (clk)
-			w92 <= w92;
+			ed_prefix <= ed_prefix;
 		else if (w103)
-			w92 <= ~l43;
+			ed_prefix <= ~l43;
 	end
 	
-	assign w93 = ~(w131 | w106);
+	assign w93 = ~(step_s0 | w106);
 	
-	assign w94 = (w41 & ~w131) | w55 | w109;
+	assign w94 = (exec_early & ~step_s0) | reset_active | t2_phase;
 	
 	always @(posedge MCLK)
 	begin
-		if (w55)
+		if (reset_active)
 			cb_prefix_latch <= 0;
 		else if (clk)
 			cb_prefix_latch <= cb_prefix_latch;
@@ -1509,17 +1509,17 @@ module z80cpu
 		
 	always @(posedge MCLK)
 	begin
-		if (w55)
-			w100 <= 1'h1;
+		if (reset_active)
+			dd_fd_prefix <= 1'h1;
 		else if (clk)
-			w100 <= w100;
+			dd_fd_prefix <= dd_fd_prefix;
 		else if (!w98 & w103)
-			w100 <= w99;
+			dd_fd_prefix <= w99;
 	end
 	
-	assign w101 = ~(w202 | w201 | (w131 & (w41 | w18)));
+	assign w101 = ~(w202 | w201 | (step_s0 & (exec_early | w18)));
 	
-	assign w102 = ~((w131 & w114) | (w110 & w127 & w107));
+	assign w102 = ~((step_s0 & exec_late) | (exec_active & step_s2 & w107));
 	
 	z80_dlatch dl29
 		(
@@ -1541,7 +1541,7 @@ module z80cpu
 	
 	assign w105 = pla[61] | pla[71];
 	
-	assign w106 = (pla[77] & w120) | (w127 & pla[78]) | (w105 & w123);
+	assign w106 = (pla[77] & step_s1) | (step_s2 & pla[78]) | (w105 & step_s3);
 	
 	z80_dlatch dw107
 		(
@@ -1551,13 +1551,13 @@ module z80cpu
 		.outp(w107)
 		);
 	
-	assign w109 = ~w109_i;
+	assign t2_phase = ~t2_phase_i;
 	
 	z80_dlatch dl30
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w41),
+		.inp(exec_early),
 		.outp(l30)
 		);
 	
@@ -1569,10 +1569,10 @@ module z80cpu
 		.nset(clk | w530),
 		.nrst(clk | ~w530),
 		.q(),
-		.nq(w109_i)
+		.nq(t2_phase_i)
 		);
 	
-	assign w110 = ~(w113 | w111);
+	assign exec_active = ~(w113 | w111);
 	
 	z80_rs_trig_nand rs111
 		(
@@ -1597,7 +1597,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w110),
+		.inp(exec_active),
 		.outp(l31)
 		);
 	
@@ -1609,15 +1609,15 @@ module z80cpu
 		.nset(clk | w532),
 		.nrst(clk | ~w532),
 		.q(),
-		.nq(w114_i)
+		.nq(exec_late_i)
 		);
 	
-	assign w114 = ~w114_i;
+	assign exec_late = ~exec_late_i;
 	
 	z80_rs_trig_nor rs115
 		(
 		.MCLK(MCLK),
-		.rst(clk & (w131 | w123)),
+		.rst(clk & (step_s0 | step_s3)),
 		.set(clk & w116),
 		.q(),
 		.nq(w115_i)
@@ -1625,18 +1625,18 @@ module z80cpu
 	
 	assign w115 = ~w115_i;
 	
-	assign w116 = w114 & w120 & w126;
+	assign w116 = exec_late & step_s1 & w126;
 	
-	assign w117 = w55 | w121 | (w123 & ~w164) | (w120 & w138 & ~w159)
-		| (w127 & (pla[98] | (w155 & (~(~w164 | ~w151) | ~w151))));
+	assign w117 = reset_active | step_s4 | (step_s3 & ~w164) | (step_s1 & w138 & ~w159)
+		| (step_s2 & (pla[98] | (w155 & (~(~w164 | ~w151) | ~w151))));
 	
-	assign w118 = w117 | w299 | (w131 & w139);
+	assign w118 = w117 | w299 | (step_s0 & w139);
 	
 	z80_dlatch dl32
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w131),
+		.inp(step_s0),
 		.outp(l32)
 		);
 	
@@ -1648,10 +1648,10 @@ module z80cpu
 		.rst(w132 & ~w119),
 		.set(w132 & w119),
 		.q(),
-		.nq(w120_i)
+		.nq(step_s1_i)
 		);
 	
-	assign w120 = ~w120_i;
+	assign step_s1 = ~step_s1_i;
 	
 	z80_rs_trig_nor rs121
 		(
@@ -1659,16 +1659,16 @@ module z80cpu
 		.rst(w132 & ~w122),
 		.set(w132 & w122),
 		.q(),
-		.nq(w121_i)
+		.nq(step_s4_i)
 		);
 	
-	assign w121 = ~w121_i;
+	assign step_s4 = ~step_s4_i;
 	
 	z80_dlatch dl33
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w123),
+		.inp(step_s3),
 		.outp(l33)
 		);
 	
@@ -1680,24 +1680,24 @@ module z80cpu
 		.rst(w132 & ~w124),
 		.set(w132 & w124),
 		.q(),
-		.nq(w123_i)
+		.nq(step_s3_i)
 		);
 	
-	assign w123 = ~w123_i;
+	assign step_s3 = ~step_s3_i;
 	
 	z80_dlatch dl34
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w127),
+		.inp(step_s2),
 		.outp(l34)
 		);
 	
 	assign w124 = ~next_instr_trig & (l34 | w134);
 	
-	assign w125 = ~((~w169 & ~w100) | (w169 & w161));
+	assign w125 = ~((~w169 & ~dd_fd_prefix) | (w169 & w161));
 	
-	assign w126 = (~w169 & ~w100) | w255;
+	assign w126 = (~w169 & ~dd_fd_prefix) | w255;
 	
 	z80_rs_trig_nor rs127
 		(
@@ -1705,22 +1705,22 @@ module z80cpu
 		.rst(w132 & ~w128),
 		.set(w132 & w128),
 		.q(),
-		.nq(w127_i)
+		.nq(step_s2_i)
 		);
 	
-	assign w127 = ~w127_i;
+	assign step_s2 = ~step_s2_i;
 	
 	z80_dlatch dl35
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w120),
+		.inp(step_s1),
 		.outp(l35)
 		);
 	
 	assign w128 = ~(w134 | next_instr_trig | ~l35);
 	
-	assign w129 = ~(w131 & (w109 | w41));
+	assign w129 = ~(step_s0 & (t2_phase | exec_early));
 	
 	z80_rs_trig_nor rsrfsh
 		(
@@ -1749,10 +1749,10 @@ module z80cpu
 		.rst(w132 & ~next_instr_trig),
 		.set(w132 & next_instr_trig),
 		.q(),
-		.nq(w131_i)
+		.nq(step_s0_i)
 		);
 	
-	assign w131 = ~w131_i;
+	assign step_s0 = ~step_s0_i;
 	
 	z80_dlatch dl36
 		(
@@ -1764,19 +1764,19 @@ module z80cpu
 	
 	assign w132 = ~clk & l36;
 	
-	assign w133 = ~w137 & ~w55;
+	assign w133 = ~w137 & ~reset_active;
 	
 	z80_dlatch dw134
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w125 & ((w159 & w131) | w120)),
+		.inp(w125 & ((w159 & step_s0) | step_s1)),
 		.outp(w134)
 		);
 	
-	assign w135 = ~((w190 & w68) | (w131 & w109 & w149));
+	assign w135 = ~((w190 & mem_access) | (step_s0 & t2_phase & w149));
 	
-	assign w136 = ~(w61 | (w41 & w143) | (w109 & w141));
+	assign w136 = ~(w61 | (exec_early & w143) | (t2_phase & w141));
 	
 	assign w137 = ~w135 | ~w136;
 	
@@ -1786,12 +1786,12 @@ module z80cpu
 	
 	assign w140 = ~w155 & w151 & ~w255;
 	
-	assign w141 = w186 & ((w140 & w127) | w123);
+	assign w141 = w186 & ((w140 & step_s2) | step_s3);
 	
 	assign w142 = w186 & ~w255 & ~w234;
 	
-	assign w143 = w120 | (w142 & w123) | (w121 & ~pla[88])
-		| (w127 & (~w151 | (w140 & w299)));
+	assign w143 = step_s1 | (w142 & step_s3) | (step_s4 & ~pla[88])
+		| (step_s2 & (~w151 | (w140 & w299)));
 	
 	z80_dlatch dl37
 		(
@@ -1805,7 +1805,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(~w110 & ~w55),
+		.inp(~exec_active & ~reset_active),
 		.outp(l38)
 		);
 	
@@ -1839,109 +1839,109 @@ module z80cpu
 	// Instruction decode PLA
 	// -----------------------------------------------------------------------
 	// 99 entries matching the opcode byte (w147) against bit patterns, each
-	// qualified by prefix state: w90 (unprefixed), w92 (ED), ~w96 (CB),
+	// qualified by prefix state: unprefixed (unprefixed), ed_prefix (ED), ~w96 (CB),
 	// ~w82 (ALU group 80-BF). Multiple PLA outputs may be active for a
 	// single opcode; the sequencer combines them to derive control signals.
 	// -----------------------------------------------------------------------
-	assign pla[0] = (w147 & 8'hf7) == 8'hd3 & w90; // out(n), a; in(n), a
-	assign pla[1] = (w147 & 8'hf7) == 8'hf3 & w90; // di; ei
-	assign pla[2] = (w147 & 8'hc7) == 8'h46 & w92; // im 0; im 1; im 2
-	assign pla[3] = w147 == 8'h76 & w90; // halt
-	assign pla[4] = (w147 & 8'he7) == 8'ha0 & w92; // ldi; ldd; ldir; lddr
-	assign pla[5] = (w147 & 8'he7) == 8'ha1 & w92; // cpi; cpd; cpir; cpdr
-	assign pla[6] = w147 == 8'h37 & w90; // scf
-	assign pla[7] = (w147 & 8'he6) == 8'ha2 & w92; // ini; outi; ind; outd; inir; otir; indr; otdr
-	assign pla[8] = w147 == 8'h10 & w90; // djnz d
-	assign pla[9] = w147 == 8'h3f & w90; // ccf
+	assign pla[0] = (w147 & 8'hf7) == 8'hd3 & unprefixed; // out(n), a; in(n), a
+	assign pla[1] = (w147 & 8'hf7) == 8'hf3 & unprefixed; // di; ei
+	assign pla[2] = (w147 & 8'hc7) == 8'h46 & ed_prefix; // im 0; im 1; im 2
+	assign pla[3] = w147 == 8'h76 & unprefixed; // halt
+	assign pla[4] = (w147 & 8'he7) == 8'ha0 & ed_prefix; // ldi; ldd; ldir; lddr
+	assign pla[5] = (w147 & 8'he7) == 8'ha1 & ed_prefix; // cpi; cpd; cpir; cpdr
+	assign pla[6] = w147 == 8'h37 & unprefixed; // scf
+	assign pla[7] = (w147 & 8'he6) == 8'ha2 & ed_prefix; // ini; outi; ind; outd; inir; otir; indr; otdr
+	assign pla[8] = w147 == 8'h10 & unprefixed; // djnz d
+	assign pla[9] = w147 == 8'h3f & unprefixed; // ccf
 	assign pla[10] = (w147 & 8'h38) == 8'h28 & ~w82; // xor
-	assign pla[11] = (w147 & 8'hf7) == 8'h57 & w92; // ld a,i; ld a,r
+	assign pla[11] = (w147 & 8'hf7) == 8'h57 & ed_prefix; // ld a,i; ld a,r
 	assign pla[12] = (w147 & 8'h38) == 8'h30 & ~w82; // or
 	assign pla[13] = (w147 & 8'h38) == 8'h20 & ~w82; // and
 	assign pla[14] = (w147 & 8'h38) == 8'h00 & ~w82; // add
-	assign pla[15] = (w147 & 8'hf7) == 8'h57 & w92 & iff2; // ld a,i/r with IFF2 set (P/V flag source)
-	assign pla[16] = (w147 & 8'hc7) == 8'h44 & w92; // neg
-	assign pla[17] = w147 == 8'h2f & w90; // cpl
+	assign pla[15] = (w147 & 8'hf7) == 8'h57 & ed_prefix & iff2; // ld a,i/r with IFF2 set (P/V flag source)
+	assign pla[16] = (w147 & 8'hc7) == 8'h44 & ed_prefix; // neg
+	assign pla[17] = w147 == 8'h2f & unprefixed; // cpl
 	assign pla[18] = (w147 & 8'h38) == 8'h08 & ~w82; // adc
 	assign pla[19] = (w147 & 8'h38) == 8'h18 & ~w82; // sbc
 	assign pla[20] = (w147 & 8'h38) == 8'h10 & ~w82; // sub
-	assign pla[21] = w147 == 8'h27 & w90; // daa
+	assign pla[21] = w147 == 8'h27 & unprefixed; // daa
 	assign pla[22] = (w147 & 8'h38) == 8'h38 & ~w82; // cp
-	assign pla[23] = (w147 & 8'hc7) == 8'h05 & w90; // dec byte
+	assign pla[23] = (w147 & 8'hc7) == 8'h05 & unprefixed; // dec byte
 	assign pla[24] = (w147 & 8'hc0) == 8'hc0 & ~w96; // set
 	assign pla[25] = (w147 & 8'hc0) == 8'h80 & ~w96; // res
 	assign pla[26] = (w147 & 8'hc0) == 8'h40 & ~w96; // bit
-	assign pla[27] = (w147 & 8'he7) == 8'h07 & w90; // rlca; rrca; rla; rra
+	assign pla[27] = (w147 & 8'he7) == 8'h07 & unprefixed; // rlca; rrca; rla; rra
 	assign pla[28] = (w147 & 8'hc0) == 8'h00 & ~w96; // rlc; rrc; rl; rr; sla; sra; sll; srl
-	assign pla[29] = (w147 & 8'hcf) == 8'h09 & w90; // add hl, bc; de ; hl ;sp
-	assign pla[30] = (w147 & 8'hc7) == 8'h42 & w92; // sbc hl, adc hl
-	assign pla[31] = (w147 & 8'hc7) == 8'h40 & w92; // in (c)
-	assign pla[32] = (w147 & 8'hc6) == 8'h04 & w90; // inc dec byte
-	assign pla[33] = (w147 & 8'hc0) == 8'h80 & w90; // 8'h80-8'hbf alu opcode
-	assign pla[34] = (w147 & 8'hc7) == 8'hc6 & w90; // n alu opcodes
-	assign pla[35] = (w147 & 8'hc7) == 8'h06 & w90; // ld n opcodes
+	assign pla[29] = (w147 & 8'hcf) == 8'h09 & unprefixed; // add hl, bc; de ; hl ;sp
+	assign pla[30] = (w147 & 8'hc7) == 8'h42 & ed_prefix; // sbc hl, adc hl
+	assign pla[31] = (w147 & 8'hc7) == 8'h40 & ed_prefix; // in (c)
+	assign pla[32] = (w147 & 8'hc6) == 8'h04 & unprefixed; // inc dec byte
+	assign pla[33] = (w147 & 8'hc0) == 8'h80 & unprefixed; // 8'h80-8'hbf alu opcode
+	assign pla[34] = (w147 & 8'hc7) == 8'hc6 & unprefixed; // n alu opcodes
+	assign pla[35] = (w147 & 8'hc7) == 8'h06 & unprefixed; // ld n opcodes
 	assign pla[36] = ~w96;
-	assign pla[37] = (w147 & 8'hc0) == 8'h40 & w90; // ld reg opcodes
-	assign pla[38] = (w147 & 8'hf7) == 8'h67 & w92; // rrd, rld
-	assign pla[39] = (w147 & 8'hf8) == 8'h70 & w90 & ~pla[3]; // ld to (hl) opcodes
-	assign pla[40] = (w147 & 8'hc7) == 8'h46 & w90 & ~pla[3]; // ld from (hl) opcodes
-	assign pla[41] = (w147 & 8'hf7) == 8'h47 & w92; // ld i,a ; ld r,a
-	assign pla[42] = (w147 & 8'hc7) == 8'hc7 & w90; // rst n
+	assign pla[37] = (w147 & 8'hc0) == 8'h40 & unprefixed; // ld reg opcodes
+	assign pla[38] = (w147 & 8'hf7) == 8'h67 & ed_prefix; // rrd, rld
+	assign pla[39] = (w147 & 8'hf8) == 8'h70 & unprefixed & ~pla[3]; // ld to (hl) opcodes
+	assign pla[40] = (w147 & 8'hc7) == 8'h46 & unprefixed & ~pla[3]; // ld from (hl) opcodes
+	assign pla[41] = (w147 & 8'hf7) == 8'h47 & ed_prefix; // ld i,a ; ld r,a
+	assign pla[42] = (w147 & 8'hc7) == 8'hc7 & unprefixed; // rst n
 	assign pla[43] = (w147 & 8'h07) == 8'h06 & ~w96; // bit opcode (hl)
-	assign pla[44] = ~w96 & ~w100; // CB opcode without IX/IY prefix
-	assign pla[45] = (w147 & 8'hfe) == 8'h34 & w90; // inc dec (hl)
-	assign pla[46] = (w147 & 8'hc7) == 8'h86 & w90; // alu (hl)
-	assign pla[47] = w147 == 8'hed & w90; // misc opcode prefix
-	assign pla[48] = w147 == 8'h36 & w90; // ld (hl), n
-	assign pla[49] = w147 == 8'hcb & ~w100; // ix, iy bit instutruction ?
-	assign pla[50] = (w147 & 8'he7) == 8'h20 & w90; // jr nz, z, nc, c
-	assign pla[51] = w147 == 8'h18 & w90; // jr d
-	assign pla[52] = (w147 & 8'hc7) == 8'h45 & w92; // retn, reti
-	assign pla[53] = (w147 & 8'hc7) == 8'hc0 & w90; // ret condition
-	assign pla[54] = w147 == 8'hcb & w90; // bit opcode prefix
-	assign pla[55] = (w147 & 8'hc7) == 8'hc2 & w90; // jp n condition
-	assign pla[56] = (w147 & 8'hc7) == 8'hc4 & w90; // call n condition
-	assign pla[57] = (w147 & 8'hdf) == 8'hdd & w90; // ix, iy
-	assign pla[58] = w147 == 8'h36 & w90 & ~w100; // ld (ix/y), n
-	assign pla[59] = w147 == 8'h08 & w90; // ex af, af'
-	assign pla[60] = (w147 & 8'hf7) == 8'h32 & w90; // ld (nn), a; ld a, (nn)
-	assign pla[61] = (w147 & 8'hf7) == 8'hd3 & w90; // out (n), a; in a, (n)
-	assign pla[62] = (w147 & 8'he7) == 8'h02 & w90; // ld (bc), a; ld (de), a; ld a, (bc); ld a(de)
-	assign pla[63] = w147 == 8'hc9 & w90; // ret
-	assign pla[64] = (w147 & 8'hc7) == 8'h41 & w92; // out (c), reg
-	assign pla[65] = (w147 & 8'hcf) == 8'h43 & w92; // ld (nn), word reg
-	assign pla[66] = (w147 & 8'he7) == 8'h47 & w92; // ld i, a; ld r, a; ld a, i; ld a, r
-	assign pla[67] = (w147 & 8'hc7) == 8'h43 & w92; // ld (nn), word reg, ld word reg, (nn)
-	assign pla[68] = (w147 & 8'hf7) == 8'h22 & w90; // ld (nn), hl; ld hl, (nn)
-	assign pla[69] = w147 == 8'hc3 & w90; // jp nn
-	assign pla[70] = w147 == 8'hd3 & w90; // out (n), a
-	assign pla[71] = (w147 & 8'hc6) == 8'h40 & w92; // in/ out (c), byte
-	assign pla[72] = w147 == 8'h10 & w90; // djnz d
-	assign pla[73] = (w147 & 8'he7) == 8'h07 & w90; // rlca; rrca; rla; rra
-	assign pla[74] = w147 == 8'hcd & w90; // call nn
-	assign pla[75] = (w147 & 8'hcb) == 8'hc1 & w90; // pop, push
-	assign pla[76] = w147 == 8'hcb & ~w100; // ix, iy bit instutruction ?
-	assign pla[77] = (w147 & 8'he7) == 8'ha2 & w92; // ini; ind; inir; indr
-	assign pla[78] = (w147 & 8'he7) == 8'ha3 & w92; // outi; outd; otir; otdr
-	assign pla[79] = (w147 & 8'he7) == 8'ha1 & w92; // cpi; cpd; cpir; cpdr
-	assign pla[80] = (w147 & 8'he7) == 8'ha0 & w92; // ldi; ldd; ldir; lddr
-	assign pla[81] = (w147 & 8'hc7) == 8'h06 & w90; // ld byte n
-	assign pla[82] = (w147 & 8'hcf) == 8'hc5 & w90; // push
-	assign pla[83] = (w147 & 8'hf7) == 8'h67 & w92; // rrd, rld
-	assign pla[84] = (w147 & 8'hcf) == 8'h0b & w90; // dec word
-	assign pla[85] = (w147 & 8'hcf) == 8'h02 & w90; // load from address
-	assign pla[86] = (w147 & 8'he7) == 8'ha0 & w92; // ldi; ldd; ldir; lddr
-	assign pla[87] = (w147 & 8'he7) == 8'ha1 & w92; // cpi; cpd; cpir; cpdr
-	assign pla[88] = w147 == 8'he3 & w90; // ex (sp), hl
-	assign pla[89] = (w147 & 8'hc7) == 8'h03 & w90; // inc, dec word
-	assign pla[90] = (w147 & 8'he7) == 8'h02 & w90; // ld address from register
-	assign pla[91] = (w147 & 8'hcf) == 8'h01 & w90; // ld nn word
-	assign pla[92] = w147 == 8'he9 & w90; // jp (hl)
-	assign pla[93] = w147 == 8'hf9 & w90; // ld sp, hl
-	assign pla[94] = (w147 & 8'he7) == 8'h47 & w92; // ld i,a; ld r,a; ld a,i; ld a,r
-	assign pla[95] = (w147 & 8'hdf) == 8'hdd & w90; // ix, iy
-	assign pla[96] = w147 == 8'heb & w90; // ex de, hl
-	assign pla[97] = w147 == 8'hd9 & w90; // exx
-	assign pla[98] = (w147 & 8'hf4) == 8'ha0 & w92; // block transfer/search group (ldi/ldd/cpi/cpd variants)
+	assign pla[44] = ~w96 & ~dd_fd_prefix; // CB opcode without IX/IY prefix
+	assign pla[45] = (w147 & 8'hfe) == 8'h34 & unprefixed; // inc dec (hl)
+	assign pla[46] = (w147 & 8'hc7) == 8'h86 & unprefixed; // alu (hl)
+	assign pla[47] = w147 == 8'hed & unprefixed; // misc opcode prefix
+	assign pla[48] = w147 == 8'h36 & unprefixed; // ld (hl), n
+	assign pla[49] = w147 == 8'hcb & ~dd_fd_prefix; // ix, iy bit instutruction ?
+	assign pla[50] = (w147 & 8'he7) == 8'h20 & unprefixed; // jr nz, z, nc, c
+	assign pla[51] = w147 == 8'h18 & unprefixed; // jr d
+	assign pla[52] = (w147 & 8'hc7) == 8'h45 & ed_prefix; // retn, reti
+	assign pla[53] = (w147 & 8'hc7) == 8'hc0 & unprefixed; // ret condition
+	assign pla[54] = w147 == 8'hcb & unprefixed; // bit opcode prefix
+	assign pla[55] = (w147 & 8'hc7) == 8'hc2 & unprefixed; // jp n condition
+	assign pla[56] = (w147 & 8'hc7) == 8'hc4 & unprefixed; // call n condition
+	assign pla[57] = (w147 & 8'hdf) == 8'hdd & unprefixed; // ix, iy
+	assign pla[58] = w147 == 8'h36 & unprefixed & ~dd_fd_prefix; // ld (ix/y), n
+	assign pla[59] = w147 == 8'h08 & unprefixed; // ex af, af'
+	assign pla[60] = (w147 & 8'hf7) == 8'h32 & unprefixed; // ld (nn), a; ld a, (nn)
+	assign pla[61] = (w147 & 8'hf7) == 8'hd3 & unprefixed; // out (n), a; in a, (n)
+	assign pla[62] = (w147 & 8'he7) == 8'h02 & unprefixed; // ld (bc), a; ld (de), a; ld a, (bc); ld a(de)
+	assign pla[63] = w147 == 8'hc9 & unprefixed; // ret
+	assign pla[64] = (w147 & 8'hc7) == 8'h41 & ed_prefix; // out (c), reg
+	assign pla[65] = (w147 & 8'hcf) == 8'h43 & ed_prefix; // ld (nn), word reg
+	assign pla[66] = (w147 & 8'he7) == 8'h47 & ed_prefix; // ld i, a; ld r, a; ld a, i; ld a, r
+	assign pla[67] = (w147 & 8'hc7) == 8'h43 & ed_prefix; // ld (nn), word reg, ld word reg, (nn)
+	assign pla[68] = (w147 & 8'hf7) == 8'h22 & unprefixed; // ld (nn), hl; ld hl, (nn)
+	assign pla[69] = w147 == 8'hc3 & unprefixed; // jp nn
+	assign pla[70] = w147 == 8'hd3 & unprefixed; // out (n), a
+	assign pla[71] = (w147 & 8'hc6) == 8'h40 & ed_prefix; // in/ out (c), byte
+	assign pla[72] = w147 == 8'h10 & unprefixed; // djnz d
+	assign pla[73] = (w147 & 8'he7) == 8'h07 & unprefixed; // rlca; rrca; rla; rra
+	assign pla[74] = w147 == 8'hcd & unprefixed; // call nn
+	assign pla[75] = (w147 & 8'hcb) == 8'hc1 & unprefixed; // pop, push
+	assign pla[76] = w147 == 8'hcb & ~dd_fd_prefix; // ix, iy bit instutruction ?
+	assign pla[77] = (w147 & 8'he7) == 8'ha2 & ed_prefix; // ini; ind; inir; indr
+	assign pla[78] = (w147 & 8'he7) == 8'ha3 & ed_prefix; // outi; outd; otir; otdr
+	assign pla[79] = (w147 & 8'he7) == 8'ha1 & ed_prefix; // cpi; cpd; cpir; cpdr
+	assign pla[80] = (w147 & 8'he7) == 8'ha0 & ed_prefix; // ldi; ldd; ldir; lddr
+	assign pla[81] = (w147 & 8'hc7) == 8'h06 & unprefixed; // ld byte n
+	assign pla[82] = (w147 & 8'hcf) == 8'hc5 & unprefixed; // push
+	assign pla[83] = (w147 & 8'hf7) == 8'h67 & ed_prefix; // rrd, rld
+	assign pla[84] = (w147 & 8'hcf) == 8'h0b & unprefixed; // dec word
+	assign pla[85] = (w147 & 8'hcf) == 8'h02 & unprefixed; // load from address
+	assign pla[86] = (w147 & 8'he7) == 8'ha0 & ed_prefix; // ldi; ldd; ldir; lddr
+	assign pla[87] = (w147 & 8'he7) == 8'ha1 & ed_prefix; // cpi; cpd; cpir; cpdr
+	assign pla[88] = w147 == 8'he3 & unprefixed; // ex (sp), hl
+	assign pla[89] = (w147 & 8'hc7) == 8'h03 & unprefixed; // inc, dec word
+	assign pla[90] = (w147 & 8'he7) == 8'h02 & unprefixed; // ld address from register
+	assign pla[91] = (w147 & 8'hcf) == 8'h01 & unprefixed; // ld nn word
+	assign pla[92] = w147 == 8'he9 & unprefixed; // jp (hl)
+	assign pla[93] = w147 == 8'hf9 & unprefixed; // ld sp, hl
+	assign pla[94] = (w147 & 8'he7) == 8'h47 & ed_prefix; // ld i,a; ld r,a; ld a,i; ld a,r
+	assign pla[95] = (w147 & 8'hdf) == 8'hdd & unprefixed; // ix, iy
+	assign pla[96] = w147 == 8'heb & unprefixed; // ex de, hl
+	assign pla[97] = w147 == 8'hd9 & unprefixed; // exx
+	assign pla[98] = (w147 & 8'hf4) == 8'ha0 & ed_prefix; // block transfer/search group (ldi/ldd/cpi/cpd variants)
 	
 	// -----------------------------------------------------------------------
 	// Sequencer & data path control
@@ -2039,7 +2039,7 @@ module z80cpu
 	assign w180 = ~(pla[12] | pla[24]);
 	assign w181 = ~(pla[13] | pla[25] | pla[26]);
 	assign w182 = ~(pla[33] | pla[36]);
-	assign w183 = ~(w182 & (w114 | ~pla[37]));
+	assign w183 = ~(w182 & (exec_late | ~pla[37]));
 	assign w184 = ~(pla[55] | pla[56]);
 	assign w185 = ~(pla[56] | pla[74]);
 	assign w186 = ~(pla[77] | pla[78] | pla[79]
@@ -2053,7 +2053,7 @@ module z80cpu
 	assign w191 = ~(pla[79] | pla[80]
 		| ~w169 | pla[83] | pla[92] | pla[93]);
 	
-	assign w192 = (w201 & w110) | (w41 & w3 & w46);
+	assign w192 = (w201 & exec_active) | (exec_early & w3 & w46);
 	
 	assign w193 = (w144 & w14) | w205;
 	
@@ -2069,20 +2069,20 @@ module z80cpu
 	
 	assign w199 = ~(pla[83] | pla[87] | w254);
 	
-	assign w200 = ~((w127 & (~w186 | ~w88))
-		| (w120 & ~w88)
-		| (w123 & ~w167)
-		| (w121 & (~w167 | w255)));
+	assign w200 = ~((step_s2 & (~w186 | ~w88))
+		| (step_s1 & ~w88)
+		| (step_s3 & ~w167)
+		| (step_s4 & (~w167 | w255)));
 	
 	assign w201 = ~w200 & ~w202;
 	
-	assign w202 = ((w121 | w123) & ~w197)
-		| (w127 & w198);
+	assign w202 = ((step_s4 | step_s3) & ~w197)
+		| (step_s2 & w198);
 	
-	assign w203 = ~(w110 | (w41 & w131));
+	assign w203 = ~(exec_active | (exec_early & step_s0));
 	
-	assign w204 = ~((w109 & pla[93])
-		| (pla[88] & w121 & w41));
+	assign w204 = ~((t2_phase & pla[93])
+		| (pla[88] & step_s4 & exec_early));
 	
 	z80_dlatch dl39
 		(
@@ -2101,16 +2101,16 @@ module z80cpu
 		.nq()
 		);
 	
-	assign w206 = ~((w131 & w109 & w207)
-		| (~w186 & w123 & (w41 | w110))
-		| (w195 & w127 & w41));
+	assign w206 = ~((step_s0 & t2_phase & w207)
+		| (~w186 & step_s3 & (exec_early | exec_active))
+		| (w195 & step_s2 & exec_early));
 	
 	assign w207 = ~(w176 & ~(w86 | ~w88));
 	
-	assign w208 = ~(w110 &
-		((w120 & (w209 | ~w88))
-			| (w123 & ~w173 & ~w167)
-			| (w127 & w209)));
+	assign w208 = ~(exec_active &
+		((step_s1 & (w209 | ~w88))
+			| (step_s3 & ~w173 & ~w167)
+			| (step_s2 & w209)));
 	
 	assign w209 = ~w186 & w147[3];
 	
@@ -2133,25 +2133,25 @@ module z80cpu
 	
 	assign w210 = ~w210_i;
 	
-	assign w211 = ~((w114 & ((w123 & w212)
-		| (w120 & w213)))
-		| (w109 & (w121 | ((w123 | w127)
+	assign w211 = ~((exec_late & ((step_s3 & w212)
+		| (step_s1 & w213)))
+		| (t2_phase & (step_s4 | ((step_s3 | step_s2)
 			& (~w186 | ~w173)))));
 	
 	assign w212 = ~(w186 & (~w169 | w255));
 	
 	assign w213 = ~(w186 & w218);
 	
-	assign w214 = ~((w41 & w131)
-		| (w68 & w131 & (~w88 | ~w167))
-		| (w114 & ((w127 & ~w186)
-			| (w121 & w167 & ~w173))));
+	assign w214 = ~((exec_early & step_s0)
+		| (mem_access & step_s0 & (~w88 | ~w167))
+		| (exec_late & ((step_s2 & ~w186)
+			| (step_s4 & w167 & ~w173))));
 	
 	z80_dlatch dl41
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w55 | (~w57 & w110 & w131)),
+		.inp(reset_active | (~w57 & exec_active & step_s0)),
 		.outp(l41)
 		);
 	
@@ -2159,63 +2159,63 @@ module z80cpu
 	
 	assign w216 = ~w214 | ~w211;
 	
-	assign w217 = ~((w120 & w218) | w131 | w127);
+	assign w217 = ~((step_s1 & w218) | step_s0 | step_s2);
 	
 	assign w218 = ~pla[88] & w88;
 	
-	assign w219 = ~((w41 & (w121 | (w127 & ~w186)))
-		| (w109 & w131)
-		| (w114 & (w131 | (w127 & ~w173))));
+	assign w219 = ~((exec_early & (step_s4 | (step_s2 & ~w186)))
+		| (t2_phase & step_s0)
+		| (exec_late & (step_s0 | (step_s2 & ~w173))));
 	
-	assign w220 = ~(w127 & w196);
+	assign w220 = ~(step_s2 & w196);
 	
-	assign w221 = ~((w110 & (w123 | w121)
+	assign w221 = ~((exec_active & (step_s3 | step_s4)
 		& (~w185 | w86))
-		| (w109 & w123 & ~w186));
+		| (t2_phase & step_s3 & ~w186));
 	
-	assign w222 = ~((~w175 & ((w114 & w120)
-		| (w41 & w127)))
-		| (w110 & (w127 | w120) & ~w88));
+	assign w222 = ~((~w175 & ((exec_late & step_s1)
+		| (exec_early & step_s2)))
+		| (exec_active & (step_s2 | step_s1) & ~w88));
 	
-	assign w223 = ~((w127 & ~w186)
-		| (w120 & ~w170)
-		| (w131 & w224));
+	assign w223 = ~((step_s2 & ~w186)
+		| (step_s1 & ~w170)
+		| (step_s0 & w224));
 	
 	assign w224 = ~w170 | w225 | ~w159;
 	
-	assign w225 = ~w100 & ~w169;
+	assign w225 = ~dd_fd_prefix & ~w169;
 	
-	assign w226 = ~((w110 & (
-		w131
-		| (w120 & w224)
-		| (w127 & ~w170)))
-		| w55);
+	assign w226 = ~((exec_active & (
+		step_s0
+		| (step_s1 & w224)
+		| (step_s2 & ~w170)))
+		| reset_active);
 	
-	assign w227 = ~(w131 & w114);
+	assign w227 = ~(step_s0 & exec_late);
 	
-	assign w228 = ~(w131 & w41);
+	assign w228 = ~(step_s0 & exec_early);
 	
-	assign w229 = ~((w41 & w120 & ~w88)
-		| (w109 & w131 & pla[94]));
+	assign w229 = ~((exec_early & step_s1 & ~w88)
+		| (t2_phase & step_s0 & pla[94]));
 	
-	assign w230 = ~((w68 & w131 & (pla[93] | ~w173))
-		| (w114 & (((w127 | w123) & ~w173)
-			| (w121 & ~w173 & w167))));
+	assign w230 = ~((mem_access & step_s0 & (pla[93] | ~w173))
+		| (exec_late & (((step_s2 | step_s3) & ~w173)
+			| (step_s4 & ~w173 & w167))));
 	
-	assign w231 = ~(((w68 | w109) & (w131 | w127)
+	assign w231 = ~(((mem_access | t2_phase) & (step_s0 | step_s2)
 		& (~w173 | ~w88))
-		| (w114 & w120 & ~w88));
+		| (exec_late & step_s1 & ~w88));
 
-	assign w232 = ~((w41 & (w120 | w127) & pla[91])
-		| ((w109 | w68)
-			& (w121 | (w131
+	assign w232 = ~((exec_early & (step_s1 | step_s2) & pla[91])
+		| ((t2_phase | mem_access)
+			& (step_s4 | (step_s0
 				& (pla[89] | pla[90]))))
 		);
 	
 	assign w233 = ~(
-		(w110 & (w123 | w121)
+		(exec_active & (step_s3 | step_s4)
 			& (pla[88] | w234 | w235))
-		| (w41 & (w123 | w121)
+		| (exec_early & (step_s3 | step_s4)
 			& w237)
 		);
 	
@@ -2228,64 +2228,64 @@ module z80cpu
 	assign w237 = ~(w236 | ~w167);
 	
 	assign w238 = ~(
-		((w41 & w127) | (w114 & w120))
+		((exec_early & step_s2) | (exec_late & step_s1))
 		& w225);
 	
-	assign w239 = ~((w114 & w120 & w240)
-		| (w109 & ((w127 & pla[83]) | (w123 & w234)))
-		| (w41 & (w123 | w121) & w234)
+	assign w239 = ~((exec_late & step_s1 & w240)
+		| (t2_phase & ((step_s2 & pla[83]) | (step_s3 & w234)))
+		| (exec_early & (step_s3 | step_s4) & w234)
 		);
 	
 	assign w240 = ~(pla[77] | w186);
 	
 	assign w241 = ~(
-		(w131 & w68 & pla[78])
-		| (w131 & w109 & (w234 | ~w191))
-		| (w114 & w127 & pla[77])
-		| (w41 & w120 & (pla[77] | pla[81]))
+		(step_s0 & mem_access & pla[78])
+		| (step_s0 & t2_phase & (w234 | ~w191))
+		| (exec_late & step_s2 & pla[77])
+		| (exec_early & step_s1 & (pla[77] | pla[81]))
 		);
 	
 	assign w242 = ~(
-		((w41 & w120)
-		| (w114 & w127)) & pla[80]
+		((exec_early & step_s1)
+		| (exec_late & step_s2)) & pla[80]
 		);
 	
 	assign w243 = ~(
-		(w109 & ((w127 & ~w186) | (w131 & ~w188)))
-		| (w68 & w131 & pla[77])
-		| (w110 & w120 & ~w188)
-		| (w41 & ((w127 & ~w186) | (w120 & pla[78])))
+		(t2_phase & ((step_s2 & ~w186) | (step_s0 & ~w188)))
+		| (mem_access & step_s0 & pla[77])
+		| (exec_active & step_s1 & ~w188)
+		| (exec_early & ((step_s2 & ~w186) | (step_s1 & pla[78])))
 		);
 	
 	assign w244 = ~(
-		(w110 | w41) & (w123 | w121) & pla[75]
+		(exec_active | exec_early) & (step_s3 | step_s4) & pla[75]
 		);
 	
 	assign w245 = ~(~w187 | (~w236 & w147[3])
 		| (~w153 & w175) | pla[75] | ~w173
 		| pla[91]);
 	
-	assign w246 = ~((w110 & w123 & ~w187)
-		| (w41 & w123 & w167 & ~w187)
-		| (w109 & w131 & pla[73])
-		| (w114 & w131 & w247)
+	assign w246 = ~((exec_active & step_s3 & ~w187)
+		| (exec_early & step_s3 & w167 & ~w187)
+		| (t2_phase & step_s0 & pla[73])
+		| (exec_late & step_s0 & w247)
 		);
 	
 	assign w247 = ~(pla[22] | w148);
 	
 	assign w248 = ~(
-		(w110 & w123 & (pla[71] | ~w163))
-		| (w109 & w131 & (~w163 & w169))
+		(exec_active & step_s3 & (pla[71] | ~w163))
+		| (t2_phase & step_s0 & (~w163 & w169))
 		);
 	
-	assign w249 = ~(w109 & w131 & pla[66]);
+	assign w249 = ~(t2_phase & step_s0 & pla[66]);
 	
-	assign w250 = ~(w114 & w131 & ~w172);
+	assign w250 = ~(exec_late & step_s0 & ~w172);
 
 	assign w251 = ~(
-		(w41 & ((w123 & w252)
-			| (w120 & w88 & w253)))
-		| (w114 & w127 & (~w88 | w254))
+		(exec_early & ((step_s3 & w252)
+			| (step_s1 & w88 & w253)))
+		| (exec_late & step_s2 & (~w88 | w254))
 		);
 	
 	assign w252 = w187 & (w86 | w234 | (w167 & ~w245));
@@ -2296,150 +2296,150 @@ module z80cpu
 	
 	assign w255 = ~w174 | (w115 & w256);
 	
-	assign w256 = ~w169 & ~w100;
+	assign w256 = ~w169 & ~dd_fd_prefix;
 	
 	assign w257 = ~(
-		(w110 & w120 & (~w189 | ~w187))
-		| (w41 & ((w127 & w253) | (w121 & w252)))
+		(exec_active & step_s1 & (~w189 | ~w187))
+		| (exec_early & ((step_s2 & w253) | (step_s4 & w252)))
 		);
 	
 	assign w258 = ~(
-		(w41 & w123 & ~w187)
-		| (w68 & w127 & w255)
-		| (w114 & w131 & w247)
+		(exec_early & step_s3 & ~w187)
+		| (mem_access & step_s2 & w255)
+		| (exec_late & step_s0 & w247)
 		);
 	
-	assign w259 = ~(w110 & w131 & pla[59]);
+	assign w259 = ~(exec_active & step_s0 & pla[59]);
 	
 	assign w260 = ~(
-		(w110 & w121 & ~w245)
-		| (w109 & w131 & w261)
+		(exec_active & step_s4 & ~w245)
+		| (t2_phase & step_s0 & w261)
 		);
 	
 	assign w261 = w235 | w234;
 	
 	assign w262 = ~(
-		(w110 & ((w120 & ~w88) | (w123 & w261)))
-		| (w114 & w120)
+		(exec_active & ((step_s1 & ~w88) | (step_s3 & w261)))
+		| (exec_late & step_s1)
 		);
 	
 	assign w263 = ~(
-		(w109 & ((w131 & ~w189) | w123))
-		| ((w110 | w41) & w120 & ~w88)
+		(t2_phase & ((step_s0 & ~w189) | step_s3))
+		| ((exec_active | exec_early) & step_s1 & ~w88)
 		);
 	
 	assign w264 = ~(
-		(w110 & ((w123 & (~w245 | ~w187))
-			| (w121 & w261)))
-		| (w41 & w127 & w255)
+		(exec_active & ((step_s3 & (~w245 | ~w187))
+			| (step_s4 & w261)))
+		| (exec_early & step_s2 & w255)
 		);
 	
 	assign w265 = (
-		(w127 & ~w184)
-		| (w131 & pla[53])
-		| (w120 & pla[50])
+		(step_s2 & ~w184)
+		| (step_s0 & pla[53])
+		| (step_s1 & pla[50])
 		);
 	
 	assign w266 = ~(
-		(w109 & w131 & pla[41])
-		| (w110 & w127 & w88)
+		(t2_phase & step_s0 & pla[41])
+		| (exec_active & step_s2 & w88)
 		);
 	
 	assign w267 = ~(
-		(w110 & w123 & pla[38])
-		| (w41 & ((w123 & w86)
-			| (w127 & (pla[38] | ~w88))))
+		(exec_active & step_s3 & pla[38])
+		| (exec_early & ((step_s3 & w86)
+			| (step_s2 & (pla[38] | ~w88))))
 		);
 	
 	assign w268 = ~(~w150 &
-		((w41 & w123)
-			| (w109 & w131))
+		((exec_early & step_s3)
+			| (t2_phase & step_s0))
 		);
 	
 	assign w269 = ~(
-		(w110 & ((w123 & (w256 | w234)) | (w121 & w234)))
-		| (w68 & w131 & w86)
-		| (w41 & (w131 | w120))
+		(exec_active & ((step_s3 & (w256 | w234)) | (step_s4 & w234)))
+		| (mem_access & step_s0 & w86)
+		| (exec_early & (step_s0 | step_s1))
 		);
 	
 	assign w270 = ~(
-		(w41 & w123 & (w256 | w271))
-		| (w109 & w131)
+		(exec_early & step_s3 & (w256 | w271))
+		| (t2_phase & step_s0)
 		);
 	
 	assign w271 = pla[27] | pla[28];
 	
-	assign w272 = ~((w41 & w120 & w255));
+	assign w272 = ~((exec_early & step_s1 & w255));
 	
-	assign w273 = ~(w110 & w131 & (w247 | ~w152));
+	assign w273 = ~(exec_active & step_s0 & (w247 | ~w152));
 	
 	assign w274 = ~(
-		(w114 & w123 & (w256 | w271))
-		| (w41 & w131)
+		(exec_late & step_s3 & (w256 | w271))
+		| (exec_early & step_s0)
 		);
 	
 	assign w275 = ~(
-		(w114 & w131 & (~w172 | w247))
-		| (w110 & (w120 | w121) & w255)
-		| (w41 & w121 & w234)
-		| (w68 & w127)
+		(exec_late & step_s0 & (~w172 | w247))
+		| (exec_active & (step_s1 | step_s4) & w255)
+		| (exec_early & step_s4 & w234)
+		| (mem_access & step_s2)
 		);
 	
-	assign w276 = ~(w41 & w120 & w255);
+	assign w276 = ~(exec_early & step_s1 & w255);
 
-	assign w277 = ~(w114 & w131 & ~w156);
+	assign w277 = ~(exec_late & step_s0 & ~w156);
 	
-	assign w278 = ~(w114 & w131 & ~w171);
+	assign w278 = ~(exec_late & step_s0 & ~w171);
 	
 	assign w279 = ~(
-		(w120 & pla[8])
-		| (w127 & (pla[7] | pla[5]))
+		(step_s1 & pla[8])
+		| (step_s2 & (pla[7] | pla[5]))
 		);
 	
 	assign w280 = ~(
-		(w114 & ((w127 & pla[5]) | (w131 & w179)))
-		| (w110 & w120 & ~w178)
-		| (w41 & w123 & w234)
+		(exec_late & ((step_s2 & pla[5]) | (step_s0 & w179)))
+		| (exec_active & step_s1 & ~w178)
+		| (exec_early & step_s3 & w234)
 		);
 	
 	assign w281 = ~(
-		(w110 & w123) | (w114 & w120)
-		| (w109 & w131)
+		(exec_active & step_s3) | (exec_late & step_s1)
+		| (t2_phase & step_s0)
 		);
 	
 	assign w282 = ~(
-		(w110 & ((w127 & (pla[5] | w255)) | (w131 & w177)))
-		| (w68 & w131)
-		| (w114 & w121 & w234)
+		(exec_active & ((step_s2 & (pla[5] | w255)) | (step_s0 & w177)))
+		| (mem_access & step_s0)
+		| (exec_late & step_s4 & w234)
 		);
 	
 	assign w283 = ~(
 		~w274 |
-		(w68 & w131 & ~w88)
-		| (w41 & (w127 | w123) & w255)
-		| (w109 & ((w131 & (w255 | w234))
-			| (w123 & w234)))
-		| (w114 & w120 & (w255 | w256))
+		(mem_access & step_s0 & ~w88)
+		| (exec_early & (step_s2 | step_s3) & w255)
+		| (t2_phase & ((step_s0 & (w255 | w234))
+			| (step_s3 & w234)))
+		| (exec_late & step_s1 & (w255 | w256))
 		);
 	
-	assign w284 = ~(w68 & w131 & im2_fetch_qual);
+	assign w284 = ~(mem_access & step_s0 & im2_fetch_qual);
 	
 	assign w285 = ~(
-		(w110 & w120 & pla[0])
-		| (w114 & w127 & ~w88)
-		| (w41 & w121 & w86)
+		(exec_active & step_s1 & pla[0])
+		| (exec_late & step_s2 & ~w88)
+		| (exec_early & step_s4 & w86)
 		);
 	
 	assign w286 = ~(
-		(w41 & w131 & w287)
-		| (w110 & w123 & (w287 & w256))
+		(exec_early & step_s0 & w287)
+		| (exec_active & step_s3 & (w287 & w256))
 		);
 	
 	assign w287 = ~w95 | (w103 & w98);
 	
-	assign w288 = ~((w109 | w68) & (pla[21] | w77));
+	assign w288 = ~((t2_phase | mem_access) & (pla[21] | w77));
 	
-	assign w289 = ~((w288 & w68 & w131) | w192);
+	assign w289 = ~((w288 & mem_access & step_s0) | w192);
 	
 	assign w290 = ~(w216 | ~w219 | ~w226
 		| (~w133 & (~w217 | w118)));
@@ -2529,7 +2529,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.en(clk),
-		.inp(w306 | w55),
+		.inp(w306 | reset_active),
 		.outp(w307)
 		);
 	
@@ -2541,7 +2541,7 @@ module z80cpu
 	
 	assign w311 = ~(w238 & (w343 | ~w312));
 	
-	assign w312 = ~(w100 | ~w169);
+	assign w312 = ~(dd_fd_prefix | ~w169);
 	
 	assign w313 = ~(~w246 | ~w243 | ~w242 | ~w274 | ~w241 | ~w239 | ~w238 | w309);
 	
@@ -2890,8 +2890,8 @@ module z80cpu
 	assign w375 = ~(w376 & w275);
 	
 	assign w376 = ~(
-		(w41 & w123 & w234)
-		| (w114 & w127 & w255)
+		(exec_early & step_s3 & w234)
+		| (exec_late & step_s2 & w255)
 		);
 	
 	z80_dlatch dw377
@@ -2985,15 +2985,15 @@ module z80cpu
 	
 	assign w383 = ~(w279 | ~w486);
 	
-	assign w384 = ~((w114 & w123 & w234)
-		| (w109 & (w123 | w127) & w255));
+	assign w384 = ~((exec_late & step_s3 & w234)
+		| (t2_phase & (step_s3 | step_s2) & w255));
 	
-	assign w385 = ~(w114 | w109);
+	assign w385 = ~(exec_late | t2_phase);
 	
-	assign w386 = ~((w109 & w123 & w234)
-		| (w41 & w127));
+	assign w386 = ~((t2_phase & step_s3 & w234)
+		| (exec_early & step_s2));
 	
-	assign w387 = ~(w109 & w127 & w388);
+	assign w387 = ~(t2_phase & step_s2 & w388);
 	
 	assign w388 = ~(pla[7] | w177);
 	
@@ -3033,13 +3033,13 @@ module z80cpu
 	end
 	
 	assign w393 = ~(~w277
-		| (w114 & w127 & w255)
-		| (w41 & w123 & w234)
+		| (exec_late & step_s2 & w255)
+		| (exec_early & step_s3 & w234)
 		);
 	
 	assign w394 = ~((w390 & ~w166)
-		| (w109 & w123 & w234)
-		| (w41 & w127 & w255)
+		| (t2_phase & step_s3 & w234)
+		| (exec_early & step_s2 & w255)
 		);
 	
 	assign w395 = ~(~w165 & w390);
@@ -3054,15 +3054,15 @@ module z80cpu
 	
 	assign w396 = ~(w395 & w394 & (w390 | l53));
 	
-	assign w397 = ~((w41 | w109 | w68) & w127);
+	assign w397 = ~((exec_early | t2_phase | mem_access) & step_s2);
 	
-	assign w398 = ~(w114 & w123 & w83);
+	assign w398 = ~(exec_late & step_s3 & w83);
 	
 	assign w399 = ~((w390 & ~pla[36] & w255) | w400);
 	
 	assign w400_v = (
-		(w41 & w127 & w255)
-		| (w114 & w123 & pla[38])
+		(exec_early & step_s2 & w255)
+		| (exec_late & step_s3 & pla[38])
 		);
 	
 	z80_dlatch dw400
@@ -3074,8 +3074,8 @@ module z80cpu
 		);
 	
 	assign w401 = ~(
-		((~w147[3] & w109) | w114) &
-		w127 & pla[38]
+		((~w147[3] & t2_phase) | exec_late) &
+		step_s2 & pla[38]
 		);
 	
 	z80_dlatch dl54
@@ -4027,7 +4027,7 @@ module z80cpu
 		(
 		.MCLK(MCLK),
 		.rst(w11 & w16),
-		.set(w19 | w18 | w55 | ~w57),
+		.set(w19 | w18 | reset_active | ~w57),
 		.q(halt_i),
 		.nq()
 		);
@@ -4039,8 +4039,8 @@ module z80cpu
 	z80_rs_trig_nor m1rs
 		(
 		.MCLK(MCLK),
-		.rst(clk & (w41 | w113)),
-		.set(clk & w131 & w110),
+		.rst(clk & (exec_early | w113)),
+		.set(clk & step_s0 & exec_active),
 		.q(m1),
 		.nq()
 		);
