@@ -45,7 +45,7 @@
 //     using pulldown-based read/write logic
 //   - Register file: r1[0:17] (18 entries: A0-A7, SSP, temps),
 //     r6[0:9] (10 entries: D0-D7, temps), r7[0:8] (9 entries: additional)
-//   - CCR flags: w750(N), w751(Z), w752(V), w753(X), w754(C)
+//   - CCR flags: ccr_n(N), w751(Z), w752(V), w753(X), w754(C)
 //
 // Signal naming:
 //   Wire/reg names use original w### numbering from the netlist extraction.
@@ -151,10 +151,10 @@ module m68kcpu
 	wire w37;
 	wire w38;
 	// --- Register file address decode ---
-	wire w39;  // register bank 2 select
-	wire w40;  // register bank 1 select
-	wire w41;  // register bank 1 write select
-	wire w42;  // register bank 2 write select
+	wire regbank2_sel;  // register bank 2 select
+	wire regbank1_sel;  // register bank 1 select
+	wire regbank1_wr;  // register bank 1 write select
+	wire regbank2_wr;  // register bank 2 write select
 
 	// --- Bus cycle control & exception handling ---
 	wire w55;
@@ -191,7 +191,7 @@ module m68kcpu
 	wire w85;
 	wire w86;
 	wire w87;
-	wire w88;  // stack pointer select (SSP/USP)
+	wire ssp_sel;  // stack pointer select (SSP/USP)
 	wire w89;
 	wire w90;
 	wire w91;
@@ -341,7 +341,7 @@ module m68kcpu
 	reg [3:0] w259[0:1]; // interrupt priority level latches
 	reg w260;
 	reg w261[0:1];
-	reg w262;             // halt state
+	reg halt_state;             // halt state
 	reg w263;
 	reg w264;
 	wire w265;
@@ -405,9 +405,9 @@ module m68kcpu
 	reg w319;
 	reg w320;
 	reg w321;
-	reg w322;  // FC[0] (function code bit 0)
-	reg w323;  // FC[1] (function code bit 1)
-	reg w324;  // FC[2] (function code bit 2)
+	reg fc_bit0;  // FC[0] (function code bit 0)
+	reg fc_bit1;  // FC[1] (function code bit 1)
+	reg fc_bit2;  // FC[2] (function code bit 2)
 	wire w325;
 	reg w326;
 	wire w327;
@@ -438,19 +438,19 @@ module m68kcpu
 	wire w346;
 	wire w347;
 	// --- Bus grant & DTACK handshake ---
-	reg w348;      // DTACK sync latch
-	reg w349;      // DTACK sync latch
-	reg w350;      // bus cycle control
-	reg w351;      // bus cycle control
+	reg dtack_sync2;      // DTACK sync latch
+	reg dtack_sync1;      // DTACK sync latch
+	reg bus_cycle_ctl1;      // bus cycle control
+	reg bus_cycle_ctl2;      // bus cycle control
 	wire w352;
 	wire w353;
 	wire w354;
 	wire w355;
-	reg w356_0;    // address strobe control (RS latch)
+	reg as_ctl_latch;    // address strobe control (RS latch)
 	wire w356_1;
-	reg w357_0;    // upper data strobe control (RS latch)
+	reg uds_ctl_latch;    // upper data strobe control (RS latch)
 	wire w357_1;
-	reg w358_0;    // lower data strobe control (RS latch)
+	reg lds_ctl_latch;    // lower data strobe control (RS latch)
 	wire w358_1;
 	reg w359[0:2];
 	wire w359_3;
@@ -462,23 +462,23 @@ module m68kcpu
 	reg w364[0:1];
 	// --- RESET/HALT & bus error control ---
 	wire w365;
-	reg w366;     // RESET sync latch
-	reg w367;     // RESET sync latch
-	reg w368;     // HALT sync latch
-	reg w369;     // HALT sync latch
-	reg w370;     // BERR (bus error) sync latch
-	reg w371;     // BERR sync latch
+	reg reset_sync2;     // RESET sync latch
+	reg reset_sync1;     // RESET sync latch
+	reg halt_sync2;     // HALT sync latch
+	reg halt_sync1;     // HALT sync latch
+	reg berr_sync2;     // BERR (bus error) sync latch
+	reg berr_sync1;     // BERR sync latch
 	wire w372;
-	reg w373;     // double bus fault detect
+	reg dbl_bus_fault;     // double bus fault detect
 	reg w374;
 	wire w375;
 	wire w376;
 	wire w377;
-	reg w378;     // RESET output driver
-	reg w379;     // HALT output driver
+	reg reset_out_drv;     // RESET output driver
+	reg halt_out_drv;     // HALT output driver
 	reg w380;
 	wire w381;
-	wire w382;    // read/write direction control
+	wire rw_dir_ctl;    // read/write direction control
 	reg w383;
 	reg w384;
 	wire w385;
@@ -547,25 +547,25 @@ module m68kcpu
 	reg w444_mem;
 	// --- Microcode sequencer state ---
 	reg [9:0] w445;  // microcode address register
-	reg w446;         // sequencer state bit
-	reg w447;         // sequencer state bit
-	reg w448;         // sequencer state bit
-	wire w449;        // trap/exception detection
-	wire w450;        // reset/init signal
+	reg seq_state_0;         // sequencer state bit
+	reg seq_state_1;         // sequencer state bit
+	reg seq_state_2;         // sequencer state bit
+	wire trap_detect;        // trap/exception detection
+	wire reset_init;        // reset/init signal
 	reg w451;         // sequencer control
 	reg w452;         // sequencer control
 	reg w453;         // sequencer control
 	reg w454;         // sequencer control
 	reg w455;         // sequencer control
-	reg w456;         // sequencer control
-	reg w457;         // sequencer control
-	reg w458;         // sequencer control
-	reg w459;         // sequencer control
-	reg w460;         // sequencer control
-	reg w461;         // sequencer control
+	reg seq_ctl_0;         // sequencer control
+	reg seq_ctl_1;         // sequencer control
+	reg seq_ctl_2;         // sequencer control
+	reg seq_ctl_3;         // sequencer control
+	reg seq_ctl_4;         // sequencer control
+	reg seq_ctl_5;         // sequencer control
 	// --- Microcode address generation ---
 	wire w462[0:10]; // microcode address mux intermediates
-	wire w463;       // microcode address control
+	wire ucode_addr_ctl;       // microcode address control
 	wire [9:0] w464; // microcode address intermediate
 	wire w465[0:4];  // microcode address carry chain
 	wire [9:0] codebus;      // primary microcode address bus
@@ -632,10 +632,10 @@ module m68kcpu
 	//reg [0:67] w521;
 	reg [16:0] w522;   // latched microcode control word (17 bits)
 	//reg [16:0] w523;
-	wire w524;          // nanocode ROM address decode
-	wire w525;          // nanocode ROM address decode
-	wire w526;          // nanocode ROM address decode
-	wire w527;          // nanocode ROM address decode
+	wire ncode_bank_3;          // nanocode ROM address decode
+	wire ncode_bank_2;          // nanocode ROM address decode
+	wire ncode_bank_1;          // nanocode ROM address decode
+	wire ncode_bank_0;          // nanocode ROM address decode
 	//reg [67:0] w528;
 	reg [67:0] w529;    // expanded nanocode control signals (68 bits)
 	//reg [271:0] ucode[0:33];
@@ -687,11 +687,11 @@ module m68kcpu
 	wire [22:0] cond_pla2;  // condition evaluation PLA 2 (Bcc/Scc/DBcc)
 	wire w561;
 	wire w562;
-	wire w563;  // irdbus mux control
-	wire w564;  // irdbus mux control
-	wire w565;  // irdbus mux control
-	wire w566;  // irdbus mux control
-	wire w567;  // bus cycle active (gates microcode sequencer)
+	wire ird_mux_ctl_0;  // irdbus mux control
+	wire ird_mux_ctl_1;  // irdbus mux control
+	wire ird_mux_ctl_2;  // irdbus mux control
+	wire ird_mux_ctl_3;  // irdbus mux control
+	wire bus_cycle_active;  // bus cycle active (gates microcode sequencer)
 	wire w568;
 	wire [49:0] ird_pla1;  // instruction register decode PLA 1 (50 entries)
 	wire [31:0] ird_pla2;  // instruction register decode PLA 2 (32 entries)
@@ -885,7 +885,7 @@ module m68kcpu
 	reg w748;
 	wire w749;
 	// --- CCR flags (condition code register) ---
-	reg w750;  // N (Negative) flag
+	reg ccr_n;  // N (Negative) flag
 	reg w751;  // Z (Zero) flag
 	reg w752;  // V (Overflow) flag
 	reg w753;  // X (Extend) flag
@@ -1017,9 +1017,9 @@ module m68kcpu
 	wire w880;
 	wire w881;
 	reg w882;
-	wire w883;  // byte swap control (high byte)
-	reg w884;   // byte swap latch (high byte select)
-	reg w885;   // byte swap latch (low byte select)
+	wire byte_swap_hi;  // byte swap control (high byte)
+	reg byte_swap_hi_sel;   // byte swap latch (high byte select)
+	reg byte_swap_lo_sel;   // byte swap latch (low byte select)
 	wire w886;
 	wire w887;
 	wire w888;
@@ -1198,7 +1198,7 @@ module m68kcpu
 		w260 = 1'h0;
 		w261[0] = 1'h0;
 		w261[1] = 1'h0;
-		w262 = 1'h0;
+		halt_state = 1'h0;
 		w335 = 1'h0;
 		w338 = 1'h0;
 		w278 = 1'h0;
@@ -1281,79 +1281,79 @@ module m68kcpu
 	assign w1 = (~l2) ? c2 : ((~l1) ? c3 : 1'h0);
 	assign w2 = (~l4) ? c2 : ((~l3) ? c3 : 1'h0);
 	
-	wire v1_1 = w42 & ~w67 & ~w66;
-	wire v2_1 = ~w63 & ~w62 & w39;
+	wire v1_1 = regbank2_wr & ~w67 & ~w66;
+	wire v2_1 = ~w63 & ~w62 & regbank2_sel;
 	
 	assign w3 = (v1_1 & ~w65) ? w1 : 1'h0;
 	assign w4 = (v2_1 & ~w64) ? w2 : 1'h0;
 	assign w5 = (v2_1 & w64) ? w2 : 1'h0;
 	assign w6 = (v1_1 & w65) ? w1 : 1'h0;
 	
-	wire v1_2 = w42 & ~w67 & w66;
-	wire v2_2 = w63 & ~w62 & w39;
+	wire v1_2 = regbank2_wr & ~w67 & w66;
+	wire v2_2 = w63 & ~w62 & regbank2_sel;
 	
 	assign w7 = (v1_2 & ~w65) ? w1 : 1'h0;
 	assign w8 = (v2_2 & ~w64) ? w2 : 1'h0;
 	assign w9 = (v2_2 & w64) ? w2 : 1'h0;
 	assign w10 = (v1_2 & w65) ? w1 : 1'h0;
 	
-	wire v1_3 = w42 & w67 & ~w66;
-	wire v2_3 = ~w63 & w62 & w39;
+	wire v1_3 = regbank2_wr & w67 & ~w66;
+	wire v2_3 = ~w63 & w62 & regbank2_sel;
 	
 	assign w11 = (v1_3 & ~w65) ? w1 : 1'h0;
 	assign w12 = (v2_3 & ~w64) ? w2 : 1'h0;
 	assign w13 = (v2_3 & w64) ? w2 : 1'h0;
 	assign w14 = (v1_3 & w65) ? w1 : 1'h0;
 	
-	wire v1_4 = w42 & w67 & w66;
-	wire v2_4 = w63 & w62 & w39;
+	wire v1_4 = regbank2_wr & w67 & w66;
+	wire v2_4 = w63 & w62 & regbank2_sel;
 	
 	assign w15 = (v1_4 & ~w65) ? w1 : 1'h0;
 	assign w16 = (v2_4 & ~w64) ? w2 : 1'h0;
 	assign w17 = (v2_4 & w64) ? w2 : 1'h0;
 	assign w18 = (v1_4 & w65) ? w1 : 1'h0;
 	
-	wire v1_5 = w41 & ~w67 & ~w66;
-	wire v2_5 = ~w63 & ~w62 & w40;
+	wire v1_5 = regbank1_wr & ~w67 & ~w66;
+	wire v2_5 = ~w63 & ~w62 & regbank1_sel;
 	
 	assign w19 = (v1_5 & ~w65) ? w1 : 1'h0;
 	assign w20 = (v2_5 & ~w64) ? w2 : 1'h0;
 	assign w21 = (v2_5 & w64) ? w2 : 1'h0;
 	assign w22 = (v1_5 & w65) ? w1 : 1'h0;
 	
-	wire v1_6 = ~w67 & w41 & w66;
-	wire v2_6 = w63 & ~w62 & w40;
+	wire v1_6 = ~w67 & regbank1_wr & w66;
+	wire v2_6 = w63 & ~w62 & regbank1_sel;
 	
 	assign w23 = (v1_6 & ~w65) ? w1 : 1'h0;
 	assign w24 = (v2_6 & ~w64) ? w2 : 1'h0;
 	assign w25 = (v2_6 & w64) ? w2 : 1'h0;
 	assign w26 = (v1_6 & w65) ? w1 : 1'h0;
 	
-	wire v1_7 = w41 & w67 & ~w66;
-	wire v2_7 = ~w63 & w62 & w40;
+	wire v1_7 = regbank1_wr & w67 & ~w66;
+	wire v2_7 = ~w63 & w62 & regbank1_sel;
 	
 	assign w27 = (v1_7 & ~w65) ? w1 : 1'h0;
 	assign w28 = (v2_7 & ~w64) ? w2 : 1'h0;
 	assign w29 = (v2_7 & w64) ? w2 : 1'h0;
 	assign w30 = (v1_7 & w65) ? w1 : 1'h0;
 	
-	wire v1_8 = w41 & w67 & w66;
-	wire v2_8 = w63 & w62 & w40;
+	wire v1_8 = regbank1_wr & w67 & w66;
+	wire v2_8 = w63 & w62 & regbank1_sel;
 	
 	assign w31 = (v1_8 & ~w65) ? w1 : 1'h0;
 	assign w32 = (v2_8 & ~w64) ? w2 : 1'h0;
 	assign w33 = (v2_8 & w64 & w634) ? w2 : 1'h0;
 	assign w34 = (v1_8 & w65 & w634) ? w1 : 1'h0;
-	assign w35 = (v1_8 & w65 & w88) ? w1 : 1'h0;
-	assign w36 = (v2_8 & w64 & w88) ? w2 : 1'h0;
+	assign w35 = (v1_8 & w65 & ssp_sel) ? w1 : 1'h0;
+	assign w36 = (v2_8 & w64 & ssp_sel) ? w2 : 1'h0;
 	
 	assign w37 = (~w55 & ~w77) ? w2 : 1'h0;
 	assign w38 = (~w58 & ~w75) ? w1 : 1'h0;
 	
-	assign w39 = ~w57 & ~w73;
-	assign w40 = ~w57 & w73;
-	assign w41 = w68 & ~w60;
-	assign w42 = ~w68 & ~w60;
+	assign regbank2_sel = ~w57 & ~w73;
+	assign regbank1_sel = ~w57 & w73;
+	assign regbank1_wr = w68 & ~w60;
+	assign regbank2_wr = ~w68 & ~w60;
 	
 	assign w55 = ~w72;
 	assign w56 = ~(w71 | w77);
@@ -1416,7 +1416,7 @@ module m68kcpu
 	
 	assign w87 = w59 ? 1'h0 : w1;
 	
-	assign w88 = ~w634;
+	assign ssp_sel = ~w634;
 	
 	assign w89 = ~(~w529[46] | w529[47]);
 	assign w90 = ~(~w529[46] | ~w529[47]);
@@ -1766,7 +1766,7 @@ module m68kcpu
 		if (clk1)
 		begin
 			o_e <= w258;
-			w259[0] <= w260 ? 4'hf : { w259[1][2:0], w262 };
+			w259[0] <= w260 ? 4'hf : { w259[1][2:0], halt_state };
 			
 			w261[1] <= w261[0];
 			
@@ -1825,23 +1825,23 @@ module m68kcpu
 			
 			w364[0] <= w397 & w389[0];
 			
-			w366 <= ~(w367 | w365);
+			reset_sync2 <= ~(reset_sync1 | w365);
 			
-			w368 <= ~(w367 | w395);
+			halt_sync2 <= ~(reset_sync1 | w395);
 			
-			w369 <= w391;
+			halt_sync1 <= w391;
 			
-			w370 <= w391;
+			berr_sync2 <= w391;
 			
-			w371 <= ~(w389[1] | w372 | ~w386);
+			berr_sync1 <= ~(w389[1] | w372 | ~w386);
 			
-			w373 <= ~w365;
+			dbl_bus_fault <= ~w365;
 			
 			w374 <= ~(w389[2] | ~w384);
 			
-			w378 <= ~(~w388 | (w389[7] & w397) | w267);
+			reset_out_drv <= ~(~w388 | (w389[7] & w397) | w267);
 			
-			w379 <= ~(w267 | w397 | w381);
+			halt_out_drv <= ~(w267 | w397 | w381);
 			
 			w380 <= ~(w267 | ~w391 | ~w387);
 			
@@ -1872,7 +1872,7 @@ module m68kcpu
 			w260 <= w261[1] | (w259[0] == 4'h6) | (w259[0] == 4'h0);
 			w261[0] <= w266;
 			
-			w262 <= ((w259[0] & 4'hc) == 4'h8) | ((w259[0] & 4'hc) == 4'h4);
+			halt_state <= ((w259[0] & 4'hc) == 4'h8) | ((w259[0] & 4'hc) == 4'h4);
 			
 			if (w259[0] == 4'h8)
 				w263 <= 1'h1;
@@ -1949,11 +1949,11 @@ module m68kcpu
 			
 			w364[1] <= w364[0];
 			
-			w367 <=  ~w387;
+			reset_sync1 <=  ~w387;
 			
-			w383 <= w382;
+			w383 <= rw_dir_ctl;
 			
-			w384 <= w374 | w373;
+			w384 <= w374 | dbl_bus_fault;
 			
 			w386 <= w385;
 			
@@ -2024,7 +2024,7 @@ module m68kcpu
 	
 	assign w988 = ~(w276[2] & w438);
 	
-	assign w293 = w988 & w294[1] & w325 & w351;
+	assign w293 = w988 & w294[1] & w325 & bus_cycle_ctl2;
 	
 	assign w295 = IPL[0];
 	
@@ -2086,13 +2086,13 @@ module m68kcpu
 		
 		if (w330)
 		begin
-			w322 <= ~w522[15] & (w631 | w522[16]);
-			w323 <= ~w522[16] & (w522[15] | ~w631);
-			w324 <= ~w607;
+			fc_bit0 <= ~w522[15] & (w631 | w522[16]);
+			fc_bit1 <= ~w522[16] & (w522[15] | ~w631);
+			fc_bit2 <= ~w607;
 		end
 	end
 	
-	assign w325 = w322 | w323 | w324;
+	assign w325 = fc_bit0 | fc_bit1 | fc_bit2;
 	
 	always @(posedge MCLK)
 	begin
@@ -2138,17 +2138,17 @@ module m68kcpu
 	// Manages state transitions, trap/interrupt vectoring, and bus error handling.
 	// -------------------------------------------------------------------------
 
-	assign w330 = w567 ? 1'h0 : c2;
+	assign w330 = bus_cycle_active ? 1'h0 : c2;
 
-	assign FC[0] = ~w322;
-	assign FC[1] = ~w323;
-	assign FC[2] = ~w324;
+	assign FC[0] = ~fc_bit0;
+	assign FC[1] = ~fc_bit1;
+	assign FC[2] = ~fc_bit2;
 	assign FC_z = w409;
 	
-	assign w331 = ~w323;
-	assign w332 = ~w322;
+	assign w331 = ~fc_bit1;
+	assign w332 = ~fc_bit0;
 	
-	assign w333 = ~w567;
+	assign w333 = ~bus_cycle_active;
 	
 	assign w334 = ~(w522[16] | w333 | ~w522[15]);
 	
@@ -2180,7 +2180,7 @@ module m68kcpu
 	always @(posedge MCLK)
 	begin
 		if (c1)
-			w342 <= w525 | w267 | ~w343[2];
+			w342 <= ncode_bank_2 | w267 | ~w343[2];
 		if (clk1)
 			w345 <= ~w294[1];
 		if (c1)
@@ -2193,18 +2193,18 @@ module m68kcpu
 	always @(posedge MCLK)
 	begin
 		if (c1)
-			w349 <= w567;
+			dtack_sync1 <= bus_cycle_active;
 		
 		if (clk2)
 		begin
 			if (w278)
-				w348 <= 1'h0;
-			else if (~w349)
-				w348 <= 1'h1;
+				dtack_sync2 <= 1'h0;
+			else if (~dtack_sync1)
+				dtack_sync2 <= 1'h1;
 		end
 		
 		if (clk1)
-			w350 <= ~w348;
+			bus_cycle_ctl1 <= ~dtack_sync2;
 		
 		if (clk1)
 		begin
@@ -2212,15 +2212,15 @@ module m68kcpu
 			begin
 			end
 			else if (w346)
-				w351 <= 1'h1;
+				bus_cycle_ctl2 <= 1'h1;
 			else if (w347)
-				w351 <= 1'h0;
+				bus_cycle_ctl2 <= 1'h0;
 		end
 	end
 	
-	assign w352 = ~(w403 | w351);
+	assign w352 = ~(w403 | bus_cycle_ctl2);
 	
-	assign w353 = ~(w352 | w463);
+	assign w353 = ~(w352 | ucode_addr_ctl);
 	
 	assign w354 = ~w352;
 	
@@ -2230,27 +2230,27 @@ module m68kcpu
 	begin
 		if (c5)
 		begin
-			w356_0 <= w350;
-			w357_0 <= w354;
-			w358_0 <= w353;
+			as_ctl_latch <= bus_cycle_ctl1;
+			uds_ctl_latch <= w354;
+			lds_ctl_latch <= w353;
 		end
 		else if (c3)
 		begin
-			w356_0 <= 1'h0;
-			w357_0 <= 1'h0;
-			w358_0 <= 1'h0;
+			as_ctl_latch <= 1'h0;
+			uds_ctl_latch <= 1'h0;
+			lds_ctl_latch <= 1'h0;
 		end
 		else if (w355)
 		begin
-			w356_0 <= w356_1;
-			w357_0 <= w357_1;
-			w358_0 <= w358_1;
+			as_ctl_latch <= w356_1;
+			uds_ctl_latch <= w357_1;
+			lds_ctl_latch <= w358_1;
 		end
 	end
 	
-	assign w356_1 = w356_0;
-	assign w357_1 = w356_1 ? 1'h0 : w357_0;
-	assign w358_1 = w356_1 ? 1'h0 : w358_0;
+	assign w356_1 = as_ctl_latch;
+	assign w357_1 = w356_1 ? 1'h0 : uds_ctl_latch;
+	assign w358_1 = w356_1 ? 1'h0 : lds_ctl_latch;
 	
 	assign w359_3 = w359[2] & ~w343[2];
 	assign w360 = w359_3;
@@ -2258,7 +2258,7 @@ module m68kcpu
 	always @(posedge MCLK)
 	begin
 		if (clk2)
-			w362 <= w382;
+			w362 <= rw_dir_ctl;
 		w361_mem <= w361;
 	end
 	
@@ -2270,15 +2270,15 @@ module m68kcpu
 	
 	assign w375 = ~(w414[2] | w416 | w415 | w420);
 	
-	assign w376 = w369 | w368 | w375;
+	assign w376 = halt_sync1 | halt_sync2 | w375;
 	
-	assign w377 = w380 | w379 | w378;
+	assign w377 = w380 | halt_out_drv | reset_out_drv;
 	
 	assign w381 = ~(w389[4] | w389[5]);
 	
-	assign w382 = w363 | w366;
+	assign rw_dir_ctl = w363 | reset_sync2;
 	
-	assign w385 = w371 | w370 | w396;
+	assign w385 = berr_sync1 | berr_sync2 | w396;
 	
 	assign w389[0] = w383 & w384 & w386 & ~w387 & ~w388;
 	assign w389[1] = ~w383 & w384 & w386 & ~w387 & ~w388;
@@ -2305,7 +2305,7 @@ module m68kcpu
 	
 	assign w396 = ~(w414[2] | w415 | w416);
 	
-	assign w397 = ~(w267 | w419 | (~w421_1 & w567) | w426);
+	assign w397 = ~(w267 | w419 | (~w421_1 & bus_cycle_active) | w426);
 	
 	assign w399 = w398 ? clk2 : 1'h0;
 	
@@ -2323,14 +2323,14 @@ module m68kcpu
 	
 	assign w405 = ~w815;
 	
-	assign w407 = w567 ? 1'h0 : c2;
+	assign w407 = bus_cycle_active ? 1'h0 : c2;
 	
 	always @(posedge MCLK)
 	begin
 		if (w407)
 			w406 <= ~w408;
 		if (c1)
-			w408 <= ~w563;
+			w408 <= ~ird_mux_ctl_0;
 	end
 	
 	assign w409 = ~(w433 | w410);
@@ -2408,11 +2408,11 @@ module m68kcpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w450)
+		if (reset_init)
 			w442[0] <= 1'h1;
 		else if (c1)
 			w442[0] <= 1'h0;
-		if (w450)
+		if (reset_init)
 			w443[0] <= 1'h0;
 		else if (c1)
 			w443[0] <= 1'h0;
@@ -2430,15 +2430,15 @@ module m68kcpu
 		
 		if (c1)
 		begin
-			w446 <= w477;
-			w447 <= w474;
-			w448 <= w475;
+			seq_state_0 <= w477;
+			seq_state_1 <= w474;
+			seq_state_2 <= w475;
 		end
 	end
 	
-	assign w449 = w448 ? c3 : 1'h0;
+	assign trap_detect = seq_state_2 ? c3 : 1'h0;
 	
-	assign w450 = (w446 | w447) ? c3 : 1'h0;
+	assign reset_init = (seq_state_0 | seq_state_1) ? c3 : 1'h0;
 	
 	assign w989 = w536;
 	
@@ -2454,38 +2454,38 @@ module m68kcpu
 	
 	always @(posedge MCLK)
 	begin
-		if (w449)
+		if (trap_detect)
 		begin
 			w451 <= w403;
 			w452 <= w344;
 			w453 <= w342;
-			w454 <= w351;
-			w455 <= w350;
+			w454 <= bus_cycle_ctl2;
+			w455 <= bus_cycle_ctl1;
 		end
-		if (w450)
+		if (reset_init)
 		begin
-			w456 <= a0_pla[169];
-			w457 <= a0_pla[170];
-			w458 <= w989;
-			w459 <= w990;
-			w460 <= w548;
-			w461 <= w991;
+			seq_ctl_0 <= a0_pla[169];
+			seq_ctl_1 <= a0_pla[170];
+			seq_ctl_2 <= w989;
+			seq_ctl_3 <= w990;
+			seq_ctl_4 <= w548;
+			seq_ctl_5 <= w991;
 		end
 	end
 	
 	assign w462[0] = w455;
-	assign w462[1] = ~w451 & ~w452 & ~w454 & ~w455 & ~w460;
-	assign w462[2] = ~w451 & w452 & ~w453 & ~w454 & ~w455 & ~w460;
-	assign w462[3] = ~w451 & w452 & w453 & ~w454 & ~w455 & w457 & ~w460 & w461;
-	assign w462[4] = ~w451 & w452 & w453 & ~w454 & ~w455 & w456 & ~w457 & ~w460 & w461;
-	assign w462[5] = ~w451 & w452 & w453 & ~w454 & ~w455 & ~w456 & ~w457 & ~w458 & ~w460 & w461;
-	assign w462[6] = ~w451 & w452 & w453 & ~w454 & ~w455 & ~w456 & ~w457 & w458 & w459 & ~w460 & w461;
-	assign w462[7] = ~w451 & w452 & w453 & ~w454 & ~w455 & ~w460 & ~w461;
-	assign w462[8] = ~w451 & ~w454 & ~w455 & w460;
+	assign w462[1] = ~w451 & ~w452 & ~w454 & ~w455 & ~seq_ctl_4;
+	assign w462[2] = ~w451 & w452 & ~w453 & ~w454 & ~w455 & ~seq_ctl_4;
+	assign w462[3] = ~w451 & w452 & w453 & ~w454 & ~w455 & seq_ctl_1 & ~seq_ctl_4 & seq_ctl_5;
+	assign w462[4] = ~w451 & w452 & w453 & ~w454 & ~w455 & seq_ctl_0 & ~seq_ctl_1 & ~seq_ctl_4 & seq_ctl_5;
+	assign w462[5] = ~w451 & w452 & w453 & ~w454 & ~w455 & ~seq_ctl_0 & ~seq_ctl_1 & ~seq_ctl_2 & ~seq_ctl_4 & seq_ctl_5;
+	assign w462[6] = ~w451 & w452 & w453 & ~w454 & ~w455 & ~seq_ctl_0 & ~seq_ctl_1 & seq_ctl_2 & seq_ctl_3 & ~seq_ctl_4 & seq_ctl_5;
+	assign w462[7] = ~w451 & w452 & w453 & ~w454 & ~w455 & ~seq_ctl_4 & ~seq_ctl_5;
+	assign w462[8] = ~w451 & ~w454 & ~w455 & seq_ctl_4;
 	assign w462[9] = w451 & ~w455;
 	assign w462[10] = ~w451 & w454 & ~w455;
 	
-	assign w463 = ~w451 & ~w454 & ~w455;
+	assign ucode_addr_ctl = ~w451 & ~w454 & ~w455;
 	
 	assign w464 = (
 		(w462[3] ? 10'h1c0 : 10'h3ff) &
@@ -2652,10 +2652,10 @@ module m68kcpu
 	assign w517 = ~(w506 | ~w505);
 	assign w518 = ~(~w506 | ~w505);
 	
-	assign w524 = ~(~w505 | ~w506);
-	assign w525 = ~(w505 | ~w506);
-	assign w526 = ~(~w505 | w506);
-	assign w527 = ~(w505 | w506);
+	assign ncode_bank_3 = ~(~w505 | ~w506);
+	assign ncode_bank_2 = ~(w505 | ~w506);
+	assign ncode_bank_1 = ~(~w505 | w506);
+	assign ncode_bank_0 = ~(w505 | w506);
 
 	// -------------------------------------------------------------------------
 	// Section 5: Microcode ROM & control word decode
@@ -3245,7 +3245,7 @@ module m68kcpu
 //			for (i = 0; i < 68; i = i + 1)
 //				w528[i] <= 1'h1;
 //		end
-//		else if (w527)
+//		else if (ncode_bank_0)
 //		begin
 //			for (i = 0; i < 84; i = i + 1)
 //			begin
@@ -3259,7 +3259,7 @@ module m68kcpu
 //				end
 //			end
 //		end
-//		else if (w526)
+//		else if (ncode_bank_1)
 //		begin
 //			for (i = 0; i < 84; i = i + 1)
 //			begin
@@ -3273,7 +3273,7 @@ module m68kcpu
 //				end
 //			end
 //		end
-//		else if (w525)
+//		else if (ncode_bank_2)
 //		begin
 //			for (i = 0; i < 84; i = i + 1)
 //			begin
@@ -3287,7 +3287,7 @@ module m68kcpu
 //				end
 //			end
 //		end
-//		else if (w524)
+//		else if (ncode_bank_3)
 //		begin
 //			for (i = 0; i < 84; i = i + 1)
 //			begin
@@ -3374,10 +3374,10 @@ module m68kcpu
 		(w509 ? ucode_out_m2_3 : 17'h0);
 	
 	assign ncode_out_m =
-		(w527 ? ncode_out_m_0 : 68'h0) |
-		(w526 ? ncode_out_m_1 : 68'h0) |
-		(w525 ? ncode_out_m_2 : 68'h0) |
-		(w524 ? ncode_out_m_3 : 68'h0);
+		(ncode_bank_0 ? ncode_out_m_0 : 68'h0) |
+		(ncode_bank_1 ? ncode_out_m_1 : 68'h0) |
+		(ncode_bank_2 ? ncode_out_m_2 : 68'h0) |
+		(ncode_bank_3 ? ncode_out_m_3 : 68'h0);
 	
 	
 	always @(posedge MCLK)
@@ -3584,7 +3584,7 @@ module m68kcpu
 	always @(posedge MCLK)
 	begin
 		for (i = 20; i <= 164; i = i + 1)
-			a0_pla_mem[i] <= w450 ? 1'h1 : a0_pla[i];
+			a0_pla_mem[i] <= reset_init ? 1'h1 : a0_pla[i];
 	end
 	
 	assign a0_pla[20] = a0_pla_mem[20] & (w530 & 16'h003f) == 16'h0039 & ~w533;
@@ -4257,15 +4257,15 @@ module m68kcpu
 		};
 	
 	assign irdbus_dbg =
-		(w564 ?
+		(ird_mux_ctl_1 ?
 		{ w529[25], w529[28], ~w529[31], ~w529[34], ~w529[37], w529[40], w529[43], w529[46],
 			w529[1], w529[49], w529[4], w529[52], ~w529[7], w529[55], w529[10], ~w529[58],
 			w529[13], ~w529[61], w529[16], w529[64], w529[19], w529[67], w529[22], 9'h0 } : 32'h0) |
-		(w565 ?
+		(ird_mux_ctl_2 ?
 		{ w529[24], w529[27], ~w529[30], w529[33], ~w529[36], w529[39], w529[42], w529[45],
 			~w529[0], ~w529[48], w529[3], w529[51], w529[6], w529[54], ~w529[9], w529[57],
 			w529[12], ~w529[60], ~w529[15], w529[63], w529[18], w529[66], w529[21], 9'h0 } : 32'h0) |
-		(w566 ?
+		(ird_mux_ctl_3 ?
 		{ w529[23], w529[26], ~w529[29], ~w529[32], ~w529[35], w529[38], w529[41], w529[44],
 			w522[0], w529[47], w529[2], w529[50], w529[5], w529[53], w529[8], ~w529[56],
 			w529[11], ~w529[59], w529[14], ~w529[62], ~w529[17], w529[65], w529[20], 9'h0 } : 32'h0);
@@ -4418,13 +4418,13 @@ module m68kcpu
 	assign w561 = ~(w267 | w522[6]);
 	assign w562 = ~(w561 | w267);
 	
-	assign w563 = ~(w578 | (w529[25] & ird_pla1[0]));
+	assign ird_mux_ctl_0 = ~(w578 | (w529[25] & ird_pla1[0]));
 	
-	assign w564 = ~(~w320 | ~w267 | ~w321);
-	assign w565 = ~(w320 | ~w267 | ~w321);
-	assign w566 = ~(~w320 | ~w267 | w321);
+	assign ird_mux_ctl_1 = ~(~w320 | ~w267 | ~w321);
+	assign ird_mux_ctl_2 = ~(w320 | ~w267 | ~w321);
+	assign ird_mux_ctl_3 = ~(~w320 | ~w267 | w321);
 	
-	assign w567 = ~(w529[63] | w529[64]);
+	assign bus_cycle_active = ~(w529[63] | w529[64]);
 	
 	assign w568 = w529[11] | w529[14];
 	
@@ -4752,7 +4752,7 @@ module m68kcpu
 			alu_io <= 16'hffff;
 		else if (w597[11])
 		begin
-			alu_io <= { w606, 1'h0, w607, 2'h0, w609, w610, w611, 3'h0, w750, w753, w754, w752, w751 };
+			alu_io <= { w606, 1'h0, w607, 2'h0, w609, w610, w611, 3'h0, ccr_n, w753, w754, w752, w751 };
 		end
 		else if (w180)
 		begin
@@ -4907,7 +4907,7 @@ module m68kcpu
 	// -------------------------------------------------------------------------
 	// Section 9: ALU, flags & bus control
 	// -------------------------------------------------------------------------
-	// ALU operations, CCR flag logic (w750=N, w751=Z, w752=V, w753=X, w754=C),
+	// ALU operations, CCR flag logic (ccr_n=N, w751=Z, w752=V, w753=X, w754=C),
 	// address output multiplexer (address_mux[22:0]), bus strobe generation
 	// (AS, UDS, LDS pipeline), and read/write control.
 	// -------------------------------------------------------------------------
@@ -5085,7 +5085,7 @@ module m68kcpu
 	assign w734 = b3[2][15];
 	assign w735 = ~w982;
 	
-	assign w736 = w708 ? w793 : w750;
+	assign w736 = w708 ? w793 : ccr_n;
 	
 	assign w743 = r8[15];
 	
@@ -5115,7 +5115,7 @@ module m68kcpu
 	
 	assign w746 = w725 ? w737 : (w724 ? w985 : w746_mem);
 		
-	//assign w750 = w749 ? alu_io[4] : (w790 ? ~w791 : w750_mem);
+	//assign ccr_n = w749 ? alu_io[4] : (w790 ? ~w791 : ccr_n_mem);
 	//
 	//assign w751 = w749 ? alu_io[0] : (w792 ? ~w791 : w751_mem);
 	//
@@ -5150,7 +5150,7 @@ module m68kcpu
 		if (c1)
 			w748 <= w688;
 		
-		w750 <= w749 ? alu_io[4] : (w790 ? ~w791 : w750);
+		ccr_n <= w749 ? alu_io[4] : (w790 ? ~w791 : ccr_n);
 		
 		w751 <= w749 ? alu_io[0] : (w792 ? ~w791 : w751);
 		
@@ -5213,7 +5213,7 @@ module m68kcpu
 	assign w786 = w777;
 	assign w789 = ~w776;
 	
-	assign w784 = w785 ? ~w750 : ((~w771 & ~w789) ? w972 : ((w771 & ~w789) ? w978 : (w786 ? w781 : w784_mem)));
+	assign w784 = w785 ? ~ccr_n : ((~w771 & ~w789) ? w972 : ((w771 & ~w789) ? w978 : (w786 ? w781 : w784_mem)));
 	
 	always @(posedge MCLK)
 	begin
@@ -5439,14 +5439,14 @@ module m68kcpu
 			w882 <= w827;
 	end
 	
-	assign w883 = ~w882;
+	assign byte_swap_hi = ~w882;
 	
 	always @(posedge MCLK)
 	begin
 		if (c2)
 		begin
-			w884 <= w825;
-			w885 <= w824;
+			byte_swap_hi_sel <= w825;
+			byte_swap_lo_sel <= w824;
 		end
 	end
 	
@@ -5873,7 +5873,7 @@ module m68kcpu
 	always @(posedge MCLK)
 	begin
 		if (clk2)
-			rw_l <= w382;
+			rw_l <= rw_dir_ctl;
 	end
 	
 	//assign RW = (~rw_l) ? 1'h0 : ((rw_l & ~w409) ? 1'h1 : 'bz);
@@ -6436,24 +6436,24 @@ module m68kcpu
 
 	always @(posedge MCLK)
 	begin
-		if (w885)
+		if (byte_swap_lo_sel)
 			data_io[7:0] <= ~w964[7:0];
 		else if (w986)
 			data_io[7:0] <= ~data_l[7:0];
-		else if (w883)
+		else if (byte_swap_hi)
 		begin
-			if (w884)
+			if (byte_swap_hi_sel)
 				data_io[7:0] <= ~w964[15:8];
 			else if (w987)
 				data_io[7:0] <= ~data_l[15:8];
 		end
-		if (w884)
+		if (byte_swap_hi_sel)
 			data_io[15:8] <= ~w964[15:8];
 		else if (w987)
 			data_io[15:8] <= ~data_l[15:8];
-		else if (w883)
+		else if (byte_swap_hi)
 		begin
-			if (w885)
+			if (byte_swap_lo_sel)
 				data_io[15:8] <= ~w964[7:0];
 			else if (w986)
 				data_io[15:8] <= ~data_l[7:0];
