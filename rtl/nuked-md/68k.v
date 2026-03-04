@@ -23,6 +23,49 @@
  *          help & support.
  *
  */
+
+// =============================================================================
+// m68kcpu — Motorola 68000 CPU (cycle-accurate netlist emulation)
+// =============================================================================
+//
+// Cycle-accurate emulation of the Motorola 68000 CPU derived from decapped
+// silicon analysis (die shot by John McMaster, schematics by Olivier Galibert).
+//
+// Architecture overview:
+//   - Single monolithic module (no helper primitives)
+//   - 5-phase internal clock (c1-c5) derived from external CLK
+//   - Two-level microcode: main ROM (ucode, 64 entries × 272 bits) and
+//     nano-code ROM (ncode, 256 entries × 272 bits), loaded from external files
+//   - Multiple PLAs for instruction decode:
+//       a0_pla[170:0]  — primary instruction decode (opcode pattern match)
+//       a2_pla[149:0]  — secondary decode (addressing mode decode)
+//       ird_pla1-4     — instruction register decode PLAs
+//       cond_pla1-2    — condition code evaluation PLAs
+//   - Three 16-bit internal buses (b1, b2, b3) with 4 complementary pairs each,
+//     using pulldown-based read/write logic
+//   - Register file: r1[0:17] (18 entries: A0-A7, SSP, temps),
+//     r6[0:9] (10 entries: D0-D7, temps), r7[0:8] (9 entries: additional)
+//   - CCR flags: w750(N), w751(Z), w752(V), w753(X), w754(C)
+//
+// Signal naming:
+//   Wire/reg names use original w### numbering from the netlist extraction.
+//   Signal renames are NOT applied (929 opaque signals — too risky for
+//   cross-reference errors). Navigation is via section headers and inline
+//   comments on key signals.
+//
+// File organization (section headers below):
+//   1. Wire/reg declarations        (~lines 58-1100)
+//   2. Initialization               (~lines 1101-1162)
+//   3. Clock phases & control        (~lines 1165-2038)
+//   4. Microcode sequencer           (~lines 2040-2558)
+//   5. Microcode ROM & control word  (~lines 2559-3427)
+//   6. Instruction decode PLA        (~lines 3429-3770)
+//   7. Secondary decode & IRD PLAs   (~lines 3772-4140)
+//   8. Execution control & routing   (~lines 4141-4770)
+//   9. ALU, flags & bus control      (~lines 4771-5734)
+//  10. Internal bus bridge           (~lines 5735-6074)
+//  11. Register file & data I/O      (~lines 6075-end)
+//
 module m68kcpu
 	(
 	input MCLK,
@@ -54,13 +97,23 @@ module m68kcpu
 	output UDS,
 	output strobe_z
 	);
-	
-	wire w1;
-	reg l1;
-	reg l2;
-	wire w2;
-	reg l3;
-	reg l4;
+
+	// -------------------------------------------------------------------------
+	// Section 1: Wire/reg declarations
+	// -------------------------------------------------------------------------
+	// All internal signals use original w### naming from netlist extraction.
+	// Key signals are annotated with inline comments below.
+	// -------------------------------------------------------------------------
+
+	// --- Register file write-enable timing ---
+	wire w1;  // register write clock 1
+	reg l1;   // nanocode[60] latch
+	reg l2;   // nanocode[59] latch
+	wire w2;  // register write clock 2
+	reg l3;   // nanocode[62] latch
+	reg l4;   // nanocode[61] latch
+
+	// --- Register file write strobes (w3-w38: decoded per-register write enables) ---
 	wire w3;
 	wire w4;
 	wire w5;
@@ -97,10 +150,13 @@ module m68kcpu
 	wire w36;
 	wire w37;
 	wire w38;
-	wire w39;
-	wire w40;
-	wire w41;
-	wire w42;
+	// --- Register file address decode ---
+	wire w39;  // register bank 2 select
+	wire w40;  // register bank 1 select
+	wire w41;  // register bank 1 write select
+	wire w42;  // register bank 2 write select
+
+	// --- Bus cycle control & exception handling ---
 	wire w55;
 	wire w56;
 	wire w57;
@@ -108,12 +164,13 @@ module m68kcpu
 	wire w59;
 	wire w60;
 	wire w61;
-	reg w62;
-	reg w63;
-	reg w64;
-	reg w65;
-	reg w66;
-	reg w67;
+	// --- Register address latches (select which register to read/write) ---
+	reg w62;  // register address bit for bank 2
+	reg w63;  // register address bit for bank 2
+	reg w64;  // register address bit for bank 2
+	reg w65;  // register address bit for bank 1
+	reg w66;  // register address bit for bank 1
+	reg w67;  // register address bit for bank 1
 	reg w68;
 	reg w69;
 	reg w70;
@@ -134,7 +191,7 @@ module m68kcpu
 	wire w85;
 	wire w86;
 	wire w87;
-	wire w88;
+	wire w88;  // stack pointer select (SSP/USP)
 	wire w89;
 	wire w90;
 	wire w91;
@@ -142,7 +199,7 @@ module m68kcpu
 	wire w93;
 	wire w94;
 	wire w95;
-	reg l5;
+	reg l5;   // bus cycle latch
 	wire w98;
 	wire w99;
 	wire w100;
@@ -157,12 +214,13 @@ module m68kcpu
 	wire w104;
 	reg w105;
 	wire w106;
-	reg [15:0] w107;
-	wire [7:0] w108;
-	reg [15:0] w109;
-	wire [15:0] w110;
-	wire [15:0] w114;
-	wire addr_carry;
+	// --- Address computation & ALU data path ---
+	reg [15:0] w107;   // address register low word
+	wire [7:0] w108;   // E-clock divider counter
+	reg [15:0] w109;   // address register high word
+	wire [15:0] w110;  // address adder result
+	wire [15:0] w114;  // address adder operand
+	wire addr_carry;   // address adder carry
 	wire w123;
 	wire w124;
 	wire w125;
@@ -183,8 +241,8 @@ module m68kcpu
 	wire w155;
 	wire w156;
 	wire w157;
-	reg [15:0] w158;
-	wire [15:0] w159;
+	reg [15:0] w158;   // address register low (output path)
+	wire [15:0] w159;  // address register high (output path)
 	wire w160;
 	wire w161;
 	wire w162;
@@ -194,11 +252,11 @@ module m68kcpu
 	wire w166;
 	wire w167;
 	wire w168;
-	reg [15:0] w169;
+	reg [15:0] w169;   // incrementer input register
 	wire w170;
-	reg [15:0] w171;
-	wire [15:0] w172;
-	wire [15:0] w173;
+	reg [15:0] w171;   // incrementer result register
+	wire [15:0] w172;  // incrementer carry chain
+	wire [15:0] w173;  // incrementer output
 	wire w174;
 	wire w175;
 	wire w176;
@@ -279,18 +337,19 @@ module m68kcpu
 	wire w256;
 	wire w257;
 	reg w258;
-	reg [3:0] w259[0:1];
+	// --- Interrupt priority & exception handling ---
+	reg [3:0] w259[0:1]; // interrupt priority level latches
 	reg w260;
 	reg w261[0:1];
-	reg w262;
+	reg w262;             // halt state
 	reg w263;
 	reg w264;
 	wire w265;
 	wire w266;
-	reg w267;
-	reg w268[0:2];
-	reg w269[0:2];
-	reg [2:0] w270[0:1];
+	reg w267;             // bus cycle state (active bus operation)
+	reg w268[0:2];        // bus error pipeline
+	reg w269[0:2];        // bus error pipeline
+	reg [2:0] w270[0:1]; // interrupt priority mask latches
 	reg w273;
 	reg w274;
 	reg w275[0:2];
@@ -319,9 +378,10 @@ module m68kcpu
 	wire w293;
 	reg w294[0:1];
 	wire w295;
-	reg w296[0:3];
-	reg w297[0:3];
-	reg w298[0:3];
+	// --- E-clock divider & VPA handshake ---
+	reg w296[0:3];  // E-clock divider pipeline
+	reg w297[0:3];  // E-clock divider pipeline
+	reg w298[0:3];  // E-clock divider pipeline
 	reg w299;
 	wire w300;
 	reg w301;
@@ -345,18 +405,20 @@ module m68kcpu
 	reg w319;
 	reg w320;
 	reg w321;
-	reg w322;
-	reg w323;
-	reg w324;
+	reg w322;  // FC[0] (function code bit 0)
+	reg w323;  // FC[1] (function code bit 1)
+	reg w324;  // FC[2] (function code bit 2)
 	wire w325;
 	reg w326;
 	wire w327;
 	wire w328;
-	reg c1_l;
-	reg c2_l;
-	reg c3_l;
-	reg c4_l;
-	reg c5_l;
+
+	// --- Internal clock phase enables ---
+	reg c1_l;  // phase 1 clock enable latch
+	reg c2_l;  // phase 2 clock enable latch
+	reg c3_l;  // phase 3 clock enable latch
+	reg c4_l;  // phase 4 clock enable latch
+	reg c5_l;  // phase 5 clock enable latch
 	wire w330;
 	wire w331;
 	wire w332;
@@ -375,19 +437,20 @@ module m68kcpu
 	reg w345;
 	wire w346;
 	wire w347;
-	reg w348;
-	reg w349;
-	reg w350;
-	reg w351;
+	// --- Bus grant & DTACK handshake ---
+	reg w348;      // DTACK sync latch
+	reg w349;      // DTACK sync latch
+	reg w350;      // bus cycle control
+	reg w351;      // bus cycle control
 	wire w352;
 	wire w353;
 	wire w354;
 	wire w355;
-	reg w356_0;
+	reg w356_0;    // address strobe control (RS latch)
 	wire w356_1;
-	reg w357_0;
+	reg w357_0;    // upper data strobe control (RS latch)
 	wire w357_1;
-	reg w358_0;
+	reg w358_0;    // lower data strobe control (RS latch)
 	wire w358_1;
 	reg w359[0:2];
 	wire w359_3;
@@ -397,24 +460,25 @@ module m68kcpu
 	reg w362;
 	reg w363;
 	reg w364[0:1];
+	// --- RESET/HALT & bus error control ---
 	wire w365;
-	reg w366;
-	reg w367;
-	reg w368;
-	reg w369;
-	reg w370;
-	reg w371;
+	reg w366;     // RESET sync latch
+	reg w367;     // RESET sync latch
+	reg w368;     // HALT sync latch
+	reg w369;     // HALT sync latch
+	reg w370;     // BERR (bus error) sync latch
+	reg w371;     // BERR sync latch
 	wire w372;
-	reg w373;
+	reg w373;     // double bus fault detect
 	reg w374;
 	wire w375;
 	wire w376;
 	wire w377;
-	reg w378;
-	reg w379;
+	reg w378;     // RESET output driver
+	reg w379;     // HALT output driver
 	reg w380;
 	wire w381;
-	wire w382;
+	wire w382;    // read/write direction control
 	reg w383;
 	reg w384;
 	wire w385;
@@ -441,7 +505,7 @@ module m68kcpu
 	reg w406;
 	wire w407;
 	reg w408;
-	wire w409;
+	wire w409;  // bus tri-state enable (FC, address, strobe output enables)
 	reg w410;
 	wire w411;
 	wire w412;
@@ -481,37 +545,39 @@ module m68kcpu
 	reg w443[0:1];
 	wire w444;
 	reg w444_mem;
-	reg [9:0] w445;
-	reg w446;
-	reg w447;
-	reg w448;
-	wire w449;
-	wire w450;
-	reg w451;
-	reg w452;
-	reg w453;
-	reg w454;
-	reg w455;
-	reg w456;
-	reg w457;
-	reg w458;
-	reg w459;
-	reg w460;
-	reg w461;
-	wire w462[0:10];
-	wire w463;
-	wire [9:0] w464;
-	wire w465[0:4];
-	wire [9:0] codebus;
-	reg [9:0] codebus_mem;
+	// --- Microcode sequencer state ---
+	reg [9:0] w445;  // microcode address register
+	reg w446;         // sequencer state bit
+	reg w447;         // sequencer state bit
+	reg w448;         // sequencer state bit
+	wire w449;        // trap/exception detection
+	wire w450;        // reset/init signal
+	reg w451;         // sequencer control
+	reg w452;         // sequencer control
+	reg w453;         // sequencer control
+	reg w454;         // sequencer control
+	reg w455;         // sequencer control
+	reg w456;         // sequencer control
+	reg w457;         // sequencer control
+	reg w458;         // sequencer control
+	reg w459;         // sequencer control
+	reg w460;         // sequencer control
+	reg w461;         // sequencer control
+	// --- Microcode address generation ---
+	wire w462[0:10]; // microcode address mux intermediates
+	wire w463;       // microcode address control
+	wire [9:0] w464; // microcode address intermediate
+	wire w465[0:4];  // microcode address carry chain
+	wire [9:0] codebus;      // primary microcode address bus
+	reg [9:0] codebus_mem;   // codebus registered copy
 	wire w466;
 	wire w467;
 	wire w468;
 	wire w469;
 	wire w470;
 	wire w471;
-	wire [9:0] codebus2;
-	reg [9:0] codebus2_mem;
+	wire [9:0] codebus2;     // secondary control bus (complement/transform)
+	reg [9:0] codebus2_mem;  // codebus2 registered copy
 	reg w472;
 	reg w473;
 	wire w474;
@@ -540,13 +606,14 @@ module m68kcpu
 	//wire w497;
 	//wire w498;
 	//wire w499;
-	reg w500;
-	reg w501;
-	reg w502;
-	reg w503;
-	reg w504;
-	reg w505;
-	reg w506;
+	// --- Microcode ROM address/data decode ---
+	reg w500;  // ROM address bit
+	reg w501;  // ROM address bit
+	reg w502;  // ROM column decode
+	reg w503;  // ROM column decode
+	reg w504;  // ROM column decode
+	reg w505;  // ROM bank select
+	reg w506;  // ROM bank select
 	wire w507;
 	wire w508;
 	wire w509;
@@ -559,35 +626,38 @@ module m68kcpu
 	wire w516;
 	wire w517;
 	wire w518;
+	// --- Microcode ROM & control word ---
 	//reg [0:117] w519;
 	//reg [0:117] w520;
 	//reg [0:67] w521;
-	reg [16:0] w522;
+	reg [16:0] w522;   // latched microcode control word (17 bits)
 	//reg [16:0] w523;
-	wire w524;
-	wire w525;
-	wire w526;
-	wire w527;
+	wire w524;          // nanocode ROM address decode
+	wire w525;          // nanocode ROM address decode
+	wire w526;          // nanocode ROM address decode
+	wire w527;          // nanocode ROM address decode
 	//reg [67:0] w528;
-	reg [67:0] w529;
+	reg [67:0] w529;    // expanded nanocode control signals (68 bits)
 	//reg [271:0] ucode[0:33];
 	//reg [271:0] ncode[0:83];
-	(* ramstyle = "M10K" *) reg [271:0] ucode[0:63];
-	(* ramstyle = "M10K" *) reg [271:0] ncode[0:255];
-	reg [15:0] w530;
-	wire [170:0] a0_pla;
-	reg [164:20] a0_pla_mem;
-	wire [9:0] w531;
-	wire w532;
-	wire w533;
-	wire [149:0] a2_pla;
-	wire a2_pla_g1, a2_pla_g2, a2_pla_g3;
-	wire [9:0] w534;
-	wire [9:0] w535;
+	(* ramstyle = "M10K" *) reg [271:0] ucode[0:63];  // main microcode ROM (272b × 64 entries)
+	(* ramstyle = "M10K" *) reg [271:0] ncode[0:255]; // nano-code ROM (272b × 256 entries)
+
+	// --- Instruction decode ---
+	reg [15:0] w530;        // instruction register (current opcode word)
+	wire [170:0] a0_pla;    // primary instruction decode PLA (171 entries)
+	reg [164:20] a0_pla_mem; // a0_pla registered outputs (entries 20-164)
+	wire [9:0] w531;        // a0_pla microcode entry point address
+	wire w532;               // a0_pla group 1 match (byte/word ops)
+	wire w533;               // a0_pla group 2 match (long ops)
+	wire [149:0] a2_pla;    // secondary decode PLA (150 entries, addressing modes)
+	wire a2_pla_g1, a2_pla_g2, a2_pla_g3; // a2_pla group enables
+	wire [9:0] w534;        // a2_pla output address
+	wire [9:0] w535;        // merged decode address
 	wire w536;
 	wire w537;
-	reg [15:0] w538;
-	wire [31:0] irdbus;
+	reg [15:0] w538;        // latched instruction word
+	wire [31:0] irdbus;     // instruction register data bus (extended decode)
 	wire [31:0] irdbus_dbg;
 	wire [31:0] irdbus_normal;
 	wire w539;
@@ -612,21 +682,23 @@ module m68kcpu
 	wire w558;
 	wire [3:0] w559;
 	wire [3:0] w560;
-	wire [17:0] cond_pla1;
-	wire [22:0] cond_pla2;
+	// --- Condition code & instruction register decode PLAs ---
+	wire [17:0] cond_pla1;  // condition evaluation PLA 1 (Bcc/Scc/DBcc)
+	wire [22:0] cond_pla2;  // condition evaluation PLA 2 (Bcc/Scc/DBcc)
 	wire w561;
 	wire w562;
-	wire w563;
-	wire w564;
-	wire w565;
-	wire w566;
-	wire w567;
+	wire w563;  // irdbus mux control
+	wire w564;  // irdbus mux control
+	wire w565;  // irdbus mux control
+	wire w566;  // irdbus mux control
+	wire w567;  // bus cycle active (gates microcode sequencer)
 	wire w568;
-	wire [49:0] ird_pla1;
-	wire [31:0] ird_pla2;
-	wire [29:0] ird_pla3;
-	wire [21:0] ird_pla4;
-	wire [14:0] w569;
+	wire [49:0] ird_pla1;  // instruction register decode PLA 1 (50 entries)
+	wire [31:0] ird_pla2;  // instruction register decode PLA 2 (32 entries)
+	wire [29:0] ird_pla3;  // instruction register decode PLA 3 (30 entries)
+	wire [21:0] ird_pla4;  // instruction register decode PLA 4 (22 entries)
+	// --- Execution control signals (from IRD PLAs) ---
+	wire [14:0] w569;  // decoded execution control bits
 	wire w570;
 	wire w571;
 	wire w572;
@@ -648,13 +720,13 @@ module m68kcpu
 	wire w588;
 	wire w589;
 	wire w590;
-	wire [15:0] w591;
+	wire [15:0] w591;  // shifter output
 	wire w592;
 	wire w593;
 	wire w594;
 	wire w595;
-	reg [3:0] w596;
-	wire [17:0] w597;
+	reg [3:0] w596;    // register select bits
+	wire [17:0] w597;  // register file address decode
 	reg w598;
 	wire w599;
 	wire w600;
@@ -662,7 +734,8 @@ module m68kcpu
 	wire w602;
 	wire w603;
 	wire w604;
-	reg [15:0] alu_io;
+	// --- ALU ---
+	reg [15:0] alu_io;  // ALU output bus
 	reg w605;
 	reg w606;
 	reg w607;
@@ -811,11 +884,12 @@ module m68kcpu
 	wire w747;
 	reg w748;
 	wire w749;
-	reg w750;
-	reg w751;
-	reg w752;
-	reg w753;
-	reg w754;
+	// --- CCR flags (condition code register) ---
+	reg w750;  // N (Negative) flag
+	reg w751;  // Z (Zero) flag
+	reg w752;  // V (Overflow) flag
+	reg w753;  // X (Extend) flag
+	reg w754;  // C (Carry) flag
 	reg w755;
 	reg w756;
 	wire w757;
@@ -943,9 +1017,9 @@ module m68kcpu
 	wire w880;
 	wire w881;
 	reg w882;
-	wire w883;
-	reg w884;
-	reg w885;
+	wire w883;  // byte swap control (high byte)
+	reg w884;   // byte swap latch (high byte select)
+	reg w885;   // byte swap latch (low byte select)
 	wire w886;
 	wire w887;
 	wire w888;
@@ -1006,24 +1080,25 @@ module m68kcpu
 	reg [4:0] w944;
 	reg w945;
 	wire w946;
-	wire [15:0] w947;
-	reg [15:0] w948;
-	wire [15:0] w949;
-	reg [15:0] w950;
-	wire [15:0] w951;
-	wire [15:0] w952;
-	wire [15:0] w953;
-	wire [18:0] w954;
+	// --- ALU data path & operand registers ---
+	wire [15:0] w947;  // ALU operand A
+	reg [15:0] w948;   // ALU operand A latch
+	wire [15:0] w949;  // ALU operand B
+	reg [15:0] w950;   // ALU operand B latch
+	wire [15:0] w951;  // ALU result
+	wire [15:0] w952;  // ALU carry chain
+	wire [15:0] w953;  // ALU sum/logic result
+	wire [18:0] w954;  // ALU extended result (with carry/overflow bits)
 	wire w955;
 	wire w956;
 	wire w957;
 	wire w958;
 	wire w959;
 	wire w960;
-	wire [15:0] w961;
-	reg [15:0] w962;
-	reg [15:0] w963;
-	reg [15:0] w964;
+	wire [15:0] w961;  // ALU output mux
+	reg [15:0] w962;   // ALU result register
+	reg [15:0] w963;   // ALU result register (alternate)
+	reg [15:0] w964;   // ALU output latch
 	wire w965;
 	wire w966;
 	reg w967;
@@ -1039,25 +1114,27 @@ module m68kcpu
 	reg w977;
 	reg w978;
 	//wire w979;
-	reg [15:0] w980;
-	reg [15:0] w981;
+	// --- Prefetch & data pipeline ---
+	reg [15:0] w980;   // prefetch buffer (instruction word)
+	reg [15:0] w981;   // prefetch buffer (next word)
 	wire w982;
 	wire w983;
-	reg [15:0] w984;
+	reg [15:0] w984;   // prefetch output (feeds instruction register w530)
 	wire w985;
 	wire w986;
 	wire w987;
-	reg [15:0] data_l;
-	reg as_l1;
-	reg as_l2;
-	reg as_l3;
-	reg uds_l1;
-	reg uds_l2;
-	reg uds_l3;
-	reg lds_l1;
-	reg lds_l2;
-	reg lds_l3;
-	reg rw_l;
+	// --- Bus control: data latch & strobe pipeline ---
+	reg [15:0] data_l;  // data input latch (from external DATA bus)
+	reg as_l1;   // address strobe pipeline stage 1
+	reg as_l2;   // address strobe pipeline stage 2
+	reg as_l3;   // address strobe pipeline stage 3
+	reg uds_l1;  // upper data strobe pipeline stage 1
+	reg uds_l2;  // upper data strobe pipeline stage 2
+	reg uds_l3;  // upper data strobe pipeline stage 3
+	reg lds_l1;  // lower data strobe pipeline stage 1
+	reg lds_l2;  // lower data strobe pipeline stage 2
+	reg lds_l3;  // lower data strobe pipeline stage 3
+	reg rw_l;    // read/write output latch
 	wire w988;
 	wire w989;
 	wire w990;
@@ -1065,42 +1142,50 @@ module m68kcpu
 	wire w992;
 	
 	
-	wire [15:0] b1[0:3];
-	wire [15:0] b2[0:3];
-	wire [15:0] b3[0:3];
-	reg [15:0] b1_mem[0:3];
-	reg [15:0] b2_mem[0:3];
-	reg [15:0] b3_mem[0:3];
-	
-	reg [15:0] r1[0:17];
-	reg [15:0] r2;
-	reg [15:0] r3;
-	reg [15:0] r4;
-	reg [15:0] r5;
-	reg [15:0] r6[0:9];
-	reg [15:0] r7[0:8];
-	reg [15:0] r8;
-	
-	reg [15:0] data_io;
-	
-	wire [22:0] address_mux;
-	
-	wire c1;
-	wire c2;
-	wire c3;
-	wire c4;
-	wire c5;
-	reg c6;
-	
-	reg o_e;
-	reg o_bg;
+	// --- Internal buses (3 buses × 4 complementary pairs) ---
+	wire [15:0] b1[0:3];      // bus 1: 4 complementary pairs (16-bit)
+	wire [15:0] b2[0:3];      // bus 2: 4 complementary pairs (16-bit)
+	wire [15:0] b3[0:3];      // bus 3: 4 complementary pairs (16-bit)
+	reg [15:0] b1_mem[0:3];   // bus 1 registered copies
+	reg [15:0] b2_mem[0:3];   // bus 2 registered copies
+	reg [15:0] b3_mem[0:3];   // bus 3 registered copies
+
+	// --- Register file ---
+	reg [15:0] r1[0:17];  // 18-entry register array (A0-A7, SSP, temps)
+	reg [15:0] r2;         // individual register (PC high or temp)
+	reg [15:0] r3;         // individual register (PC low or temp)
+	reg [15:0] r4;         // individual register
+	reg [15:0] r5;         // individual register
+	reg [15:0] r6[0:9];   // 10-entry register array (D0-D7, temps)
+	reg [15:0] r7[0:8];   // 9-entry register array (additional)
+	reg [15:0] r8;         // individual register
+
+	reg [15:0] data_io;    // external data interface register
+
+	wire [22:0] address_mux; // address output multiplexer (23-bit)
+
+	// --- Internal clock phases ---
+	wire c1;  // phase 1
+	wire c2;  // phase 2
+	wire c3;  // phase 3
+	wire c4;  // phase 4
+	wire c5;  // phase 5
+	reg c6;   // overlap phase
+
+	// --- Output registers ---
+	reg o_e;   // E-clock output register
+	reg o_bg;  // bus grant output register
 	
 	assign E_CLK = o_e;
 	assign BG = o_bg;
-	
-	wire clk1 = ~CLK;
-	wire clk2 = CLK;
-	
+
+	// -------------------------------------------------------------------------
+	// Section 2: Initialization — clock aliases, microcode ROM loading, resets
+	// -------------------------------------------------------------------------
+
+	wire clk1 = ~CLK; // inverted clock phase
+	wire clk2 = CLK;  // normal clock phase
+
 	integer ii;
 	
 	initial
@@ -1160,8 +1245,16 @@ module m68kcpu
 			r7[ii] = 16'h0;
 		r8 = 16'h0;
 	end
-	
-	
+
+	// -------------------------------------------------------------------------
+	// Section 3: Clock phases & control latching
+	// -------------------------------------------------------------------------
+	// The 68000 uses a 5-phase internal clock (c1-c5) plus an overlap phase (c6),
+	// generated from the external CLK input. Clock enables (c1_l-c5_l) gate
+	// the master clock (MCLK) to produce the internal phases. This section also
+	// contains E-clock generation, bus grant logic, and function code outputs.
+	// -------------------------------------------------------------------------
+
 	always @(posedge MCLK)
 	begin
 		if (c1)
@@ -2031,14 +2124,22 @@ module m68kcpu
 			c6 <= 1'h0;
 	end
 	
-	assign c1 = clk1 ? c1_l : 1'h0;
-	assign c2 = clk2 ? c2_l : 1'h0;
-	assign c3 = clk2 ? c3_l : 1'h0;
-	assign c4 = clk1 ? c4_l : 1'h0;
-	assign c5 = clk2 ? c5_l : 1'h0;
-	
+	assign c1 = clk1 ? c1_l : 1'h0; // phase 1 (clk1-gated)
+	assign c2 = clk2 ? c2_l : 1'h0; // phase 2 (clk2-gated)
+	assign c3 = clk2 ? c3_l : 1'h0; // phase 3 (clk2-gated)
+	assign c4 = clk1 ? c4_l : 1'h0; // phase 4 (clk1-gated)
+	assign c5 = clk2 ? c5_l : 1'h0; // phase 5 (clk2-gated)
+
+	// -------------------------------------------------------------------------
+	// Section 4: Microcode sequencer
+	// -------------------------------------------------------------------------
+	// Generates the microcode address (codebus[9:0]) and secondary control bus
+	// (codebus2[9:0]) from the current instruction, state, and control signals.
+	// Manages state transitions, trap/interrupt vectoring, and bus error handling.
+	// -------------------------------------------------------------------------
+
 	assign w330 = w567 ? 1'h0 : c2;
-	
+
 	assign FC[0] = ~w322;
 	assign FC[1] = ~w323;
 	assign FC[2] = ~w324;
@@ -2555,7 +2656,16 @@ module m68kcpu
 	assign w525 = ~(w505 | ~w506);
 	assign w526 = ~(~w505 | w506);
 	assign w527 = ~(w505 | w506);
-	
+
+	// -------------------------------------------------------------------------
+	// Section 5: Microcode ROM & control word decode
+	// -------------------------------------------------------------------------
+	// Accesses the two-level microcode ROMs: ucode[0:63] (272 bits × 64) and
+	// ncode[0:255] (272 bits × 256). Loads the microcode control word w522[16:0]
+	// and expanded nanocode control signals w529[67:0] which drive all execution
+	// control throughout the CPU.
+	// -------------------------------------------------------------------------
+
 	integer i, j;
 	
 //	always @(posedge MCLK)
@@ -3426,36 +3536,47 @@ module m68kcpu
 		end
 	end
 	
+	// -------------------------------------------------------------------------
+	// Section 6: Instruction decode PLA (a0_pla)
+	// -------------------------------------------------------------------------
+	// The instruction register w530[15:0] holds the current opcode word, loaded
+	// from the prefetch pipeline. The primary decode PLA (a0_pla[170:0]) matches
+	// bit patterns against w530 to identify instruction classes and select
+	// microcode entry points. Each PLA entry is a masked comparison that fires
+	// for a group of related opcodes (e.g., MOVE, ADD, shift/rotate).
+	// -------------------------------------------------------------------------
+
 	always @(posedge MCLK)
 	begin
 		if (w943)
-			w530 <= ~w984;
+			w530 <= ~w984; // load instruction register from prefetch
 	end
-	
-	assign a0_pla[0] = (w530 & 16'hf100) == 16'h0100;
-	assign a0_pla[1] = (w530 & 16'hd000) == 16'h1000;
-	assign a0_pla[2] = (w530 & 16'hf1c0) == 16'h4180;
-	assign a0_pla[3] = (w530 & 16'hf1c0) == 16'h4000;
-	assign a0_pla[4] = (w530 & 16'hf940) == 16'h4040;
-	assign a0_pla[5] = (w530 & 16'hff40) == 16'h4a40;
-	assign a0_pla[6] = (w530 & 16'hb080) == 16'h8000;
-	assign a0_pla[7] = (w530 & 16'hb040) == 16'h8040;
-	assign a0_pla[8] = (w530 & 16'h9080) == 16'h9000;
-	assign a0_pla[9] = (w530 & 16'h9140) == 16'h9040;
-	assign a0_pla[10] = (w530 & 16'hf080) == 16'h5000;
-	assign a0_pla[11] = (w530 & 16'hf040) == 16'h5040;
-	assign a0_pla[12] = (w530 & 16'hf8c0) == 16'he0c0;
+
+	// a0_pla: primary instruction decode — 171 entries matching opcode patterns
+	assign a0_pla[0] = (w530 & 16'hf100) == 16'h0100;  // BTST/BCHG/BCLR/BSET (register)
+	assign a0_pla[1] = (w530 & 16'hd000) == 16'h1000;  // MOVE.B / MOVEA
+	assign a0_pla[2] = (w530 & 16'hf1c0) == 16'h4180;  // CHK
+	assign a0_pla[3] = (w530 & 16'hf1c0) == 16'h4000;  // NEGX/CLR/NEG/NOT (byte/word)
+	assign a0_pla[4] = (w530 & 16'hf940) == 16'h4040;  // NEGX/CLR/NEG/NOT (word variant)
+	assign a0_pla[5] = (w530 & 16'hff40) == 16'h4a40;  // TST (byte/word)
+	assign a0_pla[6] = (w530 & 16'hb080) == 16'h8000;  // OR/DIVU/DIVS (byte/word)
+	assign a0_pla[7] = (w530 & 16'hb040) == 16'h8040;  // OR (word variant)
+	assign a0_pla[8] = (w530 & 16'h9080) == 16'h9000;  // SUB/SUBA/CMP (byte/word)
+	assign a0_pla[9] = (w530 & 16'h9140) == 16'h9040;  // SUB/SUBA (word variant)
+	assign a0_pla[10] = (w530 & 16'hf080) == 16'h5000; // ADDQ/SUBQ (byte/word)
+	assign a0_pla[11] = (w530 & 16'hf040) == 16'h5040; // ADDQ/SUBQ (word variant)
+	assign a0_pla[12] = (w530 & 16'hf8c0) == 16'he0c0; // shift/rotate memory
 	
 	assign w532 = ~(a0_pla[0] | a0_pla[1] | a0_pla[2] | a0_pla[3] | a0_pla[4] | a0_pla[5]
 		| a0_pla[6] | a0_pla[7] | a0_pla[8] | a0_pla[9] | a0_pla[10] | a0_pla[11] | a0_pla[12]);
 	
-	assign a0_pla[13] = (w530 & 16'hf000) == 16'h2000;
-	assign a0_pla[14] = (w530 & 16'hf9c0) == 16'h4080;
-	assign a0_pla[15] = (w530 & 16'hffc0) == 16'h4a80;
-	assign a0_pla[16] = (w530 & 16'hf0c0) == 16'h5080;
-	assign a0_pla[17] = (w530 & 16'ha0c0) == 16'h8080;
-	assign a0_pla[18] = (w530 & 16'h90c0) == 16'h9080;
-	assign a0_pla[19] = (w530 & 16'h9180) == 16'h9180;
+	assign a0_pla[13] = (w530 & 16'hf000) == 16'h2000; // MOVE.L / MOVEA.L
+	assign a0_pla[14] = (w530 & 16'hf9c0) == 16'h4080; // NEGX/CLR/NEG/NOT (long)
+	assign a0_pla[15] = (w530 & 16'hffc0) == 16'h4a80; // TST.L
+	assign a0_pla[16] = (w530 & 16'hf0c0) == 16'h5080; // ADDQ/SUBQ (long)
+	assign a0_pla[17] = (w530 & 16'ha0c0) == 16'h8080; // OR/DIVU/DIVS (long)
+	assign a0_pla[18] = (w530 & 16'h90c0) == 16'h9080; // SUB/SUBA/CMP (long)
+	assign a0_pla[19] = (w530 & 16'h9180) == 16'h9180; // SUBX/ADDX
 	
 	assign w533 = ~(a0_pla[13] | a0_pla[14] | a0_pla[15] | a0_pla[16] | a0_pla[17]
 		| a0_pla[18] | a0_pla[19]);
@@ -3769,6 +3890,17 @@ module m68kcpu
 		(a0_pla[167] ? 10'h0a9 : 10'h3ff) &
 		(a0_pla[168] ? 10'h2b9 : 10'h3ff);
 
+	// -------------------------------------------------------------------------
+	// Section 7: Secondary decode & IRD PLAs
+	// -------------------------------------------------------------------------
+	// a2_pla[149:0] — secondary decode PLA for addressing mode resolution.
+	// irdbus[31:0] — instruction register data bus (extended decode output).
+	// ird_pla1-4 — instruction register decode PLAs for operand extraction.
+	// cond_pla1[17:0], cond_pla2[22:0] — condition code evaluation PLAs
+	//   (Bcc, Scc, DBcc branch condition testing).
+	// -------------------------------------------------------------------------
+
+	// a2_pla: secondary decode — 150 entries for addressing mode resolution
 	assign a2_pla[0] = (w530 & 16'h003d) == 16'h003d & ~a2_pla[2] & ~a2_pla[3];
 	assign a2_pla[1] = (w530 & 16'h003e) == 16'h003e & ~a2_pla[2] & ~a2_pla[3];
 	assign a2_pla[2] = (w530 & 16'hf000) == 16'he000;
@@ -4137,7 +4269,15 @@ module m68kcpu
 		{ w529[23], w529[26], ~w529[29], ~w529[32], ~w529[35], w529[38], w529[41], w529[44],
 			w522[0], w529[47], w529[2], w529[50], w529[5], w529[53], w529[8], ~w529[56],
 			w529[11], ~w529[59], w529[14], ~w529[62], ~w529[17], w529[65], w529[20], 9'h0 } : 32'h0);
-	
+
+	// -------------------------------------------------------------------------
+	// Section 8: Execution control & operand routing
+	// -------------------------------------------------------------------------
+	// Post-decode control signal generation, ALU operand selection, register
+	// addressing, and data path routing driven by the decoded control word
+	// (w522) and expanded nanocode signals (w529).
+	// -------------------------------------------------------------------------
+
 	assign w539 = w540 ? c2 : 1'h0;
 	
 	assign w540 = ~(w267 | ~w529[0]);
@@ -4764,10 +4904,18 @@ module m68kcpu
 		end
 	end
 	
+	// -------------------------------------------------------------------------
+	// Section 9: ALU, flags & bus control
+	// -------------------------------------------------------------------------
+	// ALU operations, CCR flag logic (w750=N, w751=Z, w752=V, w753=X, w754=C),
+	// address output multiplexer (address_mux[22:0]), bus strobe generation
+	// (AS, UDS, LDS pipeline), and read/write control.
+	// -------------------------------------------------------------------------
+
 	assign w667 = w648 | w649 | w665;
-	
+
 	assign w668 = ~(w648 | w665);
-	
+
 	assign w669 = ~(~w649 | w665);
 	
 	assign w670 = ~(w656 | w650 | w667);
@@ -5732,7 +5880,15 @@ module m68kcpu
 	assign RW = rw_l;
 	assign RW_z = rw_l & w409; 
 
-	// alu bus & registers logic
+	// -------------------------------------------------------------------------
+	// Section 10: Internal bus bridge (ALU bus & registers logic)
+	// -------------------------------------------------------------------------
+	// Three 16-bit internal buses (b1, b2, b3), each with 4 complementary pairs
+	// (indices [0:3]). Uses pulldown-based read/write: b*_pulldown drives low,
+	// b*_s_pulldown for registered (stored) values. The bus values are the
+	// inverted pulldown combination. Buses connect the ALU, register file,
+	// and data I/O paths.
+	// -------------------------------------------------------------------------
 	
 	wire [15:0] b1_pulldown[0:3];
 	wire [15:0] b2_pulldown[0:3];
@@ -6071,7 +6227,15 @@ module m68kcpu
 	assign b3[1] = ~b3_pulldown_comb[1];
 	assign b3[2] = ~b3_pulldown_comb[2];
 	assign b3[3] = ~b3_pulldown_comb[3];
-	
+
+	// -------------------------------------------------------------------------
+	// Section 11: Register file & data I/O
+	// -------------------------------------------------------------------------
+	// Bus memory latches (b*_mem), register file write-back for r1[0:17],
+	// r6[0:9], r7[0:8], and individual registers (r2-r5, r8). Data I/O
+	// byte-swapping logic for byte/word/long transfers.
+	// -------------------------------------------------------------------------
+
 	always @(posedge MCLK)
 	begin
 		b1_mem[0] <= b1[0];
