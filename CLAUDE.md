@@ -104,6 +104,7 @@ The `rtl/nuked-md/` files have been partially annotated with descriptive signal 
 - **`ym3438.v`** — FM synth top-level. Section comments mark each pipeline stage (prescaler through DAC output).
 - **`ym3438_prescaler.v`**, **`ym3438_fsm.v`**, **`ym3438_detune.v`**, **`ym3438_ch.v`**, **`ym3438_lfo.v`**, **`ym3438_pg.v`**, **`ym3438_op.v`**, **`ym3438_eg.v`**, **`ym3438_regs.v`** — FM synth sub-modules. Each has a module doc comment and section comments marking functional blocks. Generate labels use descriptive names (e.g., `clk_stages`, `slot_rows`, `multi_decode`, `timer_bits`).
 - **`tmss.v`**, **`vram.v`** — Annotated in Phase 1.
-- **`ym7101.v`**, **`68k.v`**, **`z80.v`** — Still use original opaque signal names (e.g., `w12`, `l136`). These files are very large and have NOT been annotated yet.
+- **`z80.v`** — Z80 CPU. Section comments mark major functional blocks (control logic, PLA, sequencer, ALU, register file, incrementer, bus bridge). Key wire declarations have inline comments identifying signal roles. Helper primitives (`z80_dlatch`, `z80_rs_trig_nor`, `z80_rs_trig_nand`) have doc comments. Original `w###`/`l###` signal names are preserved (not renamed) due to file size; annotations provide navigation via section headers and inline comments.
+- **`ym7101.v`**, **`68k.v`** — Still use original opaque signal names (e.g., `w12`, `l136`). These files are very large and have NOT been annotated yet.
 
 **When renaming signals across files:** Always rename the port in the module definition AND update all instantiation sites (especially in `fc1004.v` and `md_board.v`).

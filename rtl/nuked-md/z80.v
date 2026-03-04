@@ -24,6 +24,29 @@
  */
  
  // Z80(NMOS)
+//
+// Cycle-accurate Zilog Z80 CPU emulation derived from die analysis of the
+// original NMOS Z80. All logic is flat inside z80cpu with no internal
+// hierarchy (only 3 trivial helper primitives: z80_dlatch, z80_rs_trig_nor,
+// z80_rs_trig_nand).
+//
+// Architecture overview:
+//   - Instruction decode PLA: 99 entries matching opcode byte against patterns
+//     qualified by prefix state (unprefixed, CB, ED, DD/FD).
+//   - Microsequencer: steps through T-states (w131/w120/w127/w123/w121) to
+//     generate control signals for each phase of instruction execution.
+//   - 8-bit ALU: 4-bit carry-lookahead adder run twice per operation (low
+//     nibble then high nibble), controlled by w446 half-cycle select.
+//   - Register file: 12-entry main bank (regs[11:0]) + 2-entry alternate bank
+//     (regs2[1:0]), stored as complementary pairs and accessed via pull-up/
+//     pull-down bus logic matching the silicon implementation.
+//   - 16-bit incrementer/decrementer: carry-lookahead adder for PC, SP, IX/IY
+//     address updates.
+//   - Three internal 8-bit data buses (w146 "bus 1", w484 "bus 2", w513
+//     "bus 3") connected through configurable bus bridges.
+//
+// Port interface is active-low accent for active-high active controls. Active
+// accent (_z suffix = tristate control, active high = high-Z).
 
 module z80cpu
 	(
@@ -53,18 +76,23 @@ module z80cpu
 	output BUSAK
 	);
 	
-	wire clk = CLK;
-	
-	wire w1;
+	// -----------------------------------------------------------------------
+	// Wire declarations
+	// -----------------------------------------------------------------------
+
+	wire clk = CLK; // gated Z80 clock (active-high phase)
+
+	// --- Clock synchronizers, interrupt detection, and bus control ---
+	wire w1; // MREQ/RD generation trigger
 	wire w2;
 	wire w3;
 	wire w4, w4_i;
-	wire w5;
-	wire w6, w6_i;
+	wire w5; // INT input synchronized
+	wire w6, w6_i; // NMI edge detector
 	wire w7;
 	wire w8, w8_i;
 	wire w9_n, w9_i;
-	reg w9 = 1'h0;
+	reg w9 = 1'h0; // NMI pending (edge detected, not yet serviced)
 	wire w10;
 	wire w11;
 	wire w12;
@@ -82,7 +110,7 @@ module z80cpu
 	wire w26;
 	wire w27;
 	wire w28;
-	reg w30 = 1'h0;
+	reg w30 = 1'h0; // prefix decode cycle active
 	wire w31, w31_i;
 	wire w32;
 	wire w33, w33_i;
@@ -93,25 +121,25 @@ module z80cpu
 	wire w38;
 	wire w39, w39_i;
 	reg w40 = 1'h0, w40_i = 1'h1;
-	wire w41;
-	wire w42;
+	wire w41; // sequencer phase: early execution phase
+	wire w42; // data bus write enable to w145
 	wire w43;
-	wire w44, w44_n, w44_i;
+	wire w44, w44_n, w44_i; // data bus output enable (active-low)
 	wire w45;
 	wire w46;
 	wire w47;
 	wire w48, w48_i;
 	wire w49;
-	wire w50, w50_i;
-	wire w51, w51_i;
+	wire w50, w50_i; // RESET edge detect
+	wire w51, w51_i; // RESET synchronized
 	wire w52;
 	wire w53;
 	wire w54;
-	wire w55;
+	wire w55; // reset active (internal reset state)
 	wire w56;
 	wire w57;
-	wire w58, w58_i;
-	wire w59;
+	wire w58, w58_i; // BUSRQ edge detect
+	wire w59; // BUSRQ synchronized
 	wire w60;
 	wire w61, w61_i;
 	wire w62;
@@ -119,40 +147,40 @@ module z80cpu
 	wire w65;
 	wire w66, w66_i;
 	wire w67;
-	wire o_busak;
-	wire w68, w68_i;
+	wire o_busak; // bus acknowledge output (active high internal)
+	wire w68, w68_i; // sequencer phase: memory access phase
 	wire w69;
 	wire w71;
-	reg w73 = 1'h0;
-	reg w74 = 1'h0;
+	reg w73 = 1'h0; // IFF1 (interrupt flip-flop 1)
+	reg w74 = 1'h0; // IFF2 (interrupt flip-flop 2)
 	wire w75;
 	wire w76;
 	wire w77;
-	reg w78_i = 1'h0;
+	reg w78_i = 1'h0; // interrupt mode bit 0
 	wire w78;
 	wire w79;
-	reg w80 = 1'h0;
-	wire w81;
-	wire w82;
+	reg w80 = 1'h0; // interrupt mode bit 1
+	wire w81; // IM2 vector fetch qualifier
+	wire w82; // ALU operation group qualifier (~(pla[33] | pla[34]))
 	wire w83;
 	wire w84;
 	wire w85;
 	wire w86;
 	wire w87;
 	wire w88;
-	wire w89;
-	wire w90;
+	wire w89; // prefix decode state active
+	wire w90; // unprefixed instruction qualifier (no CB/ED prefix)
 	wire w91;
-	reg w92;
+	reg w92; // ED prefix active
 	wire w93;
 	wire w94;
-	reg w95_i;
+	reg w95_i; // CB prefix state latch
 	wire w95;
-	wire w96;
+	wire w96; // CB-prefixed instruction qualifier
 	wire w97;
 	wire w98;
 	wire w99;
-	reg w100;
+	reg w100; // DD/FD prefix active (IX/IY index register select)
 	wire w101;
 	wire w102;
 	wire w103;
@@ -160,31 +188,35 @@ module z80cpu
 	wire w105;
 	wire w106;
 	wire w107;
+	// --- Microsequencer T-state signals ---
+	// The Z80 microsequencer steps through states to execute each instruction.
+	// State progression: w131 -> w120 -> w127 -> w123 -> w121
+	// w109/w110/w114 provide additional timing phases within each state.
 	wire w109_i;
-	wire w109;
-	wire w110;
+	wire w109; // sequencer phase: T2 (second phase within machine cycle)
+	wire w110; // sequencer phase: active execution (not bus-ack or halted)
 	wire w111;
 	wire w112;
 	wire w113;
-	wire w114, w114_i;
-	wire w115, w115_i;
+	wire w114, w114_i; // sequencer phase: late execution phase
+	wire w115, w115_i; // ALU operation active
 	wire w116;
 	wire w117;
 	wire w118;
 	wire w119;
-	wire w120, w120_i;
-	wire w121, w121_i;
+	wire w120, w120_i; // sequencer step S1 (first execution step)
+	wire w121, w121_i; // sequencer step S4 (fourth execution step)
 	wire w122;
-	wire w123, w123_i;
+	wire w123, w123_i; // sequencer step S3 (third execution step)
 	wire w124;
 	wire w125;
 	wire w126;
-	wire w127, w127_i;
+	wire w127, w127_i; // sequencer step S2 (second execution step)
 	wire w128;
 	wire w129;
-	wire rfsh_rs, rfsh;
-	wire w130;
-	wire w131, w131_i;
+	wire rfsh_rs, rfsh; // refresh cycle control
+	wire w130; // next-instruction trigger
+	wire w131, w131_i; // sequencer step S0 (opcode fetch / initial step)
 	wire w132;
 	wire w133;
 	wire w134;
@@ -198,10 +230,11 @@ module z80cpu
 	wire w142;
 	wire w143;
 	wire w144;
-	reg [7:0] w145 = 8'h0;
-	reg [7:0] w146 = 8'h0; // bus 1
+	// --- Internal data buses and instruction register ---
+	reg [7:0] w145 = 8'h0; // data bus 0 (external data interface, active-low)
+	reg [7:0] w146 = 8'h0; // bus 1 (internal data bus, low byte path)
 	reg [7:0] w147_prev = 8'h0;
-	wire [7:0] w147;
+	wire [7:0] w147; // instruction register (opcode latch, active-low)
 	wire w148;
 	wire w149;
 	wire w150;
@@ -538,7 +571,7 @@ module z80cpu
 	wire w480;
 	wire w481;
 	wire w483;
-	reg [7:0] w484 = 8'h0; // bus 2
+	reg [7:0] w484 = 8'h0; // bus 2 (internal data bus, ALU/register path)
 	wire w485;
 	wire w486;
 	wire w487;
@@ -548,60 +581,65 @@ module z80cpu
 	wire w493;
 	wire w494;
 	wire w495;
-	reg [7:0] w496 = 8'h0;
+	// --- ALU operands and result registers ---
+	reg [7:0] w496 = 8'h0; // ALU operand register (accumulator shadow)
 	wire [7:0] w497;
-	reg [7:0] w498 = 8'h0;
-	reg [3:0] w499 = 4'h0;
-	wire [3:0] w500;
+	reg [7:0] w498 = 8'h0; // ALU operand register (second operand)
+	reg [3:0] w499 = 4'h0; // ALU result high nibble latch
+	wire [3:0] w500; // ALU operand 2 nibble select
 	wire w501;
 	wire w502;
-	reg [3:0] w503 = 4'h0;
-	wire [3:0] w504;
+	reg [3:0] w503 = 4'h0; // ALU result latch (previous nibble)
+	wire [3:0] w504; // ALU result (current nibble)
 	wire w505;
 	wire w506;
 	wire w507;
 	wire w508;
-	reg [7:0] w510 = 8'h0;
-	reg [7:0] w511 = 8'h0;
-	wire [3:0] w512;
-	reg [7:0] w513 = 8'h0; // bus 3
+	reg [7:0] w510 = 8'h0; // ALU combined result register
+	reg [7:0] w511 = 8'h0; // ALU output register (feeds data bus)
+	wire [3:0] w512; // ALU operand 1 nibble select
+	reg [7:0] w513 = 8'h0; // bus 3 (internal data bus, high byte path)
 	
-	wire [15:0] rpull1[1:0];
-	wire [15:0] rpull2[1:0];
-	wire [15:0] rpull1_comb[1:0];
-	wire [15:0] rpull2_comb[1:0];
-	wire [15:0] rpullup1[1:0];
-	wire [15:0] rpullup2[1:0];
-	wire [15:0] rpullup1_comb[1:0];
-	wire [15:0] rpullup2_comb[1:0];
-	reg [15:0] regs[11:0][1:0];
-	reg [15:0] regs2[1:0][1:0];
+	// --- Register file ---
+	// Silicon register file uses complementary-pair storage (true + inverted).
+	// rpull/rpullup buses implement pull-down/pull-up read/write logic.
+	wire [15:0] rpull1[1:0]; // main bank pull-down bus
+	wire [15:0] rpull2[1:0]; // alt bank pull-down bus
+	wire [15:0] rpull1_comb[1:0]; // combined pull-down (main + alt if bridged)
+	wire [15:0] rpull2_comb[1:0]; // combined pull-down (alt + main if bridged)
+	wire [15:0] rpullup1[1:0]; // main bank pull-up bus
+	wire [15:0] rpullup2[1:0]; // alt bank pull-up bus
+	wire [15:0] rpullup1_comb[1:0]; // combined pull-up
+	wire [15:0] rpullup2_comb[1:0]; // combined pull-up
+	reg [15:0] regs[11:0][1:0]; // main register file (12 entries, complementary pair)
+	reg [15:0] regs2[1:0][1:0]; // alternate register bank (2 entries, complementary pair)
 	
-	reg [15:0] w514 = 16'h0;
-	reg [15:0] w515 = 16'h0;
+	reg [15:0] w514 = 16'h0; // register bus latch (complementary pair 0)
+	reg [15:0] w515 = 16'h0; // register bus latch (complementary pair 1)
 	
 	wire w516;
 	wire w517;
 	wire w518;
 	wire w519;
 	
-	reg [15:0] w520 = 16'h0;
-	reg [15:0] w521 = 16'h0;
-	reg [15:0] w522 = 16'h0;
-	wire [15:0] w523;
-	reg w524 = 1'h0;
-	wire [14:0] w525;
-	reg [15:0] w526 = 16'h0;
-	reg [15:0] w527 = 16'h0;
-	wire [15:0] w528;
+	// --- 16-bit address path and incrementer/decrementer ---
+	reg [15:0] w520 = 16'h0; // address register pair 0 (also alt bank bus latch)
+	reg [15:0] w521 = 16'h0; // address register pair 1 (also alt bank bus latch)
+	reg [15:0] w522 = 16'h0; // incrementer input register
+	wire [15:0] w523; // carry-lookahead adder output (inc/dec result)
+	reg w524 = 1'h0; // decrementer zero detect (w522 != 1)
+	wire [14:0] w525; // CLA propagate/generate signals
+	reg [15:0] w526 = 16'h0; // address output register (active-low, drives ADDRESS)
+	reg [15:0] w527 = 16'h0; // incrementer result latch
+	wire [15:0] w528; // register file write-back bus
 
 	wire w530;
 	wire w531;
 	wire w532;
 	
-	wire halt, halt_i;
-	
-	wire m1;
+	wire halt, halt_i; // HALT state (halt=1 when CPU is halted)
+
+	wire m1; // M1 cycle active (opcode fetch)
 	
 	wire l1;
 	wire l2;
@@ -684,13 +722,19 @@ module z80cpu
 	wire l83;
 	wire l84;
 	
-	// pla
+	// --- Instruction decode PLA outputs ---
+	wire [98:0] pla; // 99 PLA entries: opcode pattern match qualified by prefix state
 	
-	wire [98:0] pla;
 	
-	
-	//
-	
+	// -----------------------------------------------------------------------
+	// Control logic & state machine
+	// -----------------------------------------------------------------------
+	// Clock synchronizers for external inputs (INT, NMI, RESET, BUSRQ, WAIT),
+	// bus control (MREQ, IORQ, RD, WR), T-state sequencer, instruction fetch/
+	// decode pipeline, prefix state tracking (CB, ED, DD/FD), interrupt
+	// enable/mode registers, and HALT state machine.
+	// -----------------------------------------------------------------------
+
 	wire w1_i;
 	
 	assign w1 = ~w1_i;
@@ -1791,7 +1835,14 @@ module z80cpu
 	
 	assign w147 = w49 ? w147_prev : ~w146;
 	
-	// pla
+	// -----------------------------------------------------------------------
+	// Instruction decode PLA
+	// -----------------------------------------------------------------------
+	// 99 entries matching the opcode byte (w147) against bit patterns, each
+	// qualified by prefix state: w90 (unprefixed), w92 (ED), ~w96 (CB),
+	// ~w82 (ALU group 80-BF). Multiple PLA outputs may be active for a
+	// single opcode; the sequencer combines them to derive control signals.
+	// -----------------------------------------------------------------------
 	assign pla[0] = (w147 & 8'hf7) == 8'hd3 & w90; // out(n), a; in(n), a
 	assign pla[1] = (w147 & 8'hf7) == 8'hf3 & w90; // di; ei
 	assign pla[2] = (w147 & 8'hc7) == 8'h46 & w92; // im 0; im 1; im 2
@@ -1807,7 +1858,7 @@ module z80cpu
 	assign pla[12] = (w147 & 8'h38) == 8'h30 & ~w82; // or
 	assign pla[13] = (w147 & 8'h38) == 8'h20 & ~w82; // and
 	assign pla[14] = (w147 & 8'h38) == 8'h00 & ~w82; // add
-	assign pla[15] = (w147 & 8'hf7) == 8'h57 & w92 & w74; // ???
+	assign pla[15] = (w147 & 8'hf7) == 8'h57 & w92 & w74; // ld a,i/r with IFF2 set (P/V flag source)
 	assign pla[16] = (w147 & 8'hc7) == 8'h44 & w92; // neg
 	assign pla[17] = w147 == 8'h2f & w90; // cpl
 	assign pla[18] = (w147 & 8'h38) == 8'h08 & ~w82; // adc
@@ -1836,7 +1887,7 @@ module z80cpu
 	assign pla[41] = (w147 & 8'hf7) == 8'h47 & w92; // ld i,a ; ld r,a
 	assign pla[42] = (w147 & 8'hc7) == 8'hc7 & w90; // rst n
 	assign pla[43] = (w147 & 8'h07) == 8'h06 & ~w96; // bit opcode (hl)
-	assign pla[44] = ~w96 & ~w100; // 
+	assign pla[44] = ~w96 & ~w100; // CB opcode without IX/IY prefix
 	assign pla[45] = (w147 & 8'hfe) == 8'h34 & w90; // inc dec (hl)
 	assign pla[46] = (w147 & 8'hc7) == 8'h86 & w90; // alu (hl)
 	assign pla[47] = w147 == 8'hed & w90; // misc opcode prefix
@@ -1890,8 +1941,17 @@ module z80cpu
 	assign pla[95] = (w147 & 8'hdf) == 8'hdd & w90; // ix, iy
 	assign pla[96] = w147 == 8'heb & w90; // ex de, hl
 	assign pla[97] = w147 == 8'hd9 & w90; // exx
-	assign pla[98] = (w147 & 8'hf4) == 8'ha0 & w92; // 
+	assign pla[98] = (w147 & 8'hf4) == 8'ha0 & w92; // block transfer/search group (ldi/ldd/cpi/cpd variants)
 	
+	// -----------------------------------------------------------------------
+	// Sequencer & data path control
+	// -----------------------------------------------------------------------
+	// PLA output decode: combines multiple PLA matches into composite control
+	// signals (w148-w191). These feed the microsequencer which generates
+	// register select, ALU control, bus control, and data path routing for
+	// each T-state of instruction execution.
+	// -----------------------------------------------------------------------
+
 	assign w148 = ~(pla[11] | pla[16] | pla[17] |
 		pla[21] | pla[27] | pla[33] | pla[34]
 		| pla[38]);
@@ -2947,6 +3007,16 @@ module z80cpu
 		.outp(w390)
 		);
 	
+	// -----------------------------------------------------------------------
+	// ALU & flag logic
+	// -----------------------------------------------------------------------
+	// 8-bit ALU implemented as a 4-bit carry-lookahead adder that runs twice
+	// per operation (w446 selects low/high nibble). Flag registers (S, Z, H,
+	// P/V, N, C) are updated based on ALU results and instruction type.
+	// Includes DAA (decimal adjust) correction logic, rotate/shift flag
+	// handling, and block instruction flag updates.
+	// -----------------------------------------------------------------------
+
 	z80_dlatch dw391
 		(
 		.MCLK(MCLK),
@@ -3659,6 +3729,17 @@ module z80cpu
 	
 	assign w512 = w446 ? w511_xor[3:0] : w511_xor[7:4];
 	
+	// -----------------------------------------------------------------------
+	// Register file read/write mux
+	// -----------------------------------------------------------------------
+	// Register file access uses silicon-style pull-up/pull-down bus logic.
+	// regs[0..11] are: BC, DE, HL, BC', DE', HL', IX, IY, SP, PC, WZ, IR
+	// (exact mapping depends on register select decode from w314-w364).
+	// regs2[0..1] provide the alternate register bank for EX/EXX.
+	// w516/w517 control 8-bit bus injection from bus 2/3 into register bus.
+	// w335/w336/w337/w338 control bank bridging and write-back path.
+	// -----------------------------------------------------------------------
+
 	assign rpull1[0] =
 		( {16{~w364}} & regs[0][1] ) |
 		( {16{~w363}} & regs[1][1] ) |
@@ -3782,6 +3863,16 @@ module z80cpu
 	assign w518 = ~w417;
 	assign w519 = ~w418;
 	
+	// -----------------------------------------------------------------------
+	// 16-bit incrementer / decrementer
+	// -----------------------------------------------------------------------
+	// Carry-lookahead adder for PC, SP, IX, IY address updates. w522 holds
+	// the input value, w210 selects increment vs decrement, w525 provides
+	// the propagate/generate signals, and cla[] computes the carry chain.
+	// w523 is the 16-bit result. w526 latches the address output (inverted,
+	// drives ADDRESS pins). w527 latches the result for register write-back.
+	// -----------------------------------------------------------------------
+
 	always @(posedge MCLK)
 	begin
 		if (clk)
@@ -3789,10 +3880,10 @@ module z80cpu
 		else if (w334)
 			w522 <= w520;
 	end
-	
+
 	assign w525 = w210 ? w522[14:0] : ~w522[14:0];
-	
-	wire [15:0] cla;
+
+	wire [15:0] cla; // carry-lookahead chain
 	
 	assign cla[0] = ~w193;
 	assign cla[1] = ~w193 & ~w525[0];
@@ -3841,6 +3932,15 @@ module z80cpu
 	end
 	
 	assign w528 = w215 ? 16'h0 : ~w527;
+
+	// -----------------------------------------------------------------------
+	// Register file storage
+	// -----------------------------------------------------------------------
+	// Main register file (regs[0..11]) and alternate bank (regs2[0..1])
+	// use complementary-pair SRAM cells. Each entry stores both true and
+	// inverted values; writes use pull-up/pull-down logic to set/clear.
+	// The initial block zeroes all registers at power-up.
+	// -----------------------------------------------------------------------
 
 	always @(posedge MCLK)
 	begin
@@ -3947,8 +4047,16 @@ module z80cpu
 	
 	assign M1 = ~m1;
 	
-	// bus logic
-	
+	// -----------------------------------------------------------------------
+	// Internal bus bridge logic
+	// -----------------------------------------------------------------------
+	// Three 8-bit internal buses (bus 1 = w146, bus 2 = w484, bus 3 = w513)
+	// are connected through configurable bridges controlled by w369 and w419.
+	// Each bus has pull-up and pull-down drivers from various sources (data
+	// port, registers, ALU, flags, DAA correction). The bridge logic merges
+	// bus states when enabled, implementing the silicon pass-transistor network.
+	// -----------------------------------------------------------------------
+
 	wire [7:0] bus1_pulld = {8{w1}} & ~w145;
 	wire [7:0] bus1_pullu = ({8{w1}} & w145) | {8{w483}};
 	
@@ -4009,6 +4117,7 @@ module z80cpu
 		end
 	end
 	
+	// Power-up initialization: all registers cleared (pair[0]=0, pair[1]=FFFF)
 	integer i;
 	initial begin
 		for (i = 0; i < 12; i = i + 1)
@@ -4026,6 +4135,12 @@ module z80cpu
 endmodule
 
 
+// -----------------------------------------------------------------------
+// Helper primitives
+// -----------------------------------------------------------------------
+
+// Transparent latch: captures inp on outp when en is high, holds when low.
+// Clocked by MCLK for FPGA implementation (acts as edge-triggered sample).
 module z80_dlatch
 	(
 	input MCLK,
@@ -4042,6 +4157,9 @@ module z80_dlatch
 	end
 endmodule
 
+// NOR-based RS latch: set/rst are active-high. Implements cross-coupled NOR
+// gates (q = ~(rst | nq), nq = ~(set | q)) using blocking assignments to
+// model the silicon feedback path. Both q and nq are available.
 module z80_rs_trig_nor
 	(
 	input MCLK,
@@ -4066,6 +4184,9 @@ module z80_rs_trig_nor
 	end
 endmodule
 
+// NAND-based RS latch: nset/nrst are active-low. Implements cross-coupled
+// NAND gates (q = ~(nq & nset), nq = ~(q & nrst)) using blocking
+// assignments. Both q and nq are available.
 module z80_rs_trig_nand
 	(
 	input MCLK,
