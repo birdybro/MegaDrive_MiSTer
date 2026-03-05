@@ -1337,101 +1337,101 @@ module ym7101
 	wire [1:0] l323;
 	wire w649;
 
-	wire [10:0] w650;
-	wire [10:0] l324;
-	wire l325;
-	wire l326;
-	wire [10:0] l327;
-	wire [10:0] l328;
-	wire w651;
-	wire l329;
-	wire l330;
-	wire l331;
-	wire [10:0] l332;
-	wire l333;
-	wire w652;
-	wire [9:0] w653;
-	wire w654;
-	wire w655;
-	wire w656;
-	wire w657;
-	wire w658;
-	wire w659;
-	wire l334;
-	wire w660;
-	wire l335;
-	wire w661;
-	wire [9:0] w662;
-	wire l336;
-	wire l337;
-	wire l338;
-	wire l339;
-	wire w663;
-	wire w664;
-	wire w665;
-	wire [9:0] w666;
-	wire [9:0] l340;
-	wire [9:0] l341;
-	wire w667;
-	wire w668;
-	wire w669;
-	wire w670;
-	wire w671;
-	wire w672;
-	wire [7:0] l342;
-	wire [9:0] l343;
-	wire [9:0] l344;
-	wire w673;
-	wire w674;
-	wire w675;
-	wire w676;
-	wire w677;
-	wire w678;
-	wire w679;
-	wire [9:0] l345;
-	wire [9:0] l346;
-	wire [9:0] w680;
-	wire l347;
-	wire l348;
-	wire l349;
-	wire l350;
-	wire w681;
-	wire w682;
-	wire [6:0] l351;
-	wire w683;
-	wire l352;
-	wire w684;
-	wire l353;
-	wire l354;
-	wire w685;
-	wire l355;
-	wire l356;
-	wire w686;
-	wire l357;
-	wire l358;
-	wire l359;
-	wire w687;
-	wire w688;
-	wire w689;
-	wire w690;
-	wire w691;
-	wire l360_1;
-	wire [5:0] l360_83;
-	wire l361;
-	wire l362;
-	wire w692;
-	wire w693;
-	wire w694;
-	wire l363;
-	wire l364;
-	wire [6:0] w695;
-	wire [6:0] w696;
-	wire [4:0] l365;
+	wire [10:0] sat_read_mux;
+	wire [10:0] sat_field_latch;
+	wire sat_read_phase;
+	wire sat_rd_pipe_0;
+	wire [10:0] sat_attr_pipe;
+	wire [10:0] sat_attr_hold;
+	wire sat_field_latch_en;
+	wire sat_rd_pipe_1;
+	wire sat_rd_pipe_2;
+	wire sat_rd_pipe_3;
+	wire [10:0] sat_attr_latch;
+	wire sat_active_n;
+	wire sat_attr_latch_en;
+	wire [9:0] spr_y_adjusted;
+	wire m5_single_res;
+	wire sat_link_is_7f;
+	wire sat_ybit8_valid;
+	wire sat_y_sign;
+	wire sat_stop;
+	wire sat_clk_gate;
+	wire sat_clk_latch;
+	wire sat_ypos_strobe_a;
+	wire sat_clk_pipe;
+	wire sat_ypos_strobe_b;
+	wire [9:0] y_delta;
+	wire sat_vs1_pipe;
+	wire sat_vs0_pipe;
+	wire sat_ybit8_pipe;
+	wire sat_ysign_pipe;
+	wire y_size_test_0;
+	wire y_size_test_1;
+	wire spr_y_visible;
+	wire [9:0] sat_y_mux;
+	wire [9:0] y_cmp_val;
+	wire [9:0] y_delta_result;
+	wire y_d0_terminate;
+	wire y_range_bit_0;
+	wire y_range_bit_1;
+	wire y_range_bit_2;
+	wire y_range_bit_3;
+	wire y_range_bit_4;
+	wire [7:0] sat_vram_serial;
+	wire [9:0] sat_ypos_latch;
+	wire [9:0] sat_ypos_hold;
+	wire y_size_adj_lo;
+	wire y_size_adj_hi;
+	wire y_size_adj_ext;
+	wire sat_rd_window;
+	wire m4_ypos_sel;
+	wire sat_busy;
+	wire sat_active;
+	wire [9:0] sat_ypos_pipe_0;
+	wire [9:0] sat_ypos_pipe_1;
+	wire [9:0] sat_ypos_src;
+	wire sat_start_pipe_0;
+	wire sat_start_pipe_1;
+	wire sat_start_pipe_2;
+	wire sat_start_pipe_3;
+	wire sat_rd_win_m5;
+	wire sat_rd_win_m4;
+	wire [6:0] sat_link_cnt;
+	wire link_cnt_load;
+	wire link_ld_pipe;
+	wire link_cnt_inc;
+	wire link_timing;
+	wire link_cnt_rst;
+	wire link_rst_comb;
+	wire link_rst_edge_0;
+	wire link_rst_edge_1;
+	wire sat_start_trig;
+	wire sat_start_latch;
+	wire sat_rd_pipe_4;
+	wire sat_rd_pipe_5;
+	wire sat_wr_link;
+	wire sat_wr_size;
+	wire sat_wr_yhi;
+	wire sat_wr_ylo;
+	wire sat_h40_bit;
+	wire sat_addr_bit1;
+	wire [5:0] sat_addr_mid;
+	wire sat_addr_pipe_0;
+	wire sat_addr_pipe_1;
+	wire sat_wr_active;
+	wire sat_wr_trig_a;
+	wire sat_wr_trig_b;
+	wire sat_wr_phase_a;
+	wire sat_wr_phase_b;
+	wire [6:0] sat_index_mux;
+	wire [6:0] sat_link_idx;
+	wire [4:0] sat_link_delay;
 	// SAT field decodes
 	wire [6:0] sat_link; // sprite link (next sprite index)
 	wire [3:0] sat_size; // sprite size {HS1, HS0, VS1, VS0}
 	wire [9:0] sat_ypos; // sprite Y position
-	wire [3:0] l366;
+	wire [3:0] sat_size_serial;
 	wire [4:0] w697;
 	wire l367;
 	wire w698;
@@ -1472,8 +1472,8 @@ module ym7101
 	wire w720;
 	wire w721;
 	wire l381;
-	wire t40;
-	wire t41;
+	wire spr_found_trig;
+	wire spr_overflow_trig;
 	wire w722;
 	wire w723;
 	wire w724;
@@ -1576,7 +1576,7 @@ module ym7101
 	wire w772;
 	wire l421;
 	wire l422;
-	wire t42;
+	wire spr_render_active;
 	wire l423;
 	wire w773;
 	wire [10:0] w774;
@@ -4921,186 +4921,186 @@ module ym7101
 	//   5. Pixel data pipeline — read line buffer during active display
 	// Supports up to 80 sprites total, 20 per scanline (H40) or 16 (H32).
 
-	assign w650 = l325 ? { sat_size, sat_link } : sat_ypos;
+	assign sat_read_mux = sat_read_phase ? { sat_size, sat_link } : sat_ypos;
 	
-	ym_slatch #(.DATA_WIDTH(11)) sl324(.MCLK(MCLK), .en(w651), .inp(w650), .val(l324));
+	ym_slatch #(.DATA_WIDTH(11)) sl324(.MCLK(MCLK), .en(sat_field_latch_en), .inp(sat_read_mux), .val(sat_field_latch));
 	
-	ym_sr_bit sr325(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_address[1]), .sr_out(l325));
+	ym_sr_bit sr325(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_address[1]), .sr_out(sat_read_phase));
 	
-	ym_sr_bit sr326(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w179), .sr_out(l326));
+	ym_sr_bit sr326(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w179), .sr_out(sat_rd_pipe_0));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(11)) sr327(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in( { sat_size, sat_link } ), .data_out(l327));
+	ym_sr_bit_array #(.DATA_WIDTH(11)) sr327(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in( { sat_size, sat_link } ), .data_out(sat_attr_pipe));
 	
-	ym_dlatch_1 #(.DATA_WIDTH(11)) dl328(.MCLK(MCLK), .c1(hclk1), .inp(l327), .nval(l328));
+	ym_dlatch_1 #(.DATA_WIDTH(11)) dl328(.MCLK(MCLK), .c1(hclk1), .inp(sat_attr_pipe), .nval(sat_attr_hold));
 	
-	assign w651 = hclk1 & l326;
+	assign sat_field_latch_en = hclk1 & sat_rd_pipe_0;
 	
-	ym_sr_bit sr329(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l326), .sr_out(l329));
+	ym_sr_bit sr329(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_rd_pipe_0), .sr_out(sat_rd_pipe_1));
 	
-	ym_sr_bit sr330(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l329), .sr_out(l330));
+	ym_sr_bit sr330(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_rd_pipe_1), .sr_out(sat_rd_pipe_2));
 	
-	ym_sr_bit sr331(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l134), .sr_out(l331));
+	ym_sr_bit sr331(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l134), .sr_out(sat_rd_pipe_3));
 	
-	ym_slatch #(.DATA_WIDTH(11)) sl332(.MCLK(MCLK), .en(w652), .inp(l328), .val(l332));
+	ym_slatch #(.DATA_WIDTH(11)) sl332(.MCLK(MCLK), .en(sat_attr_latch_en), .inp(sat_attr_hold), .val(sat_attr_latch));
 	
-	ym_dlatch_1 dl333(.MCLK(MCLK), .c1(hclk1), .inp(w679), .nval(l333));
+	ym_dlatch_1 dl333(.MCLK(MCLK), .c1(hclk1), .inp(sat_active), .nval(sat_active_n));
 	
-	assign w652 = hclk2 & clk2 & l333;
+	assign sat_attr_latch_en = hclk2 & clk2 & sat_active_n;
 	
-	assign w653 = w355 + { 1'h0, interlace_dblres, w654, 5'h0, interlace_dblres, w654 };
+	assign spr_y_adjusted = w355 + { 1'h0, interlace_dblres, m5_single_res, 5'h0, interlace_dblres, m5_single_res };
 	
-	assign w654 = ~interlace_dblres & reg_m5;
+	assign m5_single_res = ~interlace_dblres & reg_m5;
 	
-	assign w655 = reg_m5 & l332[6:0] == 7'h7f;
+	assign sat_link_is_7f = reg_m5 & sat_attr_latch[6:0] == 7'h7f;
 	
-	assign w656 = reg_m5 & ~l332[8];
+	assign sat_ybit8_valid = reg_m5 & ~sat_attr_latch[8];
 	
-	assign w657 = reg_m5 ? ~l332[7] : reg_81_b1;
+	assign sat_y_sign = reg_m5 ? ~sat_attr_latch[7] : reg_81_b1;
 	
-	assign w658 = w676 & (w655 | w667);
+	assign sat_stop = sat_rd_window & (sat_link_is_7f | y_d0_terminate);
 	
-	assign w659 = ~(hclk1 & ~w679);
+	assign sat_clk_gate = ~(hclk1 & ~sat_active);
 	
-	ym_dlatch_1 dl334(.MCLK(MCLK), .c1(clk1), .inp(w659), .nval(l334));
+	ym_dlatch_1 dl334(.MCLK(MCLK), .c1(clk1), .inp(sat_clk_gate), .nval(sat_clk_latch));
 	
-	assign w660 = l334 & clk2;
+	assign sat_ypos_strobe_a = sat_clk_latch & clk2;
 	
-	ym_sr_bit sr335(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l334), .sr_out(l335));
+	ym_sr_bit sr335(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(sat_clk_latch), .sr_out(sat_clk_pipe));
 	
-	assign w661 = l335 & clk2;
+	assign sat_ypos_strobe_b = sat_clk_pipe & clk2;
 	
-	assign w662 = 10'h1 + w653 + l340;
+	assign y_delta = 10'h1 + spr_y_adjusted + y_cmp_val;
 	
-	ym_sr_bit sr336(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~l332[10]), .sr_out(l336));
+	ym_sr_bit sr336(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~sat_attr_latch[10]), .sr_out(sat_vs1_pipe));
 	
-	ym_sr_bit sr337(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~l332[9]), .sr_out(l337));
+	ym_sr_bit sr337(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~sat_attr_latch[9]), .sr_out(sat_vs0_pipe));
 	
-	ym_sr_bit sr338(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w656), .sr_out(l338));
+	ym_sr_bit sr338(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_ybit8_valid), .sr_out(sat_ybit8_pipe));
 	
-	ym_sr_bit sr339(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w657), .sr_out(l339));
+	ym_sr_bit sr339(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_y_sign), .sr_out(sat_ysign_pipe));
 	
-	assign w663 = ~(l338 | l339);
+	assign y_size_test_0 = ~(sat_ybit8_pipe | sat_ysign_pipe);
 	
-	assign w664 = l338 & ~l339;
+	assign y_size_test_1 = sat_ybit8_pipe & ~sat_ysign_pipe;
 	
-	assign w665 = w668 & w669 & w670 & w671
-		& w672 & l341[7] & l341[6] & ~w675 & l383;
+	assign spr_y_visible = y_range_bit_0 & y_range_bit_1 & y_range_bit_2 & y_range_bit_3
+		& y_range_bit_4 & y_delta_result[7] & y_delta_result[6] & ~y_size_adj_ext & l383;
 	
-	assign w666 = w677 ? { 2'h0, l342[7:0] } : l344;
+	assign sat_y_mux = m4_ypos_sel ? { 2'h0, sat_vram_serial[7:0] } : sat_ypos_hold;
 	
-	ym_dlatch_1 #(.DATA_WIDTH(10)) dl340(.MCLK(MCLK), .c1(hclk1), .inp(w666), .nval(l340));
+	ym_dlatch_1 #(.DATA_WIDTH(10)) dl340(.MCLK(MCLK), .c1(hclk1), .inp(sat_y_mux), .nval(y_cmp_val));
 	
-	ym_dlatch_2 #(.DATA_WIDTH(6)) dl341_1(.MCLK(MCLK), .c2(hclk2), .inp(w662[5:0]), .val(l341[5:0]));
-	ym_dlatch_2 #(.DATA_WIDTH(4)) dl341_2(.MCLK(MCLK), .c2(hclk2), .inp(w662[9:6]), .nval(l341[9:6]));
+	ym_dlatch_2 #(.DATA_WIDTH(6)) dl341_1(.MCLK(MCLK), .c2(hclk2), .inp(y_delta[5:0]), .val(y_delta_result[5:0]));
+	ym_dlatch_2 #(.DATA_WIDTH(4)) dl341_2(.MCLK(MCLK), .c2(hclk2), .inp(y_delta[9:6]), .nval(y_delta_result[9:6]));
 	
-	assign w667 = w666 == 10'd208 & ~reg_m5;
+	assign y_d0_terminate = sat_y_mux == 10'd208 & ~reg_m5;
 	
-	assign w668 = ~(w663 & w673);
+	assign y_range_bit_0 = ~(y_size_test_0 & y_size_adj_lo);
 	
-	assign w669 = ~(~l338 & w674);
+	assign y_range_bit_1 = ~(~sat_ybit8_pipe & y_size_adj_hi);
 	
-	assign w670 = ~(w664 & w673 & w674);
+	assign y_range_bit_2 = ~(y_size_test_1 & y_size_adj_lo & y_size_adj_hi);
 	
-	assign w671 = l341[9] | ~interlace_dblres;
+	assign y_range_bit_3 = y_delta_result[9] | ~interlace_dblres;
 	
-	assign w672 = l341[8] | ~reg_m5;
+	assign y_range_bit_4 = y_delta_result[8] | ~reg_m5;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl342(.MCLK(MCLK), .en(w661), .inp(vram_serial), .val(l342));
+	ym_slatch #(.DATA_WIDTH(8)) sl342(.MCLK(MCLK), .en(sat_ypos_strobe_b), .inp(vram_serial), .val(sat_vram_serial));
 	
-	ym_slatch #(.DATA_WIDTH(10)) sl343(.MCLK(MCLK), .en(w660), .inp(w680), .val(l343));
+	ym_slatch #(.DATA_WIDTH(10)) sl343(.MCLK(MCLK), .en(sat_ypos_strobe_a), .inp(sat_ypos_src), .val(sat_ypos_latch));
 	
-	ym_dlatch_2 #(.DATA_WIDTH(10)) dl344(.MCLK(MCLK), .c2(hclk2), .inp(l343), .nval(l344));
+	ym_dlatch_2 #(.DATA_WIDTH(10)) dl344(.MCLK(MCLK), .c2(hclk2), .inp(sat_ypos_latch), .nval(sat_ypos_hold));
 	
-	assign w673 = interlace_dblres ? l341[4] : l341[3];
+	assign y_size_adj_lo = interlace_dblres ? y_delta_result[4] : y_delta_result[3];
 	
-	assign w674 = interlace_dblres ? l341[5] : l341[4];
+	assign y_size_adj_hi = interlace_dblres ? y_delta_result[5] : y_delta_result[4];
 	
-	assign w675 = interlace_dblres ? 1'h0 : l341[5];
+	assign y_size_adj_ext = interlace_dblres ? 1'h0 : y_delta_result[5];
 	
-	assign w676 = reg_m5 ? w681 : w682;
+	assign sat_rd_window = reg_m5 ? sat_rd_win_m5 : sat_rd_win_m4;
 	
-	assign w677 = ~reg_m5 & l350;
+	assign m4_ypos_sel = ~reg_m5 & sat_start_pipe_3;
 	
-	assign w678 = l347 | l348 | l359;
+	assign sat_busy = sat_start_pipe_0 | sat_start_pipe_1 | sat_rd_pipe_5;
 	
-	assign w679 = ~(reg_m5 ? w678 : l348);
+	assign sat_active = ~(reg_m5 ? sat_busy : sat_start_pipe_1);
 	
-	ym_sr_bit_array #(.DATA_WIDTH(10)) sr345(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_ypos), .data_out(l345));
+	ym_sr_bit_array #(.DATA_WIDTH(10)) sr345(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_ypos), .data_out(sat_ypos_pipe_0));
 	
-	ym_dlatch_1 #(.DATA_WIDTH(10)) dl346(.MCLK(MCLK), .c1(hclk1), .inp(l345), .nval(l346));
+	ym_dlatch_1 #(.DATA_WIDTH(10)) dl346(.MCLK(MCLK), .c1(hclk1), .inp(sat_ypos_pipe_0), .nval(sat_ypos_pipe_1));
 	
-	assign w680 = reg_m5 ? l346 : { 2'h3, ~vram_serial };
+	assign sat_ypos_src = reg_m5 ? sat_ypos_pipe_1 : { 2'h3, ~vram_serial };
 	
-	ym_sr_bit sr347(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l357), .sr_out(l347));
+	ym_sr_bit sr347(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_start_latch), .sr_out(sat_start_pipe_0));
 	
-	ym_sr_bit sr348(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l347), .sr_out(l348));
+	ym_sr_bit sr348(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_start_pipe_0), .sr_out(sat_start_pipe_1));
 	
-	ym_sr_bit sr349(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l348), .sr_out(l349));
+	ym_sr_bit sr349(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_start_pipe_1), .sr_out(sat_start_pipe_2));
 	
-	ym_sr_bit sr350(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l349), .sr_out(l350));
+	ym_sr_bit sr350(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_start_pipe_2), .sr_out(sat_start_pipe_3));
 	
-	assign w681 = l348 | l349;
+	assign sat_rd_win_m5 = sat_start_pipe_1 | sat_start_pipe_2;
 	
-	assign w682 = l349 | l350;
+	assign sat_rd_win_m4 = sat_start_pipe_2 | sat_start_pipe_3;
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(7)) cnfield_bit_trig1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w684), .reset(l354), .load(w683), .load_val(sat_link), .val(l351));
+		.c_in(link_cnt_inc), .reset(link_cnt_rst), .load(link_cnt_load), .load_val(sat_link), .val(sat_link_cnt));
 	
-	assign w683 = reg_m5 & (l352 | l353);
+	assign link_cnt_load = reg_m5 & (link_ld_pipe | link_timing);
 	
-	ym_sr_bit sr352(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l353), .sr_out(l352));
+	ym_sr_bit sr352(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(link_timing), .sr_out(link_ld_pipe));
 	
-	assign w684 = ~reg_m5 & l353;
+	assign link_cnt_inc = ~reg_m5 & link_timing;
 	
-	ym_sr_bit sr353(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l147), .sr_out(l353));
+	ym_sr_bit sr353(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l147), .sr_out(link_timing));
 	
-	ym_sr_bit sr354(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w685), .sr_out(l354));
+	ym_sr_bit sr354(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(link_rst_comb), .sr_out(link_cnt_rst));
 	
-	assign w685 = reset_comb | l115 | (~l355 & l356);
+	assign link_rst_comb = reset_comb | l115 | (~link_rst_edge_0 & link_rst_edge_1);
 	
-	ym_sr_bit sr355(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l356), .sr_out(l355));
+	ym_sr_bit sr355(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(link_rst_edge_1), .sr_out(link_rst_edge_0));
 	
-	ym_sr_bit sr356(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w162), .sr_out(l356));
+	ym_sr_bit sr356(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w162), .sr_out(link_rst_edge_1));
 	
-	assign w686 = l147 & (vdisp_en_trig | l162);
+	assign sat_start_trig = l147 & (vdisp_en_trig | l162);
 	
-	ym_sr_bit sr357(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w686), .sr_out(l357));
+	ym_sr_bit sr357(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_start_trig), .sr_out(sat_start_latch));
 	
-	ym_sr_bit sr358(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l331), .sr_out(l358));
+	ym_sr_bit sr358(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_rd_pipe_3), .sr_out(sat_rd_pipe_4));
 	
-	ym_sr_bit sr359(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l358), .sr_out(l359));
+	ym_sr_bit sr359(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_rd_pipe_4), .sr_out(sat_rd_pipe_5));
 	
-	assign w687 = l364 & l360_1;
-	assign w688 = l363 & l360_1;
-	assign w689 = l363 & ~l360_1;
-	assign w690 = l364 & ~l360_1;
+	assign sat_wr_link = sat_wr_phase_b & sat_addr_bit1;
+	assign sat_wr_size = sat_wr_phase_a & sat_addr_bit1;
+	assign sat_wr_yhi = sat_wr_phase_a & ~sat_addr_bit1;
+	assign sat_wr_ylo = sat_wr_phase_b & ~sat_addr_bit1;
 	
-	assign w691 = reg_rs1 & vram_address[9];
+	assign sat_h40_bit = reg_rs1 & vram_address[9];
 	
-	ym_sr_bit sr360_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_address[1]), .sr_out(l360_1));
+	ym_sr_bit sr360_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_address[1]), .sr_out(sat_addr_bit1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(6)) sr360_83(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_address[8:3]), .data_out(l360_83));
+	ym_sr_bit_array #(.DATA_WIDTH(6)) sr360_83(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_address[8:3]), .data_out(sat_addr_mid));
 	
-	ym_sr_bit sr361(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w179), .sr_out(l361));
+	ym_sr_bit sr361(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w179), .sr_out(sat_addr_pipe_0));
 	
-	ym_sr_bit sr362(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w691), .sr_out(l362));
+	ym_sr_bit sr362(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_h40_bit), .sr_out(sat_addr_pipe_1));
 	
-	assign w692 = l358 | l363 | l364 | l361;
+	assign sat_wr_active = sat_rd_pipe_4 | sat_wr_phase_a | sat_wr_phase_b | sat_addr_pipe_0;
 	
-	assign w693 = w741 & w283;
-	assign w694 = w741 & w284;
+	assign sat_wr_trig_a = w741 & w283;
+	assign sat_wr_trig_b = w741 & w284;
 	
-	ym_sr_bit sr363(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w693), .sr_out(l363));
+	ym_sr_bit sr363(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_wr_trig_a), .sr_out(sat_wr_phase_a));
 	
-	ym_sr_bit sr364(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w694), .sr_out(l364));
+	ym_sr_bit sr364(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_wr_trig_b), .sr_out(sat_wr_phase_b));
 	
-	assign w695 = w692 ? { l362, l360_83 } : l351;
+	assign sat_index_mux = sat_wr_active ? { sat_addr_pipe_1, sat_addr_mid } : sat_link_cnt;
 	
-	assign w696 = reg_m5 ? l351 : { 1'h1, l365, l116 };
+	assign sat_link_idx = reg_m5 ? sat_link_cnt : { 1'h1, sat_link_delay, l116 };
 	
-	ym_sr_bit_array #(.DATA_WIDTH(5), .SR_LENGTH(2)) sr365(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l351[4:0]), .data_out(l365));
+	ym_sr_bit_array #(.DATA_WIDTH(5), .SR_LENGTH(2)) sr365(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_link_cnt[4:0]), .data_out(sat_link_delay));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr366(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[11:8]), .data_out(l366));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr366(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[11:8]), .data_out(sat_size_serial));
 	
 	assign w697 = reg_test0[12] ? reg_test_18[4:0] : l371;
 	
@@ -5168,21 +5168,21 @@ module ym7101
 	
 	assign w718 = hclk1 & l378 & clk1;
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl379(.MCLK(MCLK), .en(w718), .inp({l336, l337, l338, l339}), .val(l379));
+	ym_slatch #(.DATA_WIDTH(4)) sl379(.MCLK(MCLK), .en(w718), .inp({sat_vs1_pipe, sat_vs0_pipe, sat_ybit8_pipe, sat_ysign_pipe}), .val(l379));
 	
-	ym_slatch #(.DATA_WIDTH(6)) sl380(.MCLK(MCLK), .en(w718), .inp(l341[5:0]), .val(l380));
+	ym_slatch #(.DATA_WIDTH(6)) sl380(.MCLK(MCLK), .en(w718), .inp(y_delta_result[5:0]), .val(l380));
 	
-	assign w719 = w665 & w743;
+	assign w719 = spr_y_visible & w743;
 	
-	assign w720 = w665 & ~w743;
+	assign w720 = spr_y_visible & ~w743;
 	
 	assign w721 = l384 | l385;
 	
 	ym_sr_bit sr381(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l115), .sr_out(l381));
 	
-	ym7101_rs_trig rs40(.MCLK(MCLK), .set(w721), .rst(l381), .q(t40));
+	ym7101_rs_trig rs40(.MCLK(MCLK), .set(w721), .rst(l381), .q(spr_found_trig));
 	
-	ym7101_rs_trig rs41(.MCLK(MCLK), .set(l385), .rst(l381), .q(t41));
+	ym7101_rs_trig rs41(.MCLK(MCLK), .set(l385), .rst(l381), .q(spr_overflow_trig));
 	
 	assign w722 = l387[4] & (l379[1] | l379[0]);
 	
@@ -5198,9 +5198,9 @@ module ym7101
 	
 	ym_sr_bit sr383(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w727), .sr_out(l383));
 	
-	assign w727 = ~(t40 | ~w676);
+	assign w727 = ~(spr_found_trig | ~sat_rd_window);
 	
-	ym_sr_bit sr384(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w658), .sr_out(l384));
+	ym_sr_bit sr384(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_stop), .sr_out(l384));
 	
 	ym_sr_bit sr385(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w720), .sr_out(l385));
 	
@@ -5240,7 +5240,7 @@ module ym7101
 	
 	assign w738 = ~reg_test0[14] & w717;
 	
-	assign w739 = w94 ? io_data[3:0] : l341[3:0];
+	assign w739 = w94 ? io_data[3:0] : y_delta_result[3:0];
 	
 	ym_slatch sl_86_b2(.MCLK(MCLK), .en(reg_wr_89), .inp(reg_data_l2[2]), .val(reg_86_b2));
 	
@@ -5287,7 +5287,7 @@ module ym7101
 	
 	assign w750 = reg_m5 ? w417 : l397;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(7)) sr398(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w696), .data_out(l398));
+	ym_sr_bit_array #(.DATA_WIDTH(7)) sr398(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_link_idx), .data_out(l398));
 	
 	ym_sr_bit_array #(.DATA_WIDTH(7)) sr399(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l398), .data_out(l399));
 	
@@ -5376,9 +5376,9 @@ module ym7101
 	
 	ym_sr_bit sr422(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l421), .sr_out(l422));
 	
-	ym7101_rs_trig rs42(.MCLK(MCLK), .set(l372), .rst(l369), .q(t42));
+	ym7101_rs_trig rs42(.MCLK(MCLK), .set(l372), .rst(l369), .q(spr_render_active));
 	
-	ym_sr_bit sr423(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(t42), .sr_out(l423));
+	ym_sr_bit sr423(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_render_active), .sr_out(l423));
 	
 	assign w773 = l423 & l511 & w714;
 	
@@ -6113,7 +6113,7 @@ module ym7101
 	
 	assign w1020 = w926 | w927 | w928 | w929 | w930 | w931 | w932 | w933;
 	
-	assign w1154 = t41 & l115;
+	assign w1154 = spr_overflow_trig & l115;
 	
 	// -------------------------------------------------------------------------
 	// SAT cache (Sprite Attribute Table)
@@ -6122,13 +6122,13 @@ module ym7101
 	// VRAM during vertical blanking. Each entry stores Y-position (10 bits),
 	// size (4 bits), and link (7 bits).
 
-	wire [6:0] sat_index = w695;
+	wire [6:0] sat_index = sat_index_mux;
 	
 	wire [20:0] sat_data_in;
 	
 	assign sat_data_in[6:0] = l104[6:0];
-	assign sat_data_in[10:7] = l366;
-	assign sat_data_in[20:11] = { l366[1:0], l104 };
+	assign sat_data_in[10:7] = sat_size_serial;
+	assign sat_data_in[20:11] = { sat_size_serial[1:0], l104 };
 	
 	assign sat_link = sat_out[6:0];
 	assign sat_size = sat_out[10:7];
@@ -6140,13 +6140,13 @@ module ym7101
 		begin
 			if (hclk1) // write cycle
 			begin
-				if (w687)
+				if (sat_wr_link)
 					sat[sat_index][6:0] <= sat_data_in[6:0];
-				if (w688)
+				if (sat_wr_size)
 					sat[sat_index][10:7] <= sat_data_in[10:7];
-				if (w689)
+				if (sat_wr_yhi)
 					sat[sat_index][20:19] <= sat_data_in[20:19];
-				if (w690)
+				if (sat_wr_ylo)
 					sat[sat_index][18:11] <= sat_data_in[18:11];
 			end
 			sat_out <= sat[sat_index];
@@ -7175,7 +7175,7 @@ module ym7101
 		(w329 ? { l100, w353 } : 16'hffff) &
 		(w326 ? { l102, w354 } : 16'hffff) &
 		(l183 ? { 5'h1f, l180 } : 16'hffff) &
-		(l330 ? { 5'h1f, l324 } : 16'hffff) &
+		(sat_rd_pipe_2 ? { 5'h1f, sat_field_latch } : 16'hffff) &
 		(l583 ? { l598, l599 } : 16'hffff) &
 		(l623_3 ? { 4'hf, l621[8:6], 1'h1, l621[5:3], 1'h1, l621[2:0], 1'h1 } : 16'hffff);
 		
@@ -7185,7 +7185,7 @@ module ym7101
 		(w329 ? 16'hffff : 16'h0) |
 		(w326 ? 16'hffff : 16'h0) |
 		(l183 ? 16'h07ff : 16'h0) |
-		(l330 ? 16'h07ff : 16'h0) |
+		(sat_rd_pipe_2 ? 16'h07ff : 16'h0) |
 		(l583 ? 16'hffff : 16'h0) |
 		(l623_3 ? 16'heee : 16'h0);
 	
@@ -7205,7 +7205,7 @@ module ym7101
 		(l199 ? { 3'h7, w578, 5'h1f } : 17'h1ffff) &
 		(w566 ? { w579, 14'h3fff } : 17'h1ffff) &
 		(l218 ? { w580, 5'h1f } : 17'h1ffff) &
-		(w684 ? { 9'h1ff, 2'h0, l351[4:0], 1'h0 } : 17'h1ffff) &
+		(link_cnt_inc ? { 9'h1ff, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h1ffff) &
 		(w742 ? { 3'h7, reg_86_b2, w731[7:1], w737, w735, w734, w733, ~hcnt[1], 1'h0 } : 17'h1ffff) &
 		(w754 ? { 3'h7, reg_at[6:1], 8'hff} : 17'h1ffff) &
 		(w756 ? { reg_at[7:1], w757[6:0], 3'h4 } : 17'h1ffff) &
@@ -7229,7 +7229,7 @@ module ym7101
 		(l199 ? 17'h03fe0 : 17'h0) |
 		(w566 ? 17'h1c000 : 17'h0) |
 		(l218 ? 17'h1ffe0 : 17'h0) |
-		(w684 ? 17'h000ff : 17'h0) |
+		(link_cnt_inc ? 17'h000ff : 17'h0) |
 		(w742 ? 17'h03fff : 17'h0) |
 		(w754 ? 17'h03f00 : 17'h0) |
 		(w756 ? 17'h1ffff : 17'h0) |
@@ -7242,7 +7242,7 @@ module ym7101
 		(w329 ? { l100, w353 } : 16'h0) |
 		(w326 ? { l102, w354 } : 16'h0) |
 		(l183 ? { 5'h0, l180 } : 16'h0) |
-		(l330 ? { 5'h0, l324 } : 16'h0) |
+		(sat_rd_pipe_2 ? { 5'h0, sat_field_latch } : 16'h0) |
 		(l583 ? { l598, l599 } : 16'h0) |
 		(l623_3 ? { 4'h0, l621[8:6], 1'h0, l621[5:3], 1'h0, l621[2:0], 1'h0 } : 16'h0);*/
 		
@@ -7262,7 +7262,7 @@ module ym7101
 		(l199 ? { 3'h0, w578, 5'h0 } : 17'h0) |
 		(w566 ? { w579, 14'h0 } : 17'h0) |
 		(l218 ? { w580, 5'h0 } : 17'h0) |
-		(w684 ? { 9'h0, 2'h0, l351[4:0], 1'h0 } : 17'h0) |
+		(link_cnt_inc ? { 9'h0, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h0) |
 		(w742 ? { 3'h0, reg_86_b2, w731[7:1], w737, w735, w734, w733, ~hcnt[1], 1'h0 } : 17'h0) |
 		(w754 ? { 3'h0, reg_at[6:1], 8'h0} : 17'h0) |
 		(w756 ? { reg_at[7:1], w757[6:0], 3'h4 } : 17'h0) |
