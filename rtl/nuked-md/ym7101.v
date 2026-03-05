@@ -1432,135 +1432,135 @@ module ym7101
 	wire [3:0] sat_size; // sprite size {HS1, HS0, VS1, VS0}
 	wire [9:0] sat_ypos; // sprite Y position
 	wire [3:0] sat_size_serial;
-	wire [4:0] w697;
-	wire l367;
-	wire w698;
-	wire l368;
-	wire l369;
-	wire l370;
-	wire w699;
-	wire w700;
-	wire [4:0] l371;
-	wire l372;
-	wire w701;
-	wire l373;
-	wire w702;
-	wire w703;
-	wire w704;
-	wire w705;
-	wire w706;
-	wire w707;
-	wire w708;
-	wire w709;
-	wire w710;
-	wire w711;
-	wire w712;
-	wire w713;
-	wire l374;
-	wire l375;
-	wire l376;
-	wire w714;
-	wire w715;
-	wire w716;
-	wire l377;
-	wire w717;
-	wire l378;
-	wire w718;
-	wire [3:0] l379;
-	wire [5:0] l380;
-	wire w719;
-	wire w720;
-	wire w721;
-	wire l381;
+	wire [4:0] sprdata_wr_idx;
+	wire tile_done_pipe;
+	wire spr_cnt_full_det;
+	wire spr_cnt_full_pipe;
+	wire spr_render_end_pipe;
+	wire spr_idle_pipe;
+	wire spr_render_end;
+	wire spr_idle;
+	wire [4:0] tile_offset_cnt;
+	wire hblank_pipe;
+	wire tile_cnt_rst_comb;
+	wire tile_cnt_rst;
+	wire tile_cnt_en;
+	wire tile_cnt_inc;
+	wire tile_cnt_dec;
+	wire test_sel_ne2;
+	wire test_sel_ne1;
+	wire test_sel_ne0;
+	wire test_wr_attr;
+	wire sprdata_wr_attr;
+	wire test_wr_hpos;
+	wire test_wr_pat;
+	wire sprdata_wr_pat;
+	wire sprdata_wr_norm;
+	wire render_wr_pipe_0;
+	wire render_wr_pipe_1;
+	wire spr_limit_m4_pipe;
+	wire spr_limit_m4_n;
+	wire sprdata_wr_hpos;
+	wire render_trig_comb;
+	wire render_trig_pipe;
+	wire spr_found_any;
+	wire spr_found_pipe;
+	wire spr_attr_latch_en;
+	wire [3:0] spr_size_latch;
+	wire [5:0] spr_yoff_latch;
+	wire spr_found_full;
+	wire spr_found_avail;
+	wire spr_stop_or_ovfl;
+	wire line_start_pipe;
 	wire spr_found_trig;
 	wire spr_overflow_trig;
-	wire w722;
-	wire w723;
-	wire w724;
-	wire [1:0] w725;
-	wire [1:0] w726;
-	wire l382;
-	wire l383;
-	wire w727;
-	wire l384;
-	wire l385;
-	wire [3:0] w728;
-	wire [2:0] w729;
-	wire [1:0] w730;
+	wire yoff_carry_0;
+	wire yoff_carry_1;
+	wire yoff_carry_2;
+	wire [1:0] yoff_size_hi;
+	wire [1:0] yoff_add_hi;
+	wire render_active_pipe;
+	wire sat_avail_pipe;
+	wire sat_avail_n;
+	wire sat_stop_pipe;
+	wire spr_overflow_pipe;
+	wire [3:0] yoff_flip_lo;
+	wire [2:0] yoff_final_hi;
+	wire [1:0] yoff_xor_mid;
 	wire [5:0] yoff; // sprite Y offset into current tile row
-	wire [7:0] l386;
-	wire [7:0] l387;
-	wire [7:0] w731;
-	wire w732;
-	wire [9:0] l388;
-	wire [9:0] l389;
-	wire [9:0] l390;
-	wire [9:0] l391;
-	wire w733;
-	wire w734;
-	wire w735;
-	wire w736;
-	wire w737;
-	wire w738;
-	wire [3:0] w739;
+	wire [7:0] vram_attr_lo;
+	wire [7:0] vram_attr_hi;
+	wire [7:0] vram_attr_sel;
+	wire spr_cnt_shift_en;
+	wire [9:0] spr_cnt_sr_0;
+	wire [9:0] spr_cnt_sr_1;
+	wire [9:0] spr_cnt_sr_2;
+	wire [9:0] spr_cnt_sr_3;
+	wire spr_cnt_bit_0;
+	wire spr_cnt_bit_1;
+	wire spr_cnt_bit_2;
+	wire spr_cnt_bit_3;
+	wire spr_cnt_m4_bit;
+	wire spr_cnt_wr_en;
+	wire [3:0] spr_cnt_data;
 	wire reg_86_b2;
 	wire reg_86_b5;
 	wire [7:0] reg_at;
-	wire w740;
-	wire w741;
-	wire w742;
-	wire w743;
-	wire l392;
-	wire w744;
-	wire w745;
-	wire w746;
-	wire l393;
-	wire l394;
-	wire w747;
-	wire w748;
-	wire l395;
-	wire w749;
-	wire l396;
-	wire l397;
-	wire w750;
-	wire [6:0] l398;
-	wire [6:0] l399;
-	wire [6:0] l400;
-	wire w751;
-	wire l401;
-	wire l402;
-	wire [6:0] w752;
-	wire w753;
-	wire [19:0] l403;
-	wire [19:0] l404;
-	wire [19:0] l405;
-	wire [19:0] l406;
-	wire [19:0] l407;
-	wire [19:0] l408;
-	wire [19:0] l409;
-	wire [19:0] l410;
-	wire l411;
-	wire l412;
-	wire w754;
-	wire w755;
-	wire w756;
-	wire [6:0] w757;
-	wire w758;
-	wire w759;
-	wire w760;
-	wire [1:0] w761;
-	wire w763;
-	wire [1:0] w764;
-	wire [1:0] w766;
-	wire [5:0] w768;
-	wire w769;
-	wire [10:0] w770;
-	wire l413;
-	wire [1:0] l414;
-	wire l415;
-	wire [1:0] l416;
-	wire [1:0] l417;
-	wire [5:0] l418;
+	wire sat_addr_match;
+	wire sat_wr_match;
+	wire m4_attr_phase;
+	wire spr_count_limit;
+	wire vram_strobe_pipe_0;
+	wire vram_strobe_0;
+	wire vram_strobe_1;
+	wire vram_strobe_2;
+	wire vram_strobe_pipe_1;
+	wire vram_strobe_lat_0;
+	wire vram_gate_0;
+	wire vram_gate_1;
+	wire vram_strobe_lat_1;
+	wire vram_strobe_3;
+	wire fetch_active_pipe;
+	wire fetch_delay_pipe;
+	wire fetch_active_sel;
+	wire [6:0] sat_idx_pipe_0;
+	wire [6:0] sat_idx_pipe_1;
+	wire [6:0] sat_idx_pipe_2;
+	wire attr_phase_any;
+	wire attr_phase_0;
+	wire attr_phase_1;
+	wire [6:0] spridx_data_mux;
+	wire spridx_ovfl_mux;
+	wire [19:0] spridx_sr_0;
+	wire [19:0] spridx_sr_1;
+	wire [19:0] spridx_sr_2;
+	wire [19:0] spridx_sr_3;
+	wire [19:0] spridx_sr_4;
+	wire [19:0] spridx_sr_5;
+	wire [19:0] spridx_sr_6;
+	wire [19:0] spridx_sr_active;
+	wire fetch_timing_0;
+	wire fetch_timing_1;
+	wire m4_fetch_active;
+	wire m4_fetch_phase;
+	wire m5_fetch_phase;
+	wire [6:0] spridx_readback;
+	wire sprdata_in_hflip;
+	wire sprdata_test_sel;
+	wire sprdata_norm_sel;
+	wire [1:0] sprdata_in_pal;
+	wire sprdata_in_pri;
+	wire [1:0] sprdata_in_xs;
+	wire [1:0] sprdata_in_ys;
+	wire [5:0] sprdata_in_yoff;
+	wire sprdata_rd_strobe;
+	wire [10:0] sprdata_test_mux;
+	wire spr_rd_hflip;
+	wire [1:0] spr_rd_pal;
+	wire spr_rd_pri;
+	wire [1:0] spr_rd_xs;
+	wire [1:0] spr_rd_ys;
+	wire [5:0] spr_rd_yoff;
 	// Sprite render data outputs (read from sprdata[] buffer)
 	wire [10:0] sprdata_pattern_o; // tile pattern index
 	wire [8:0] sprdata_hpos_o;     // X position on screen
@@ -1570,42 +1570,42 @@ module ym7101
 	wire [1:0] sprdata_xs_o;       // horizontal size (tiles)
 	wire [1:0] sprdata_ys_o;       // vertical size (tiles)
 	wire [5:0] sprdata_yoffset_o;  // Y offset within sprite
-	wire l419;
-	wire [1:0] l420;
-	wire w771;
-	wire w772;
-	wire l421;
-	wire l422;
+	wire tile_fetch_pipe;
+	wire [1:0] xtile_cnt;
+	wire xtile_cnt_zero;
+	wire xtile_done;
+	wire spr_line_cnt;
+	wire spr_line_cnt_pipe;
 	wire spr_render_active;
-	wire l423;
-	wire w773;
-	wire [10:0] w774;
-	wire [10:0] l424;
-	wire [8:0] w775;
-	wire [8:0] l425;
-	wire l426;
-	wire w776;
-	wire w777;
-	wire l427; // nc
-	wire [3:0] w778;
-	wire [3:0] w779;
-	wire [10:0] w780;
-	wire l428;
-	wire w781;
-	wire w782;
-	wire l429;
-	wire l430;
-	wire w783;
-	wire l431;
-	wire w784;
-	wire l432;
-	wire l433;
-	wire [1:0] w785;
-	wire [3:0] w786;
-	wire [3:0] w787;
-	wire [3:0] l434;
-	wire [7:0] l435;
-	wire [7:0] l436;
+	wire spr_render_pipe;
+	wire tile_data_valid;
+	wire [10:0] sprdata_in_pat;
+	wire [10:0] spr_rd_pattern;
+	wire [8:0] sprdata_in_hpos;
+	wire [8:0] spr_rd_hpos;
+	wire sprdata_wr_ready;
+	wire sprdata_ready_comb;
+	wire tile_start_comb;
+	wire tile_start_pipe; // nc
+	wire [3:0] yoff_size_sel;
+	wire [3:0] yoff_size_add;
+	wire [10:0] pattern_addr;
+	wire m5_fetch_pipe;
+	wire m5_fetch_comb;
+	wire spr_hpos_nonzero;
+	wire spr_hpos_valid;
+	wire fetch_done_pipe;
+	wire yoff_rst_comb;
+	wire fetch_pipe_0;
+	wire tile_row_done;
+	wire yoff_rst_latch;
+	wire yoff_active;
+	wire [1:0] yoff_ys_mux;
+	wire [3:0] yoff_accum;
+	wire [3:0] yoff_add_val;
+	wire [3:0] yoff_accum_pipe;
+	wire [7:0] vram_serial_a;
+	wire [7:0] vram_serial_b;
 	wire [7:0] l437;
 	wire [7:0] w788;
 	wire l438;
@@ -4984,7 +4984,7 @@ module ym7101
 	assign y_size_test_1 = sat_ybit8_pipe & ~sat_ysign_pipe;
 	
 	assign spr_y_visible = y_range_bit_0 & y_range_bit_1 & y_range_bit_2 & y_range_bit_3
-		& y_range_bit_4 & y_delta_result[7] & y_delta_result[6] & ~y_size_adj_ext & l383;
+		& y_range_bit_4 & y_delta_result[7] & y_delta_result[6] & ~y_size_adj_ext & sat_avail_pipe;
 	
 	assign sat_y_mux = m4_ypos_sel ? { 2'h0, sat_vram_serial[7:0] } : sat_ypos_hold;
 	
@@ -5087,8 +5087,8 @@ module ym7101
 	
 	assign sat_wr_active = sat_rd_pipe_4 | sat_wr_phase_a | sat_wr_phase_b | sat_addr_pipe_0;
 	
-	assign sat_wr_trig_a = w741 & w283;
-	assign sat_wr_trig_b = w741 & w284;
+	assign sat_wr_trig_a = sat_wr_match & w283;
+	assign sat_wr_trig_b = sat_wr_match & w284;
 	
 	ym_sr_bit sr363(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_wr_trig_a), .sr_out(sat_wr_phase_a));
 	
@@ -5102,145 +5102,145 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(4)) sr366(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[11:8]), .data_out(sat_size_serial));
 	
-	assign w697 = reg_test0[12] ? reg_test_18[4:0] : l371;
+	assign sprdata_wr_idx = reg_test0[12] ? reg_test_18[4:0] : tile_offset_cnt;
 	
-	ym_sr_bit sr367(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w784), .sr_out(l367));
+	ym_sr_bit sr367(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(tile_row_done), .sr_out(tile_done_pipe));
 	
-	assign w698 = l367 & l371[4] & l371[2];
+	assign spr_cnt_full_det = tile_done_pipe & tile_offset_cnt[4] & tile_offset_cnt[2];
 	
-	ym_sr_bit sr368(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w698), .sr_out(l368));
+	ym_sr_bit sr368(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_cnt_full_det), .sr_out(spr_cnt_full_pipe));
 	
-	ym_sr_bit sr369(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w699), .sr_out(l369));
+	ym_sr_bit sr369(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_render_end), .sr_out(spr_render_end_pipe));
 	
-	ym_sr_bit sr370(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w700), .sr_out(l370));
+	ym_sr_bit sr370(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_idle), .sr_out(spr_idle_pipe));
 	
-	assign w699 = reg_m5 & l370 & ~w700;
+	assign spr_render_end = reg_m5 & spr_idle_pipe & ~spr_idle;
 	
-	assign w700 = ~(l368 | l429);
+	assign spr_idle = ~(spr_cnt_full_pipe | spr_hpos_valid);
 	
-	ym_cnt_bit_rev #(.DATA_WIDTH(5)) cnt371(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .c_in(w703), .dec(w704), .reset(l373), .val(l371));
+	ym_cnt_bit_rev #(.DATA_WIDTH(5)) cnt371(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .c_in(tile_cnt_inc), .dec(tile_cnt_dec), .reset(tile_cnt_rst), .val(tile_offset_cnt));
 	
-	ym_sr_bit sr372(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w360), .sr_out(l372));
+	ym_sr_bit sr372(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w360), .sr_out(hblank_pipe));
 	
-	assign w701 = w360 | l110;
+	assign tile_cnt_rst_comb = w360 | l110;
 	
-	ym_sr_bit sr373(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w701), .sr_out(l373));
+	ym_sr_bit sr373(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(tile_cnt_rst_comb), .sr_out(tile_cnt_rst));
 	
-	assign w702 = ~reg_m5 | l375 | w784;
+	assign tile_cnt_en = ~reg_m5 | render_wr_pipe_1 | tile_row_done;
 	
-	assign w703 = w702 & ~1'h0;
+	assign tile_cnt_inc = tile_cnt_en & ~1'h0;
 	
-	assign w704 = w702 & 1'h0;
+	assign tile_cnt_dec = tile_cnt_en & 1'h0;
 	
-	assign w705 = reg_test_18[6:5] != 2'h2;
-	assign w706 = reg_test_18[6:5] != 2'h1;
-	assign w707 = reg_test_18[6:5] != 2'h0;
+	assign test_sel_ne2 = reg_test_18[6:5] != 2'h2;
+	assign test_sel_ne1 = reg_test_18[6:5] != 2'h1;
+	assign test_sel_ne0 = reg_test_18[6:5] != 2'h0;
 	
-	assign w708 = w96 & reg_test_18[6] & ~reg_test_18[5];
+	assign test_wr_attr = w96 & reg_test_18[6] & ~reg_test_18[5];
 	
-	assign w709 = w708 | w713;
+	assign sprdata_wr_attr = test_wr_attr | sprdata_wr_norm;
 	
-	assign w710 = w96 & ~reg_test_18[6] & reg_test_18[5];
+	assign test_wr_hpos = w96 & ~reg_test_18[6] & reg_test_18[5];
 	
-	assign w711 = w96 & ~reg_test_18[6] & ~reg_test_18[5];
+	assign test_wr_pat = w96 & ~reg_test_18[6] & ~reg_test_18[5];
 	
-	assign w712 = w711 | w713;
+	assign sprdata_wr_pat = test_wr_pat | sprdata_wr_norm;
 	
-	assign w713 = l374 & ~reg_test0[12];
+	assign sprdata_wr_norm = render_wr_pipe_0 & ~reg_test0[12];
 	
-	ym_sr_bit sr374(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l377), .sr_out(l374));
+	ym_sr_bit sr374(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(render_trig_pipe), .sr_out(render_wr_pipe_0));
 	
-	ym_sr_bit sr375(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l374), .sr_out(l375));
+	ym_sr_bit sr375(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(render_wr_pipe_0), .sr_out(render_wr_pipe_1));
 	
-	ym_sr_bit #(.SR_LENGTH(10)) sr376(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w743), .sr_out(l376));
+	ym_sr_bit #(.SR_LENGTH(10)) sr376(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_count_limit), .sr_out(spr_limit_m4_pipe));
 	
-	assign w714 = ~(l376 & ~reg_m5);
+	assign spr_limit_m4_n = ~(spr_limit_m4_pipe & ~reg_m5);
 	
-	assign w715 = w710 | w713 | ~l426;
+	assign sprdata_wr_hpos = test_wr_hpos | sprdata_wr_norm | ~sprdata_wr_ready;
 	
-	assign w716 = ~w743 & l396;
+	assign render_trig_comb = ~spr_count_limit & fetch_active_pipe;
 	
-	ym_sr_bit sr377(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w716), .sr_out(l377));
+	ym_sr_bit sr377(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(render_trig_comb), .sr_out(render_trig_pipe));
 	
-	assign w717 = w719 | l382;
+	assign spr_found_any = spr_found_full | render_active_pipe;
 	
-	ym_sr_bit sr378(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l382), .sr_out(l378));
+	ym_sr_bit sr378(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(render_active_pipe), .sr_out(spr_found_pipe));
 	
-	assign w718 = hclk1 & l378 & clk1;
+	assign spr_attr_latch_en = hclk1 & spr_found_pipe & clk1;
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl379(.MCLK(MCLK), .en(w718), .inp({sat_vs1_pipe, sat_vs0_pipe, sat_ybit8_pipe, sat_ysign_pipe}), .val(l379));
+	ym_slatch #(.DATA_WIDTH(4)) sl379(.MCLK(MCLK), .en(spr_attr_latch_en), .inp({sat_vs1_pipe, sat_vs0_pipe, sat_ybit8_pipe, sat_ysign_pipe}), .val(spr_size_latch));
 	
-	ym_slatch #(.DATA_WIDTH(6)) sl380(.MCLK(MCLK), .en(w718), .inp(y_delta_result[5:0]), .val(l380));
+	ym_slatch #(.DATA_WIDTH(6)) sl380(.MCLK(MCLK), .en(spr_attr_latch_en), .inp(y_delta_result[5:0]), .val(spr_yoff_latch));
 	
-	assign w719 = spr_y_visible & w743;
+	assign spr_found_full = spr_y_visible & spr_count_limit;
 	
-	assign w720 = spr_y_visible & ~w743;
+	assign spr_found_avail = spr_y_visible & ~spr_count_limit;
 	
-	assign w721 = l384 | l385;
+	assign spr_stop_or_ovfl = sat_stop_pipe | spr_overflow_pipe;
 	
-	ym_sr_bit sr381(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l115), .sr_out(l381));
+	ym_sr_bit sr381(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l115), .sr_out(line_start_pipe));
 	
-	ym7101_rs_trig rs40(.MCLK(MCLK), .set(w721), .rst(l381), .q(spr_found_trig));
+	ym7101_rs_trig rs40(.MCLK(MCLK), .set(spr_stop_or_ovfl), .rst(line_start_pipe), .q(spr_found_trig));
 	
-	ym7101_rs_trig rs41(.MCLK(MCLK), .set(l385), .rst(l381), .q(spr_overflow_trig));
+	ym7101_rs_trig rs41(.MCLK(MCLK), .set(spr_overflow_pipe), .rst(line_start_pipe), .q(spr_overflow_trig));
 	
-	assign w722 = l387[4] & (l379[1] | l379[0]);
+	assign yoff_carry_0 = vram_attr_hi[4] & (spr_size_latch[1] | spr_size_latch[0]);
 	
-	assign w723 = l387[4] & l379[1] & ~l379[0];
+	assign yoff_carry_1 = vram_attr_hi[4] & spr_size_latch[1] & ~spr_size_latch[0];
 	
-	assign w724 = l387[4] & l379[1];
+	assign yoff_carry_2 = vram_attr_hi[4] & spr_size_latch[1];
 	
-	assign w725 = interlace_dblres ? l380[5:4] : l380[4:3];
+	assign yoff_size_hi = interlace_dblres ? spr_yoff_latch[5:4] : spr_yoff_latch[4:3];
 	
-	assign w726 = w725 + {1'h0, w723};
+	assign yoff_add_hi = yoff_size_hi + {1'h0, yoff_carry_1};
 	
-	ym_sr_bit sr382(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w418), .sr_out(l382));
+	ym_sr_bit sr382(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w418), .sr_out(render_active_pipe));
 	
-	ym_sr_bit sr383(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w727), .sr_out(l383));
+	ym_sr_bit sr383(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_avail_n), .sr_out(sat_avail_pipe));
 	
-	assign w727 = ~(spr_found_trig | ~sat_rd_window);
+	assign sat_avail_n = ~(spr_found_trig | ~sat_rd_window);
 	
-	ym_sr_bit sr384(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_stop), .sr_out(l384));
+	ym_sr_bit sr384(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_stop), .sr_out(sat_stop_pipe));
 	
-	ym_sr_bit sr385(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w720), .sr_out(l385));
+	ym_sr_bit sr385(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_found_avail), .sr_out(spr_overflow_pipe));
 	
-	assign w728 = l387[4] ? ~l380[3:0] : l380[3:0];
+	assign yoff_flip_lo = vram_attr_hi[4] ? ~spr_yoff_latch[3:0] : spr_yoff_latch[3:0];
 	
-	assign w729 = interlace_dblres ? { w730, w728[3] } : { l380[5], w730 };
+	assign yoff_final_hi = interlace_dblres ? { yoff_xor_mid, yoff_flip_lo[3] } : { spr_yoff_latch[5], yoff_xor_mid };
 	
-	assign w730 = w726 ^ { w724, w722 };
+	assign yoff_xor_mid = yoff_add_hi ^ { yoff_carry_2, yoff_carry_0 };
 	
-	assign yoff = { w729, w728[2:0] };
+	assign yoff = { yoff_final_hi, yoff_flip_lo[2:0] };
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl386(.MCLK(MCLK), .en(w745), .inp(vram_serial), .val(l386));
+	ym_slatch #(.DATA_WIDTH(8)) sl386(.MCLK(MCLK), .en(vram_strobe_1), .inp(vram_serial), .val(vram_attr_lo));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl387(.MCLK(MCLK), .en(w746), .inp(vram_serial), .val(l387));
+	ym_slatch #(.DATA_WIDTH(8)) sl387(.MCLK(MCLK), .en(vram_strobe_2), .inp(vram_serial), .val(vram_attr_hi));
 	
-	assign w731 = l401 ? l387 : l386;
+	assign vram_attr_sel = attr_phase_0 ? vram_attr_hi : vram_attr_lo;
 	
-	assign w732 = w738 | w94 | w95;
+	assign spr_cnt_shift_en = spr_cnt_wr_en | w94 | w95;
 	
-	ym_sr_bit_en #(.SR_LENGTH(10)) sr388(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w739[0]), .data_out(l388));
+	ym_sr_bit_en #(.SR_LENGTH(10)) sr388(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spr_cnt_data[0]), .data_out(spr_cnt_sr_0));
 	
-	ym_sr_bit_en #(.SR_LENGTH(10)) sr389(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w739[1]), .data_out(l389));
+	ym_sr_bit_en #(.SR_LENGTH(10)) sr389(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spr_cnt_data[1]), .data_out(spr_cnt_sr_1));
 	
-	ym_sr_bit_en #(.SR_LENGTH(10)) sr390(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w739[2]), .data_out(l390));
+	ym_sr_bit_en #(.SR_LENGTH(10)) sr390(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spr_cnt_data[2]), .data_out(spr_cnt_sr_2));
 	
-	ym_sr_bit_en #(.SR_LENGTH(10)) sr391(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w739[3]), .data_out(l391));
+	ym_sr_bit_en #(.SR_LENGTH(10)) sr391(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spr_cnt_data[3]), .data_out(spr_cnt_sr_3));
 	
-	assign w733 = l401 ? l388[9] : l388[8];
+	assign spr_cnt_bit_0 = attr_phase_0 ? spr_cnt_sr_0[9] : spr_cnt_sr_0[8];
 	
-	assign w734 = l401 ? l389[9] : l389[8];
+	assign spr_cnt_bit_1 = attr_phase_0 ? spr_cnt_sr_1[9] : spr_cnt_sr_1[8];
 	
-	assign w735 = l401 ? l390[9] : l390[8];
+	assign spr_cnt_bit_2 = attr_phase_0 ? spr_cnt_sr_2[9] : spr_cnt_sr_2[8];
 	
-	assign w736 = l401 ? l391[9] : l391[8];
+	assign spr_cnt_bit_3 = attr_phase_0 ? spr_cnt_sr_3[9] : spr_cnt_sr_3[8];
 	
-	assign w737 = reg_81_b1 ? w736 : w731[0];
+	assign spr_cnt_m4_bit = reg_81_b1 ? spr_cnt_bit_3 : vram_attr_sel[0];
 	
-	assign w738 = ~reg_test0[14] & w717;
+	assign spr_cnt_wr_en = ~reg_test0[14] & spr_found_any;
 	
-	assign w739 = w94 ? io_data[3:0] : y_delta_result[3:0];
+	assign spr_cnt_data = w94 ? io_data[3:0] : y_delta_result[3:0];
 	
 	ym_slatch sl_86_b2(.MCLK(MCLK), .en(reg_wr_89), .inp(reg_data_l2[2]), .val(reg_86_b2));
 	
@@ -5251,214 +5251,214 @@ module ym7101
 	wire [7:0] spr_at_1 = reg_at | { 7'h0, reg_rs1 };
 	wire [7:0] spr_at_2 = vram_address[16:9] | { 7'h0, reg_rs1 };
 	
-	assign w740 = spr_at_1 == spr_at_2;
+	assign sat_addr_match = spr_at_1 == spr_at_2;
 	
-	assign w741 = w740 & ~vram_address[2] & reg_m5;
+	assign sat_wr_match = sat_addr_match & ~vram_address[2] & reg_m5;
 	
-	assign w742 = ~reg_m5 & w751;
+	assign m4_attr_phase = ~reg_m5 & attr_phase_any;
 	
-	assign w743 = (reg_m5 & reg_rs1 & l410[19])
-		| (reg_m5 & ~reg_rs1 & l410[15])
-		| (~reg_m5 & l410[7]);
+	assign spr_count_limit = (reg_m5 & reg_rs1 & spridx_sr_active[19])
+		| (reg_m5 & ~reg_rs1 & spridx_sr_active[15])
+		| (~reg_m5 & spridx_sr_active[7]);
 	
-	ym_sr_bit sr392(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l394), .sr_out(l392));
+	ym_sr_bit sr392(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(vram_strobe_lat_0), .sr_out(vram_strobe_pipe_0));
 	
-	assign w744 = l394 & clk2;
+	assign vram_strobe_0 = vram_strobe_lat_0 & clk2;
 	
-	assign w745 = l392 & clk2;
+	assign vram_strobe_1 = vram_strobe_pipe_0 & clk2;
 	
-	assign w746 = l393 & clk2;
+	assign vram_strobe_2 = vram_strobe_pipe_1 & clk2;
 	
-	ym_sr_bit sr393(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l395), .sr_out(l393));
+	ym_sr_bit sr393(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(vram_strobe_lat_1), .sr_out(vram_strobe_pipe_1));
 	
-	ym_dlatch_1 dl394(.MCLK(MCLK), .c1(clk1), .inp(w747), .nval(l394));
+	ym_dlatch_1 dl394(.MCLK(MCLK), .c1(clk1), .inp(vram_gate_0), .nval(vram_strobe_lat_0));
 	
-	assign w747 = ~(l396 & hclk1);
+	assign vram_gate_0 = ~(fetch_active_pipe & hclk1);
 	
-	assign w748 = ~(w417 & hclk1);
+	assign vram_gate_1 = ~(w417 & hclk1);
 	
-	ym_dlatch_1 dl395(.MCLK(MCLK), .c1(clk1), .inp(w748), .nval(l395));
+	ym_dlatch_1 dl395(.MCLK(MCLK), .c1(clk1), .inp(vram_gate_1), .nval(vram_strobe_lat_1));
 	
-	assign w749 = l395 & clk2;
+	assign vram_strobe_3 = vram_strobe_lat_1 & clk2;
 	
-	ym_sr_bit sr396(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w750), .sr_out(l396));
+	ym_sr_bit sr396(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_active_sel), .sr_out(fetch_active_pipe));
 	
-	ym_sr_bit sr397(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w417), .sr_out(l397));
+	ym_sr_bit sr397(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w417), .sr_out(fetch_delay_pipe));
 	
-	assign w750 = reg_m5 ? w417 : l397;
+	assign fetch_active_sel = reg_m5 ? w417 : fetch_delay_pipe;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(7)) sr398(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_link_idx), .data_out(l398));
+	ym_sr_bit_array #(.DATA_WIDTH(7)) sr398(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_link_idx), .data_out(sat_idx_pipe_0));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(7)) sr399(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l398), .data_out(l399));
+	ym_sr_bit_array #(.DATA_WIDTH(7)) sr399(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_idx_pipe_0), .data_out(sat_idx_pipe_1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(7)) sr400(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l399), .data_out(l400));
+	ym_sr_bit_array #(.DATA_WIDTH(7)) sr400(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_idx_pipe_1), .data_out(sat_idx_pipe_2));
 	
-	assign w751 = l402 | l401;
+	assign attr_phase_any = attr_phase_1 | attr_phase_0;
 	
-	ym_sr_bit sr401(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l141), .sr_out(l401));
+	ym_sr_bit sr401(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l141), .sr_out(attr_phase_0));
 	
-	ym_sr_bit sr402(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l142), .sr_out(l402));
+	ym_sr_bit sr402(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l142), .sr_out(attr_phase_1));
 	
-	assign w752 = w94 ? io_data[10:4] : l400;
+	assign spridx_data_mux = w94 ? io_data[10:4] : sat_idx_pipe_2;
 	
-	assign w753 = w94 ? io_data[11] : l382;
+	assign spridx_ovfl_mux = w94 ? io_data[11] : render_active_pipe;
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr403(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[0]), .data_out(l403));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr403(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[0]), .data_out(spridx_sr_0));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr404(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[1]), .data_out(l404));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr404(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[1]), .data_out(spridx_sr_1));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr405(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[2]), .data_out(l405));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr405(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[2]), .data_out(spridx_sr_2));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr406(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[3]), .data_out(l406));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr406(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[3]), .data_out(spridx_sr_3));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr407(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[4]), .data_out(l407));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr407(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[4]), .data_out(spridx_sr_4));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr408(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[5]), .data_out(l408));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr408(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[5]), .data_out(spridx_sr_5));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr409(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w752[6]), .data_out(l409));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr409(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[6]), .data_out(spridx_sr_6));
 	
-	ym_sr_bit_en #(.SR_LENGTH(20)) sr410(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(w732), .en2(~w732), .data_in(w753), .data_out(l410));
+	ym_sr_bit_en #(.SR_LENGTH(20)) sr410(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_ovfl_mux), .data_out(spridx_sr_active));
 	
-	ym_sr_bit sr411(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l147), .sr_out(l411));
+	ym_sr_bit sr411(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l147), .sr_out(fetch_timing_0));
 	
-	ym_sr_bit sr412(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l134), .sr_out(l412));
+	ym_sr_bit sr412(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l134), .sr_out(fetch_timing_1));
 	
-	assign w754 = ~reg_m5 & (l411 | l412);
+	assign m4_fetch_active = ~reg_m5 & (fetch_timing_0 | fetch_timing_1);
 	
-	assign w755 = ~reg_m5 & l412;
+	assign m4_fetch_phase = ~reg_m5 & fetch_timing_1;
 	
-	assign w756 = reg_m5 & l412;
+	assign m5_fetch_phase = reg_m5 & fetch_timing_1;
 	
-	assign w757 = reg_rs1 ?
-		{ l409[19], l408[19], l407[19], l406[19], l405[19], l404[19], l403[19] } :
-		{ reg_at[0], l408[15], l407[15], l406[15], l405[15], l404[15], l403[15] };
+	assign spridx_readback = reg_rs1 ?
+		{ spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19] } :
+		{ reg_at[0], spridx_sr_5[15], spridx_sr_4[15], spridx_sr_3[15], spridx_sr_2[15], spridx_sr_1[15], spridx_sr_0[15] };
 	
-	assign w758 = (w759 ? io_data[0] : 1'h0) | (w760 ? l387[3] : 1'h0);
+	assign sprdata_in_hflip = (sprdata_test_sel ? io_data[0] : 1'h0) | (sprdata_norm_sel ? vram_attr_hi[3] : 1'h0);
 	
-	assign w759 = l426 & reg_test0[12];
+	assign sprdata_test_sel = sprdata_wr_ready & reg_test0[12];
 	
-	assign w760 = l426 & ~reg_test0[12];
+	assign sprdata_norm_sel = sprdata_wr_ready & ~reg_test0[12];
 	
-	assign w761 = (w759 ? io_data[2:1] : 2'h0) | (w760 ? l387[6:5] : 2'h0);
+	assign sprdata_in_pal = (sprdata_test_sel ? io_data[2:1] : 2'h0) | (sprdata_norm_sel ? vram_attr_hi[6:5] : 2'h0);
 	
-	assign w763 = (w759 ? io_data[3] : 1'h0) | (w760 ? l387[7] : 1'h0);
+	assign sprdata_in_pri = (sprdata_test_sel ? io_data[3] : 1'h0) | (sprdata_norm_sel ? vram_attr_hi[7] : 1'h0);
 	
-	assign w764 = (w759 ? io_data[5:4] : 2'h0) | (w760 ? l379[3:2] : 2'h0);
+	assign sprdata_in_xs = (sprdata_test_sel ? io_data[5:4] : 2'h0) | (sprdata_norm_sel ? spr_size_latch[3:2] : 2'h0);
 	
-	assign w766 = (w759 ? io_data[7:6] : 2'h0) | (w760 ? l379[1:0] : 2'h0);
+	assign sprdata_in_ys = (sprdata_test_sel ? io_data[7:6] : 2'h0) | (sprdata_norm_sel ? spr_size_latch[1:0] : 2'h0);
 	
-	assign w768 = (w759 ? io_data[13:8] : 6'h0) | (w760 ? yoff : 6'h0);
+	assign sprdata_in_yoff = (sprdata_test_sel ? io_data[13:8] : 6'h0) | (sprdata_norm_sel ? yoff : 6'h0);
 	
-	assign w769 = hclk1 & (w97 | w772);
+	assign sprdata_rd_strobe = hclk1 & (w97 | xtile_done);
 	
-	assign w770 = (~w705 ? {l418[2:0], l417, l416, l415, l414, l413 } : 11'h0) |
-		(~w706 ? l425 : 11'h0) |
-		(~w707 ? l424 : 11'h0);
+	assign sprdata_test_mux = (~test_sel_ne2 ? {spr_rd_yoff[2:0], spr_rd_ys, spr_rd_xs, spr_rd_pri, spr_rd_pal, spr_rd_hflip } : 11'h0) |
+		(~test_sel_ne1 ? spr_rd_hpos : 11'h0) |
+		(~test_sel_ne0 ? spr_rd_pattern : 11'h0);
 	
-	ym_slatch sl413(.MCLK(MCLK), .en(w769), .inp(sprdata_hflip_o), .val(l413));
-	ym_slatch #(.DATA_WIDTH(2)) sl414(.MCLK(MCLK), .en(w769), .inp(sprdata_pal_o), .val(l414));
-	ym_slatch sl415(.MCLK(MCLK), .en(w769), .inp(sprdata_priority_o), .val(l415));
-	ym_slatch #(.DATA_WIDTH(2)) sl416(.MCLK(MCLK), .en(w769), .inp(sprdata_xs_o), .val(l416));
-	ym_slatch #(.DATA_WIDTH(2)) sl417(.MCLK(MCLK), .en(w769), .inp(sprdata_ys_o), .val(l417));
-	ym_slatch #(.DATA_WIDTH(6)) sl418(.MCLK(MCLK), .en(w769), .inp(sprdata_yoffset_o), .val(l418));
+	ym_slatch sl413(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_hflip_o), .val(spr_rd_hflip));
+	ym_slatch #(.DATA_WIDTH(2)) sl414(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_pal_o), .val(spr_rd_pal));
+	ym_slatch sl415(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_priority_o), .val(spr_rd_pri));
+	ym_slatch #(.DATA_WIDTH(2)) sl416(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_xs_o), .val(spr_rd_xs));
+	ym_slatch #(.DATA_WIDTH(2)) sl417(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_ys_o), .val(spr_rd_ys));
+	ym_slatch #(.DATA_WIDTH(6)) sl418(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_yoffset_o), .val(spr_rd_yoff));
 	
-	ym_sr_bit sr419(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l511), .sr_out(l419));
+	ym_sr_bit sr419(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l511), .sr_out(tile_fetch_pipe));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(2)) cnt420(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(l141), .reset(l372), .load(w772), .load_val(~sprdata_xs_o), .val(l420));
+		.c_in(l141), .reset(hblank_pipe), .load(xtile_done), .load_val(~sprdata_xs_o), .val(xtile_cnt));
 	
-	assign w771 = l420 == 2'h0;
+	assign xtile_cnt_zero = xtile_cnt == 2'h0;
 	
-	assign w772 = w771 & l141;
+	assign xtile_done = xtile_cnt_zero & l141;
 	
 	ym_cnt_bit cnt421(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(l419), .reset(w360), .val(l421));
+		.c_in(tile_fetch_pipe), .reset(w360), .val(spr_line_cnt));
 	
-	ym_sr_bit sr422(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l421), .sr_out(l422));
+	ym_sr_bit sr422(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_line_cnt), .sr_out(spr_line_cnt_pipe));
 	
-	ym7101_rs_trig rs42(.MCLK(MCLK), .set(l372), .rst(l369), .q(spr_render_active));
+	ym7101_rs_trig rs42(.MCLK(MCLK), .set(hblank_pipe), .rst(spr_render_end_pipe), .q(spr_render_active));
 	
-	ym_sr_bit sr423(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_render_active), .sr_out(l423));
+	ym_sr_bit sr423(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_render_active), .sr_out(spr_render_pipe));
 	
-	assign w773 = l423 & l511 & w714;
+	assign tile_data_valid = spr_render_pipe & l511 & spr_limit_m4_n;
 	
-	assign w774 =
-		(w759 ? io_data[10:0] : 11'h0) |
-		(w760 ? { l387[2:0], l435 } : 11'h0);
+	assign sprdata_in_pat =
+		(sprdata_test_sel ? io_data[10:0] : 11'h0) |
+		(sprdata_norm_sel ? { vram_attr_hi[2:0], vram_serial_a } : 11'h0);
 	
-	ym_slatch #(.DATA_WIDTH(11)) sl424(.MCLK(MCLK), .en(w769), .inp(sprdata_pattern_o), .val(l424));
+	ym_slatch #(.DATA_WIDTH(11)) sl424(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_pattern_o), .val(spr_rd_pattern));
 	
-	assign w775 =
-		(w759 ? io_data[8:0] : 9'h0) |
-		(w760 ? { l386[0], l436 } : 9'h0);
+	assign sprdata_in_hpos =
+		(sprdata_test_sel ? io_data[8:0] : 9'h0) |
+		(sprdata_norm_sel ? { vram_attr_lo[0], vram_serial_b } : 9'h0);
 	
-	ym_slatch #(.DATA_WIDTH(9)) sl425(.MCLK(MCLK), .en(w769), .inp(sprdata_hpos_o), .val(l425));
+	ym_slatch #(.DATA_WIDTH(9)) sl425(.MCLK(MCLK), .en(sprdata_rd_strobe), .inp(sprdata_hpos_o), .val(spr_rd_hpos));
 	
-	ym_sr_bit sr426(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w776), .sr_out(l426));
+	ym_sr_bit sr426(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sprdata_ready_comb), .sr_out(sprdata_wr_ready));
 	
-	assign w776 = ~(~reg_m5 | w772);
+	assign sprdata_ready_comb = ~(~reg_m5 | xtile_done);
 	
-	assign w777 = l372 | w784;
+	assign tile_start_comb = hblank_pipe | tile_row_done;
 	
-	ym_sr_bit sr427(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w777), .sr_out(l427));
+	ym_sr_bit sr427(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(tile_start_comb), .sr_out(tile_start_pipe));
 	
-	assign w778 = { 2'h0,interlace_dblres ? l418[5:4] : l418[4:3] };
+	assign yoff_size_sel = { 2'h0,interlace_dblres ? spr_rd_yoff[5:4] : spr_rd_yoff[4:3] };
 	
-	assign w779 = w778 + w786;
+	assign yoff_size_add = yoff_size_sel + yoff_accum;
 	
-	assign w780 = l424 + { 7'h0, w779 };
+	assign pattern_addr = spr_rd_pattern + { 7'h0, yoff_size_add };
 	
-	ym_sr_bit sr428(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w781), .sr_out(l428));
+	ym_sr_bit sr428(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(m5_fetch_comb), .sr_out(m5_fetch_pipe));
 	
-	assign w781 = l141 & reg_m5;
+	assign m5_fetch_comb = l141 & reg_m5;
 	
-	assign w782 = l425 != 9'h0;
+	assign spr_hpos_nonzero = spr_rd_hpos != 9'h0;
 	
-	ym_dlatch_2 dl429(.MCLK(MCLK), .c2(hclk2), .inp(w782), .nval(l429));
+	ym_dlatch_2 dl429(.MCLK(MCLK), .c2(hclk2), .inp(spr_hpos_nonzero), .nval(spr_hpos_valid));
 	
-	ym_sr_bit sr430(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l431), .sr_out(l430));
+	ym_sr_bit sr430(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_pipe_0), .sr_out(fetch_done_pipe));
 	
-	assign w783 = l372 | w772;
+	assign yoff_rst_comb = hblank_pipe | xtile_done;
 	
-	ym_sr_bit sr431(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l141), .sr_out(l431));
+	ym_sr_bit sr431(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l141), .sr_out(fetch_pipe_0));
 	
-	assign w784 = l431 & w771;
+	assign tile_row_done = fetch_pipe_0 & xtile_cnt_zero;
 	
-	ym_dlatch_1 dl432(.MCLK(MCLK), .c1(hclk1), .inp(w783), .nval(l432));
+	ym_dlatch_1 dl432(.MCLK(MCLK), .c1(hclk1), .inp(yoff_rst_comb), .nval(yoff_rst_latch));
 	
-	ym_dlatch_1 dl433(.MCLK(MCLK), .c1(hclk1), .inp(l430), .val(l433));
+	ym_dlatch_1 dl433(.MCLK(MCLK), .c1(hclk1), .inp(fetch_done_pipe), .val(yoff_active));
 	
-	assign w785 = l433 ? l417 : 2'h0;
+	assign yoff_ys_mux = yoff_active ? spr_rd_ys : 2'h0;
 	
-	assign w786 = l432 ? w787 : 4'h0;
+	assign yoff_accum = yoff_rst_latch ? yoff_add_val : 4'h0;
 	
-	assign w787 = {3'h0, l433} + l434 + { 2'h0, w785 };
+	assign yoff_add_val = {3'h0, yoff_active} + yoff_accum_pipe + { 2'h0, yoff_ys_mux };
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr434(.MCLK(MCLK), .c1(hclk2), .c2(hclk1), .data_in(w786), .data_out(l434));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr434(.MCLK(MCLK), .c1(hclk2), .c2(hclk1), .data_in(yoff_accum), .data_out(yoff_accum_pipe));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl435(.MCLK(MCLK), .en(w749), .inp(vram_serial), .val(l435));
+	ym_slatch #(.DATA_WIDTH(8)) sl435(.MCLK(MCLK), .en(vram_strobe_3), .inp(vram_serial), .val(vram_serial_a));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl436(.MCLK(MCLK), .en(w744), .inp(vram_serial), .val(l436));
+	ym_slatch #(.DATA_WIDTH(8)) sl436(.MCLK(MCLK), .en(vram_strobe_0), .inp(vram_serial), .val(vram_serial_b));
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl437(.MCLK(MCLK), .en(l438), .inp(w788), .val(l437));
 	
-	assign w788 = l422 ? l436 : l435;
+	assign w788 = spr_line_cnt_pipe ? vram_serial_b : vram_serial_a;
 	
-	ym_sr_bit sr438(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w773), .sr_out(l438));
+	ym_sr_bit sr438(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(tile_data_valid), .sr_out(l438));
 	
-	ym_dlatch_2 dl439_1(.MCLK(MCLK), .c2(hclk2), .inp(l413), .val(l439_1));
+	ym_dlatch_2 dl439_1(.MCLK(MCLK), .c2(hclk2), .inp(spr_rd_hflip), .val(l439_1));
 	ym_sr_bit #(.SR_LENGTH(5)) sr439(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l439_1), .sr_out(l439));
 	
-	ym_dlatch_2 #(.DATA_WIDTH(2)) dl440_1(.MCLK(MCLK), .c2(hclk2), .inp(l414), .val(l440_1));
+	ym_dlatch_2 #(.DATA_WIDTH(2)) dl440_1(.MCLK(MCLK), .c2(hclk2), .inp(spr_rd_pal), .val(l440_1));
 	ym_sr_bit_array #(.SR_LENGTH(5), .DATA_WIDTH(2)) sr440(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l440_1), .data_out(l440));
 	
-	ym_dlatch_2 dl441_1(.MCLK(MCLK), .c2(hclk2), .inp(l415), .val(l441_1));
+	ym_dlatch_2 dl441_1(.MCLK(MCLK), .c2(hclk2), .inp(spr_rd_pri), .val(l441_1));
 	ym_sr_bit #(.SR_LENGTH(5)) sr441(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l441_1), .sr_out(l441));
 	
-	ym_dlatch_2 #(.DATA_WIDTH(2)) dl442_1(.MCLK(MCLK), .c2(hclk2), .inp(l416), .val(l442_1));
+	ym_dlatch_2 #(.DATA_WIDTH(2)) dl442_1(.MCLK(MCLK), .c2(hclk2), .inp(spr_rd_xs), .val(l442_1));
 	ym_sr_bit_array #(.SR_LENGTH(5), .DATA_WIDTH(2)) sr442(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l442_1), .data_out(l442));
 	
-	ym_dlatch_2 #(.DATA_WIDTH(9)) dl443_1(.MCLK(MCLK), .c2(hclk2), .inp(l425), .val(l443_1));
+	ym_dlatch_2 #(.DATA_WIDTH(9)) dl443_1(.MCLK(MCLK), .c2(hclk2), .inp(spr_rd_hpos), .val(l443_1));
 	ym_sr_bit_array #(.SR_LENGTH(5), .DATA_WIDTH(9)) sr443(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l443_1), .data_out(l443));
 	
 	ym_sr_bit sr444(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w805), .sr_out(l444));
@@ -6176,13 +6176,13 @@ module ym7101
 	// H-flip (1), palette (2), priority (1), X-size (2), Y-size (2),
 	// Y-offset (6).
 
-	wire [4:0] sprdata_index = w697;
+	wire [4:0] sprdata_index = sprdata_wr_idx;
 	
 	wire [33:0] sprdata_in;
 	
-	assign sprdata_in[10:0] = w774;
-	assign sprdata_in[19:11] = w775;
-	assign sprdata_in[33:20] = { w768, w766, w764, w763, w761, w758 };
+	assign sprdata_in[10:0] = sprdata_in_pat;
+	assign sprdata_in[19:11] = sprdata_in_hpos;
+	assign sprdata_in[33:20] = { sprdata_in_yoff, sprdata_in_ys, sprdata_in_xs, sprdata_in_pri, sprdata_in_pal, sprdata_in_hflip };
 	
 	assign sprdata_pattern_o = sprdata_out[10:0];
 	assign sprdata_hpos_o = sprdata_out[19:11];
@@ -6199,11 +6199,11 @@ module ym7101
 		begin
 			if (hclk1) // write cycle
 			begin
-				if (w712)
+				if (sprdata_wr_pat)
 					sprdata[sprdata_index][10:0] <= sprdata_in[10:0];
-				if (w715)
+				if (sprdata_wr_hpos)
 					sprdata[sprdata_index][19:11] <= sprdata_in[19:11];
-				if (w709)
+				if (sprdata_wr_attr)
 					sprdata[sprdata_index][33:20] <= sprdata_in[33:20];
 			end
 			sprdata_out <= sprdata[sprdata_index];
@@ -7206,12 +7206,12 @@ module ym7101
 		(w566 ? { w579, 14'h3fff } : 17'h1ffff) &
 		(l218 ? { w580, 5'h1f } : 17'h1ffff) &
 		(link_cnt_inc ? { 9'h1ff, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h1ffff) &
-		(w742 ? { 3'h7, reg_86_b2, w731[7:1], w737, w735, w734, w733, ~hcnt[1], 1'h0 } : 17'h1ffff) &
-		(w754 ? { 3'h7, reg_at[6:1], 8'hff} : 17'h1ffff) &
-		(w756 ? { reg_at[7:1], w757[6:0], 3'h4 } : 17'h1ffff) &
-		(w755 ? { 9'h1ff, l409[7], l408[7], l407[7], l406[7], l405[7], l404[7], l403[7], 1'h0 } : 17'h1ffff) &
-		(l428 ? (interlace_dblres ?
-			{ w780, l418[3], l418[2:0], 2'h0 } : { reg_86_b5, w780, l418[2:0], 2'h0 }) : 17'h1ffff);
+		(m4_attr_phase ? { 3'h7, reg_86_b2, vram_attr_sel[7:1], spr_cnt_m4_bit, spr_cnt_bit_2, spr_cnt_bit_1, spr_cnt_bit_0, ~hcnt[1], 1'h0 } : 17'h1ffff) &
+		(m4_fetch_active ? { 3'h7, reg_at[6:1], 8'hff} : 17'h1ffff) &
+		(m5_fetch_phase ? { reg_at[7:1], spridx_readback[6:0], 3'h4 } : 17'h1ffff) &
+		(m4_fetch_phase ? { 9'h1ff, spridx_sr_6[7], spridx_sr_5[7], spridx_sr_4[7], spridx_sr_3[7], spridx_sr_2[7], spridx_sr_1[7], spridx_sr_0[7], 1'h0 } : 17'h1ffff) &
+		(m5_fetch_pipe ? (interlace_dblres ?
+			{ pattern_addr, spr_rd_yoff[3], spr_rd_yoff[2:0], 2'h0 } : { reg_86_b5, pattern_addr, spr_rd_yoff[2:0], 2'h0 }) : 17'h1ffff);
 	
 	wire [16:0] vram_address_pull =
 		(w195 ? 17'h1ffff : 17'h0) |
@@ -7230,11 +7230,11 @@ module ym7101
 		(w566 ? 17'h1c000 : 17'h0) |
 		(l218 ? 17'h1ffe0 : 17'h0) |
 		(link_cnt_inc ? 17'h000ff : 17'h0) |
-		(w742 ? 17'h03fff : 17'h0) |
-		(w754 ? 17'h03f00 : 17'h0) |
-		(w756 ? 17'h1ffff : 17'h0) |
-		(w755 ? 17'h000ff : 17'h0) |
-		(l428 ? 17'h1ffff : 17'h0);
+		(m4_attr_phase ? 17'h03fff : 17'h0) |
+		(m4_fetch_active ? 17'h03f00 : 17'h0) |
+		(m5_fetch_phase ? 17'h1ffff : 17'h0) |
+		(m4_fetch_phase ? 17'h000ff : 17'h0) |
+		(m5_fetch_pipe ? 17'h1ffff : 17'h0);
 	
 	/*assign vram_data =
 		(w328 ? { l96, w351 } : 16'h0) |
@@ -7263,12 +7263,12 @@ module ym7101
 		(w566 ? { w579, 14'h0 } : 17'h0) |
 		(l218 ? { w580, 5'h0 } : 17'h0) |
 		(link_cnt_inc ? { 9'h0, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h0) |
-		(w742 ? { 3'h0, reg_86_b2, w731[7:1], w737, w735, w734, w733, ~hcnt[1], 1'h0 } : 17'h0) |
-		(w754 ? { 3'h0, reg_at[6:1], 8'h0} : 17'h0) |
-		(w756 ? { reg_at[7:1], w757[6:0], 3'h4 } : 17'h0) |
-		(w755 ? { 9'h0, l409[7], l408[7], l407[7], l406[7], l405[7], l404[7], l403[7], 1'h0 } : 17'h0) |
-		(l428 ? (interlace_dblres ?
-			{ w780, l418[3], l418[2:0], 2'h0 } : { reg_86_b5, w780, l418[2:0], 2'h0 }) : 17'h0);*/
+		(m4_attr_phase ? { 3'h0, reg_86_b2, vram_attr_sel[7:1], spr_cnt_m4_bit, spr_cnt_bit_2, spr_cnt_bit_1, spr_cnt_bit_0, ~hcnt[1], 1'h0 } : 17'h0) |
+		(m4_fetch_active ? { 3'h0, reg_at[6:1], 8'h0} : 17'h0) |
+		(m5_fetch_phase ? { reg_at[7:1], spridx_readback[6:0], 3'h4 } : 17'h0) |
+		(m4_fetch_phase ? { 9'h0, spridx_sr_6[7], spridx_sr_5[7], spridx_sr_4[7], spridx_sr_3[7], spridx_sr_2[7], spridx_sr_1[7], spridx_sr_0[7], 1'h0 } : 17'h0) |
+		(m5_fetch_pipe ? (interlace_dblres ?
+			{ pattern_addr, spr_rd_yoff[3], spr_rd_yoff[2:0], 2'h0 } : { reg_86_b5, pattern_addr, spr_rd_yoff[2:0], 2'h0 }) : 17'h0);*/
 	
 	always @(posedge MCLK)
 	begin
@@ -7305,7 +7305,7 @@ module ym7101
 	
 	wire [15:0] io_data_val =
 		(vdp_data_dir ? CD_i : 16'hffff) &
-		(w97 ? { 2'h3, l418[5:3], w770 } : 16'hffff) &
+		(w97 ? { 2'h3, spr_rd_yoff[5:3], sprdata_test_mux } : 16'hffff) &
 		(w71 ? { 5'h1f, ~w355[9], ~w355[8], ~hcnt[0], 8'hff} : 16'hffff) &
 		(w114 ? { 6'h3f, l46, w252, t9, t10, t11, field_bit, active_disp_gate, w422, w73, w72 } : 16'hffff) &
 		(w134 ? { l90[7:0], 8'hff } : 16'hffff) &
@@ -7314,7 +7314,7 @@ module ym7101
 		(w47 ? { 8'hff, 5'h0, w12, w11, 1'h0 } : 16'hffff) &
 		(w87 ? { 8'hff, ~l110, ~w360, ~w379, ~w393, ~w402, ~w417, ~w415, ~w424 } : 16'hffff) &
 		(w89 ? { 2'h3, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'hffff) &
-		(w95 ? { 4'hf, l410[19], l409[19], l408[19], l407[19], l406[19], l405[19], l404[19], l403[19], l391[9], l390[9], l389[9], l388[9] } : 16'hffff) &
+		(w95 ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
 		(w99 ? { 1'h1, ~w969, ~w968, ~w967, ~w966, ~w965, ~w964, ~w963, 1'h1, ~w962, ~w961, ~w960, ~w959, ~w958, ~w957, ~w956 } : 16'hffff) &
 		(w91 ? { 5'h1f, ~w1094, ~w1093, ~w1098, ~w1092, ~w1091, ~w1099, ~w1090, ~w1089, ~w1100, ~l610, ~l612 } : 16'hffff) &
 		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'hffff);
@@ -7339,7 +7339,7 @@ module ym7101
 	
 	/*assign io_data =
 		(vdp_data_dir ? CD_i : 16'h0) |
-		(w97 ? { 2'h0, l418[5:3], w770 } : 16'h0) |
+		(w97 ? { 2'h0, spr_rd_yoff[5:3], sprdata_test_mux } : 16'h0) |
 		(w71 ? { 5'h0, ~w355[9], ~w355[8], ~hcnt[0], 8'h0} : 16'h0) |
 		(w114 ? { 6'h0, l46, w252, t9, t10, t11, field_bit, active_disp_gate, w422, w73, w72 } : 16'h0) |
 		(w134 ? { l90[7:0], 8'h0 } : 16'h0) |
@@ -7348,7 +7348,7 @@ module ym7101
 		(w47 ? { 8'h0, 5'h0, w12, w11, 1'h0 } : 16'h0) |
 		(w87 ? { 8'h0, ~l110, ~w360, ~w379, ~w393, ~w402, ~w417, ~w415, ~w424 } : 16'h0) |
 		(w89 ? { 2'h0, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'h0) |
-		(w95 ? { 4'h0, l410[19], l409[19], l408[19], l407[19], l406[19], l405[19], l404[19], l403[19], l391[9], l390[9], l389[9], l388[9] } : 16'h0) |
+		(w95 ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
 		(w99 ? { 1'h0, ~w969, ~w968, ~w967, ~w966, ~w965, ~w964, ~w963, 1'h0, ~w962, ~w961, ~w960, ~w959, ~w958, ~w957, ~w956 } : 16'h0) |
 		(w91 ? { 5'h0, ~w1094, ~w1093, ~w1098, ~w1092, ~w1091, ~w1099, ~w1090, ~w1089, ~w1100, ~l610, ~l612 } : 16'h0) |
 		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'h0);*/
