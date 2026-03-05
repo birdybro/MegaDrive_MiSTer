@@ -2005,125 +2005,125 @@ module ym7101
 	wire [7:0] vram_ad_out;
 	wire [7:0] vram_rd_out;
 	
-	// Video MUX: sprite/plane/background priority, shadow/highlight (w1021-w1073)
-	wire w1021;
+	// Video MUX: sprite/plane/background priority, shadow/highlight (cram_wr_any-cram_wr_m4)
+	wire cram_wr_any;
 	wire cram_wr_hi; // CRAM upper write enable (color bus → CRAM[8:6])
 	wire cram_wr_lo; // CRAM lower write enable (color bus → CRAM[5:0])
-	wire w1022;
-	wire w1023;
-	wire w1024;
-	wire w1025;
-	wire w1026;
-	wire w1027;
-	wire w1028;
-	wire w1029;
-	wire w1030;
-	wire w1031;
-	wire w1032;
-	wire w1033;
-	wire w1034;
-	wire w1035;
-	wire w1036;
-	wire w1037;
-	wire w1038;
-	wire w1039;
-	wire w1040;
-	wire w1041;
-	wire w1042;
-	wire w1043;
-	wire w1044;
-	wire w1045;
-	wire w1046;
-	wire w1047;
-	wire w1048;
-	wire w1049;
-	wire w1050;
-	wire w1051;
-	wire w1052;
-	wire w1053;
-	wire w1054;
-	wire w1055;
-	wire w1056;
-	wire w1057;
-	wire w1058;
-	wire w1059;
-	wire w1060;
-	wire w1061;
-	wire w1062;
-	wire l603;
-	wire l604;
-	wire l605;
-	wire l606;
-	wire w1063;
-	wire w1064;
-	wire w1065;
-	wire w1066;
-	wire l607;
-	wire w1067;
-	wire w1068;
-	wire l608;
-	wire w1069;
-	wire l609;
-	wire l610;
-	wire w1070;
-	wire l611;
-	wire l612;
-	wire w1071;
-	wire l613;
-	wire w1072;
-	wire w1073;
+	wire pri_spr_or_a;
+	wire pri_spr_hi_b_hi;
+	wire pri_a_hi_only;
+	wire pri_b_hi_only;
+	wire pri_a_hi_b_hi;
+	wire sh_no_priority;
+	wire sh_spr_only;
+	wire sh_mode_active;
+	wire sh_spr_special;
+	wire spr_transparent;
+	wire spr_opaque;
+	wire planeb_opaque;
+	wire test_layer_spr;
+	wire test_layer_a;
+	wire test_layer_b;
+	wire test_layer_bg;
+	wire sel_spr_case_1;
+	wire sel_spr_case_2;
+	wire sel_spr_case_3;
+	wire sel_spr_cond;
+	wire sel_spr_valid;
+	wire sel_spr_normal;
+	wire sel_spr_final;
+	wire sel_spr_sh;
+	wire sel_a_case_1;
+	wire sel_a_case_2;
+	wire sel_a_case_3;
+	wire sel_a_cond;
+	wire sel_a_valid;
+	wire sel_a_final;
+	wire sel_b_case_1;
+	wire sel_b_case_2;
+	wire sel_b_case_3;
+	wire sel_b_case_4;
+	wire sel_b_cond;
+	wire sel_b_valid;
+	wire sel_b_final;
+	wire all_layers_trans;
+	wire sel_bg_cond;
+	wire sel_bg_final;
+	wire disp_not_test;
+	wire sel_spr_pipe;
+	wire sel_a_pipe;
+	wire sel_b_pipe;
+	wire sel_bg_pipe;
+	wire not_spr_not_idx14;
+	wire no_sh_special;
+	wire spr_idx_14_or_15;
+	wire sh_highlight_cond;
+	wire sh_highlight_pipe;
+	wire sh_shadow_cond;
+	wire sh_shadow_gated;
+	wire sh_shadow_pipe_1;
+	wire sh_shadow_mux;
+	wire sh_shadow_pipe_2;
+	wire sh_shadow_pipe_3;
+	wire sh_highlight_mux;
+	wire sh_highlight_pipe_2;
+	wire sh_highlight_pipe_3;
+	wire spa_b_gate_n;
+	wire spa_b_pipe;
+	wire cram_wr_m5;
+	wire cram_wr_m4;
 	// Background color registers (reg 0x87)
 	wire [3:0] reg_col_index; // background color index
 	wire [1:0] reg_col_pal;   // background palette
 	wire reg_col_b6;
 	wire reg_col_b7;
-	wire l614;
-	wire l615;
-	wire w1074;
-	wire l616;
-	wire w1075;
-	wire [5:0] w1076;
-	wire [5:0] l617;
-	wire l618;
-	wire w1077;
-	wire l619;
-	wire [2:0] l620;
-	wire [2:0] w1078;
-	wire [2:0] w1079;
-	wire [8:0] l621;
-	wire [8:0] l622;
-	wire l623_1, l623_2, l623_3;
-	wire w1080;
-	wire w1081;
-	wire l624;
-	wire l625;
-	wire w1082;
-	wire w1083;
-	wire w1084;
-	wire w1085;
-	wire w1086;
-	wire w1087;
-	wire w1088;
-	wire w1089;
-	wire w1090;
-	wire w1091;
-	wire w1092;
-	wire w1093;
-	wire w1094;
+	wire blank_out_pipe;
+	wire spa_in_pipe;
+	wire blank_out_comb;
+	wire active_delay_8;
+	wire active_mux_m5;
+	wire [5:0] color_bus_mux;
+	wire [5:0] color_bus_pipe;
+	wire active_delay_3;
+	wire bg_color_zero;
+	wire bg_zero_pipe_1;
+	wire [2:0] cram_data_hi;
+	wire [2:0] cram_red_bits;
+	wire [2:0] cram_grn_bits;
+	wire [8:0] cram_rd_latch;
+	wire [8:0] cram_rd_pipe;
+	wire cram_wr_dly_1, cram_wr_dly_2, cram_wr_dly_3;
+	wire cram_latch_en;
+	wire disp_unblanked;
+	wire disp_unblank_pipe;
+	wire bg_zero_pipe_2;
+	wire force_bg_zero;
+	wire cram_r_bit0;
+	wire cram_r_bit1;
+	wire cram_g_bit0;
+	wire cram_g_bit1;
+	wire cram_b_bit0;
+	wire cram_b_bit1;
+	wire dac_r_bit0;
+	wire dac_r_bit1;
+	wire dac_g_bit0;
+	wire dac_g_bit1;
+	wire dac_b_bit0;
+	wire dac_b_bit1;
 	wire w1095;
 	wire w1096;
 	wire w1097;
-	wire w1098;
-	wire w1099;
-	wire w1100;
+	wire dac_b_bit2;
+	wire dac_g_bit2;
+	wire dac_r_bit2;
 	// DAC & color output
-	wire [2:0] l626; // R post-processing (3-bit CRAM red)
-	wire [2:0] l627; // G post-processing (3-bit CRAM green)
-	wire [2:0] l628; // B post-processing (3-bit CRAM blue)
+	wire [2:0] dac_red_pipe; // R post-processing (3-bit CRAM red)
+	wire [2:0] dac_grn_pipe; // G post-processing (3-bit CRAM green)
+	wire [2:0] dac_blu_pipe; // B post-processing (3-bit CRAM blue)
 	wire shadow_flag; // shadow mode flag
 	wire highlight_flag; // highlight mode flag
 	wire normal_intensity; // normal intensity select
-	wire w1102;
+	wire shadow_level;
 	wire [16:0] w1103[0:2]; // 17-level non-linear DAC thermometer code (R/G/B)
 	
 	// PSG (SN76489) signals
@@ -2312,8 +2312,8 @@ module ym7101
 	reg [8:0] color_ram_out;
 
 	// Display pipeline CRAM readout (active display, bypasses normal bus)
-	wire [5:0] w1076_dp;
-	wire [5:0] l617_dp;
+	wire [5:0] color_bus_dp;
+	wire [5:0] color_bus_pipe_dp;
 	reg [8:0] color_ram_out_dp;
 	
 	
@@ -2819,9 +2819,9 @@ module ym7101
 	
 	assign w104 = reg_8b_b7 ? 1'h1 : (w101 ? 1'h1 : 1'h0);
 	
-	ym_dlatch_1 #(.DATA_WIDTH(8)) dl16(.MCLK(MCLK), .c1(hclk1), .inp({ w1070, w105, color_pal, color_index}), .val(l16));
+	ym_dlatch_1 #(.DATA_WIDTH(8)) dl16(.MCLK(MCLK), .c1(hclk1), .inp({ sh_highlight_mux, w105, color_pal, color_index}), .val(l16));
 	
-	assign w105 = reg_test0[0] ? color_priority : w1069;
+	assign w105 = reg_test0[0] ? color_priority : sh_shadow_mux;
 	
 	assign interlace_dblres = reg_lsm0_latch & reg_lsm1_latch;
 	
@@ -6424,7 +6424,7 @@ module ym7101
 	
 	assign vram_timing_any = vram_timing_0 | vram_timing_1;
 	
-	assign vram_ys_mux = reg_test0[5] ? vram_address[16] : l614;
+	assign vram_ys_mux = reg_test0[5] ? vram_address[16] : blank_out_pipe;
 	
 	assign vram_m5_bit1 = reg_m5 & vram_address[1];
 	
@@ -6484,7 +6484,7 @@ module ym7101
 	
 	assign YS = vram_ys_mux;
 	
-	assign SPA_B_pull = ~l613;
+	assign SPA_B_pull = ~spa_b_pipe;
 	
 	// -------------------------------------------------------------------------
 	// Video priority MUX
@@ -6494,134 +6494,134 @@ module ym7101
 	// palette index 14/15 control normal/shadow/highlight intensity levels.
 	// Output is a 7-bit color bus: {priority, pal[1:0], index[3:0]}.
 
-	assign w1021 = w302 | w178 | w303;
+	assign cram_wr_any = w302 | w178 | w303;
 	
 	ym_sr_bit sr601(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w302), .sr_out(cram_wr_hi));
 	
 	ym_sr_bit sr602(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w303), .sr_out(cram_wr_lo));
 	
-	assign w1022 = l273 ? spr_out_pri : ~l320;
+	assign pri_spr_or_a = l273 ? spr_out_pri : ~l320;
 	
-	assign w1023 = ~l273 & spr_out_pri & l320;
+	assign pri_spr_hi_b_hi = ~l273 & spr_out_pri & l320;
 	
-	assign w1024 = l273 & ~spr_out_pri & ~l320;
+	assign pri_a_hi_only = l273 & ~spr_out_pri & ~l320;
 	
-	assign w1025 = ~l273 & ~spr_out_pri & l320;
+	assign pri_b_hi_only = ~l273 & ~spr_out_pri & l320;
 	
-	assign w1026 = l273 & ~spr_out_pri & l320;
+	assign pri_a_hi_b_hi = l273 & ~spr_out_pri & l320;
 	
-	assign w1027 = w1029 & ~l273 & ~spr_out_pri & ~l320;
+	assign sh_no_priority = sh_mode_active & ~l273 & ~spr_out_pri & ~l320;
 	
-	assign w1028 = w1029 & ~l273 & spr_out_pri & ~l320;
+	assign sh_spr_only = sh_mode_active & ~l273 & spr_out_pri & ~l320;
 	
-	assign w1029 = reg_ste & reg_m5;
+	assign sh_mode_active = reg_ste & reg_m5;
 	
-	assign w1030 = w1029 & spr_pal_is_3 & w1065;
+	assign sh_spr_special = sh_mode_active & spr_pal_is_3 & spr_idx_14_or_15;
 	
-	assign w1031 = w1030 | ~spr_idx_nonzero;
+	assign spr_transparent = sh_spr_special | ~spr_idx_nonzero;
 	
-	assign w1032 = ~w646 & (reg_m5 | spr_idx_nonzero);
+	assign spr_opaque = ~w646 & (reg_m5 | spr_idx_nonzero);
 	
-	assign w1033 = ~reg_m5 | ~w648;
+	assign planeb_opaque = ~reg_m5 | ~w648;
 	
-	assign w1034 = reg_test0[8:7] == 2'h1;
-	assign w1035 = reg_test0[8:7] == 2'h2;
-	assign w1036 = reg_test0[8:7] == 2'h3;
-	assign w1037 = reg_test0[8:7] == 2'h0;
+	assign test_layer_spr = reg_test0[8:7] == 2'h1;
+	assign test_layer_a = reg_test0[8:7] == 2'h2;
+	assign test_layer_b = reg_test0[8:7] == 2'h3;
+	assign test_layer_bg = reg_test0[8:7] == 2'h0;
 	
-	assign w1038 = w1032 & w1024;
+	assign sel_spr_case_1 = spr_opaque & pri_a_hi_only;
 	
-	assign w1039 = w1025 & w1033;
+	assign sel_spr_case_2 = pri_b_hi_only & planeb_opaque;
 	
-	assign w1040 = w1032 & w1033 & w1026;
+	assign sel_spr_case_3 = spr_opaque & planeb_opaque & pri_a_hi_b_hi;
 	
-	assign w1041 = w1038 | w1039 | w1040 | w1022 | w1023;
+	assign sel_spr_cond = sel_spr_case_1 | sel_spr_case_2 | sel_spr_case_3 | pri_spr_or_a | pri_spr_hi_b_hi;
 	
-	assign w1042 = w1041 & spr_idx_nonzero & w1062;
+	assign sel_spr_valid = sel_spr_cond & spr_idx_nonzero & disp_not_test;
 	
-	assign w1043 = w1042 & ~w1030;
+	assign sel_spr_normal = sel_spr_valid & ~sh_spr_special;
 	
-	assign w1044 = w1043 | w1034;
+	assign sel_spr_final = sel_spr_normal | test_layer_spr;
 	
-	assign w1045 = w1042 & w1030;
+	assign sel_spr_sh = sel_spr_valid & sh_spr_special;
 	
-	assign w1046 = w1031 & w1022;
+	assign sel_a_case_1 = spr_transparent & pri_spr_or_a;
 	
-	assign w1047 = w1031 & w1033 & w1023;
+	assign sel_a_case_2 = spr_transparent & planeb_opaque & pri_spr_hi_b_hi;
 	
-	assign w1048 = w1031 & w1033 & w1025;
+	assign sel_a_case_3 = spr_transparent & planeb_opaque & pri_b_hi_only;
 	
-	assign w1049 = w1048 | w1047 | w1046 | w1026 | w1024;
+	assign sel_a_cond = sel_a_case_3 | sel_a_case_2 | sel_a_case_1 | pri_a_hi_b_hi | pri_a_hi_only;
 	
-	assign w1050 = w1049 & ~w1032 & w1062;
+	assign sel_a_valid = sel_a_cond & ~spr_opaque & disp_not_test;
 	
-	assign w1051 = w1050 | w1035;
+	assign sel_a_final = sel_a_valid | test_layer_a;
 	
-	assign w1052 = w1031 & w1023;
+	assign sel_b_case_1 = spr_transparent & pri_spr_hi_b_hi;
 	
-	assign w1053 = w1032 & w1026;
+	assign sel_b_case_2 = spr_opaque & pri_a_hi_b_hi;
 	
-	assign w1054 = w1032 & w1031 & w1022;
+	assign sel_b_case_3 = spr_opaque & spr_transparent & pri_spr_or_a;
 	
-	assign w1055 = w1032 & w1031 & w1024;
+	assign sel_b_case_4 = spr_opaque & spr_transparent & pri_a_hi_only;
 	
-	assign w1056 = w1055 | w1053 | w1052 | w1054 | w1025;
+	assign sel_b_cond = sel_b_case_4 | sel_b_case_2 | sel_b_case_1 | sel_b_case_3 | pri_b_hi_only;
 	
-	assign w1057 = w1056 & ~w1033 & w1062;
+	assign sel_b_valid = sel_b_cond & ~planeb_opaque & disp_not_test;
 	
-	assign w1058 = w1057 | w1036;
+	assign sel_b_final = sel_b_valid | test_layer_b;
 	
-	assign w1059 = w1032 & w1031 & w1033;
+	assign all_layers_trans = spr_opaque & spr_transparent & planeb_opaque;
 	
-	assign w1060 = w1059 | ~w1062;
+	assign sel_bg_cond = all_layers_trans | ~disp_not_test;
 	
-	assign w1061 = w1060 & w1037;
+	assign sel_bg_final = sel_bg_cond & test_layer_bg;
 	
-	assign w1062 = ~reg_test0[6] & l618;
+	assign disp_not_test = ~reg_test0[6] & active_delay_3;
 	
-	ym_sr_bit sr603(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1044), .sr_out(l603));
+	ym_sr_bit sr603(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sel_spr_final), .sr_out(sel_spr_pipe));
 	
-	ym_sr_bit sr604(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1051), .sr_out(l604));
+	ym_sr_bit sr604(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sel_a_final), .sr_out(sel_a_pipe));
 	
-	ym_sr_bit sr605(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1058), .sr_out(l605));
+	ym_sr_bit sr605(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sel_b_final), .sr_out(sel_b_pipe));
 	
-	ym_sr_bit sr606(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1061), .sr_out(l606));
+	ym_sr_bit sr606(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sel_bg_final), .sr_out(sel_bg_pipe));
 	
-	assign w1063 = ~w1044 & ~spr_idx_is_14;
+	assign not_spr_not_idx14 = ~sel_spr_final & ~spr_idx_is_14;
 	
-	assign w1064 = ~w1027 & ~w1028;
+	assign no_sh_special = ~sh_no_priority & ~sh_spr_only;
 	
-	assign w1065 = spr_idx_is_14 | spr_idx_is_15;
+	assign spr_idx_14_or_15 = spr_idx_is_14 | spr_idx_is_15;
 	
-	assign w1066 = w1064 & spr_idx_is_14 & w1045;
+	assign sh_highlight_cond = no_sh_special & spr_idx_is_14 & sel_spr_sh;
 	
-	ym_sr_bit sr607(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1066), .sr_out(l607));
+	ym_sr_bit sr607(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_highlight_cond), .sr_out(sh_highlight_pipe));
 	
-	assign w1067 = (w1045 & spr_idx_is_15) | (~spr_idx_is_14 & w1027) | (~w1064 & w1063);
+	assign sh_shadow_cond = (sel_spr_sh & spr_idx_is_15) | (~spr_idx_is_14 & sh_no_priority) | (~no_sh_special & not_spr_not_idx14);
 	
-	assign w1068 = w1067 & l618;
+	assign sh_shadow_gated = sh_shadow_cond & active_delay_3;
 	
-	ym_sr_bit sr608(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1068), .sr_out(l608));
+	ym_sr_bit sr608(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_shadow_gated), .sr_out(sh_shadow_pipe_1));
 	
-	assign w1069 = reg_test0[6] ? reg_col_b6 : l608;
+	assign sh_shadow_mux = reg_test0[6] ? reg_col_b6 : sh_shadow_pipe_1;
 	
-	ym_sr_bit sr609(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1069), .sr_out(l609));
+	ym_sr_bit sr609(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_shadow_mux), .sr_out(sh_shadow_pipe_2));
 	
-	ym_sr_bit sr610(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l609), .sr_out(l610));
+	ym_sr_bit sr610(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_shadow_pipe_2), .sr_out(sh_shadow_pipe_3));
 	
-	assign w1070 = reg_test0[6] ? reg_col_b7 : l607;
+	assign sh_highlight_mux = reg_test0[6] ? reg_col_b7 : sh_highlight_pipe;
 	
-	ym_sr_bit sr611(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1070), .sr_out(l611));
+	ym_sr_bit sr611(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_highlight_mux), .sr_out(sh_highlight_pipe_2));
 	
-	ym_sr_bit sr612(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l611), .sr_out(l612));
+	ym_sr_bit sr612(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_highlight_pipe_2), .sr_out(sh_highlight_pipe_3));
 	
-	assign w1071 = ~(l603 & reg_8c_b4);
+	assign spa_b_gate_n = ~(sel_spr_pipe & reg_8c_b4);
 	
-	ym_sr_bit sr613(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1071), .sr_out(l613));
+	ym_sr_bit sr613(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spa_b_gate_n), .sr_out(spa_b_pipe));
 	
-	assign w1072 = reg_m5 & w1021;
+	assign cram_wr_m5 = reg_m5 & cram_wr_any;
 	
-	assign w1073 = ~reg_m5 & w1021;
+	assign cram_wr_m4 = ~reg_m5 & cram_wr_any;
 	
 	ym_slatch #(.DATA_WIDTH(4)) sl_col_index(.MCLK(MCLK), .en(reg_wr_85), .inp(reg_data_l2[3:0]), .val(reg_col_index));
 	
@@ -6631,127 +6631,127 @@ module ym7101
 	
 	ym_slatch sl_col_b7(.MCLK(MCLK), .en(reg_wr_85), .inp(reg_data_l2[7]), .val(reg_col_b7));
 	
-	ym_sr_bit sr614(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1074), .sr_out(l614));
+	ym_sr_bit sr614(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(blank_out_comb), .sr_out(blank_out_pipe));
 	
-	ym_sr_bit sr615(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(i_spa), .sr_out(l615));
+	ym_sr_bit sr615(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(i_spa), .sr_out(spa_in_pipe));
 	
-	assign w1074 = ~(w1082 | (l615 & ~reg_8c_b4));
+	assign blank_out_comb = ~(force_bg_zero | (spa_in_pipe & ~reg_8c_b4));
 	
-	ym_sr_bit #(.SR_LENGTH(8)) sr616(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w389), .sr_out(l616));
+	ym_sr_bit #(.SR_LENGTH(8)) sr616(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w389), .sr_out(active_delay_8));
 	
-	assign w1075 = reg_m5 ? l616 : w389;
+	assign active_mux_m5 = reg_m5 ? active_delay_8 : w389;
 	
-	assign w1076 =
-		(~w1021 ? { color_pal, color_index } : 6'h0) |
-		(w1072 ? vram_address[6:1] : 6'h0) |
-		(w1073 ? { 1'h0, vram_address[4:0] } : 6'h0);
+	assign color_bus_mux =
+		(~cram_wr_any ? { color_pal, color_index } : 6'h0) |
+		(cram_wr_m5 ? vram_address[6:1] : 6'h0) |
+		(cram_wr_m4 ? { 1'h0, vram_address[4:0] } : 6'h0);
 	
-	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w1076), .data_out(l617));
+	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(color_bus_mux), .data_out(color_bus_pipe));
 	
-	ym_sr_bit #(.SR_LENGTH(3)) sr618(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1075), .sr_out(l618));
+	ym_sr_bit #(.SR_LENGTH(3)) sr618(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(active_mux_m5), .sr_out(active_delay_3));
 	
-	assign w1077 = color_index == 4'h0;
+	assign bg_color_zero = color_index == 4'h0;
 	
-	ym_sr_bit sr619(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1077), .sr_out(l619));
+	ym_sr_bit sr619(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(bg_color_zero), .sr_out(bg_zero_pipe_1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr620(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[11:9]), .data_out(l620));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr620(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[11:9]), .data_out(cram_data_hi));
 	
-	assign w1078 = reg_m5 ? l104[3:1] : l104[2:0];
+	assign cram_red_bits = reg_m5 ? l104[3:1] : l104[2:0];
 	
-	assign w1079 = reg_m5 ? l104[7:5] : l104[5:3];
+	assign cram_grn_bits = reg_m5 ? l104[7:5] : l104[5:3];
 	
-	ym_slatch #(.DATA_WIDTH(9)) sl621(.MCLK(MCLK), .en(w1080), .inp(color_ram_out), .val(l621));
+	ym_slatch #(.DATA_WIDTH(9)) sl621(.MCLK(MCLK), .en(cram_latch_en), .inp(color_ram_out), .val(cram_rd_latch));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(9)) sr622(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vdp_cramdot_dis ? color_ram_out_dp : color_ram_out), .data_out(l622));
+	ym_sr_bit_array #(.DATA_WIDTH(9)) sr622(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vdp_cramdot_dis ? color_ram_out_dp : color_ram_out), .data_out(cram_rd_pipe));
 	
-	ym_sr_bit sr623_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w178), .sr_out(l623_1));
+	ym_sr_bit sr623_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w178), .sr_out(cram_wr_dly_1));
 	
-	ym_sr_bit sr623_2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l623_1), .sr_out(l623_2));
+	ym_sr_bit sr623_2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_dly_1), .sr_out(cram_wr_dly_2));
 	
-	ym_sr_bit sr623_3(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l623_2), .sr_out(l623_3));
+	ym_sr_bit sr623_3(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_dly_2), .sr_out(cram_wr_dly_3));
 	
-	assign w1080 = l623_1 & hclk1;
+	assign cram_latch_en = cram_wr_dly_1 & hclk1;
 	
-	assign w1081 = ~(w422 | t37);
+	assign disp_unblanked = ~(w422 | t37);
 	
-	ym_sr_bit sr624(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1081), .sr_out(l624));
+	ym_sr_bit sr624(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(disp_unblanked), .sr_out(disp_unblank_pipe));
 	
-	ym_sr_bit sr625(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l619), .sr_out(l625));
+	ym_sr_bit sr625(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(bg_zero_pipe_1), .sr_out(bg_zero_pipe_2));
 	
-	assign w1082 = l625 & l624;
+	assign force_bg_zero = bg_zero_pipe_2 & disp_unblank_pipe;
 	
-	assign w1083 = reg_m5 ? l622[1] : l622[0];
-	assign w1084 = reg_m5 ? l622[2] : l622[1];
-	assign w1085 = reg_m5 ? l622[4] : l622[2];
-	assign w1086 = reg_m5 ? l622[5] : l622[3];
-	assign w1087 = reg_m5 ? l622[7] : l622[4];
-	assign w1088 = reg_m5 ? l622[8] : l622[5];
+	assign cram_r_bit0 = reg_m5 ? cram_rd_pipe[1] : cram_rd_pipe[0];
+	assign cram_r_bit1 = reg_m5 ? cram_rd_pipe[2] : cram_rd_pipe[1];
+	assign cram_g_bit0 = reg_m5 ? cram_rd_pipe[4] : cram_rd_pipe[2];
+	assign cram_g_bit1 = reg_m5 ? cram_rd_pipe[5] : cram_rd_pipe[3];
+	assign cram_b_bit0 = reg_m5 ? cram_rd_pipe[7] : cram_rd_pipe[4];
+	assign cram_b_bit1 = reg_m5 ? cram_rd_pipe[8] : cram_rd_pipe[5];
 	
-	assign w1089 = w1083 & l624 & reg_80_b2;
-	assign w1090 = w1084 & l624 & reg_80_b2;
-	assign w1091 = w1085 & l624 & reg_80_b2;
-	assign w1092 = w1086 & l624 & reg_80_b2;
-	assign w1093 = w1087 & l624 & reg_80_b2;
-	assign w1094 = w1088 & l624 & reg_80_b2;
+	assign dac_r_bit0 = cram_r_bit0 & disp_unblank_pipe & reg_80_b2;
+	assign dac_r_bit1 = cram_r_bit1 & disp_unblank_pipe & reg_80_b2;
+	assign dac_g_bit0 = cram_g_bit0 & disp_unblank_pipe & reg_80_b2;
+	assign dac_g_bit1 = cram_g_bit1 & disp_unblank_pipe & reg_80_b2;
+	assign dac_b_bit0 = cram_b_bit0 & disp_unblank_pipe & reg_80_b2;
+	assign dac_b_bit1 = cram_b_bit1 & disp_unblank_pipe & reg_80_b2;
 	
-	assign w1098 = l622[6] & l624 & reg_m5;
-	assign w1099 = l622[3] & l624 & reg_m5;
-	assign w1100 = l622[0] & l624 & reg_m5;
+	assign dac_b_bit2 = cram_rd_pipe[6] & disp_unblank_pipe & reg_m5;
+	assign dac_g_bit2 = cram_rd_pipe[3] & disp_unblank_pipe & reg_m5;
+	assign dac_r_bit2 = cram_rd_pipe[0] & disp_unblank_pipe & reg_m5;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr626(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1090, w1089, w1100 }), .data_out(l626));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr626(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ dac_r_bit1, dac_r_bit0, dac_r_bit2 }), .data_out(dac_red_pipe));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr627(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1092, w1091, w1099 }), .data_out(l627));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr627(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ dac_g_bit1, dac_g_bit0, dac_g_bit2 }), .data_out(dac_grn_pipe));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr628(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w1094, w1093, w1098 }), .data_out(l628));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr628(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ dac_b_bit1, dac_b_bit0, dac_b_bit2 }), .data_out(dac_blu_pipe));
 	
-	ym_sr_bit sr629(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l610), .sr_out(shadow_flag));
+	ym_sr_bit sr629(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_shadow_pipe_3), .sr_out(shadow_flag));
 	
-	ym_sr_bit sr630(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l612), .sr_out(highlight_flag));
+	ym_sr_bit sr630(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sh_highlight_pipe_3), .sr_out(highlight_flag));
 	
 	assign normal_intensity = ~(shadow_flag | highlight_flag | ~reg_m5);
 	
-	assign w1102 = ~highlight_flag & shadow_flag;
+	assign shadow_level = ~highlight_flag & shadow_flag;
 	
 	wire [7:0] r_col;
 	wire [7:0] g_col;
 	wire [7:0] b_col;
 	
-	assign r_col[0] = l626 == 3'h0;
-	assign r_col[1] = l626 == 3'h1;
-	assign r_col[2] = l626 == 3'h2;
-	assign r_col[3] = l626 == 3'h3;
-	assign r_col[4] = l626 == 3'h4;
-	assign r_col[5] = l626 == 3'h5;
-	assign r_col[6] = l626 == 3'h6;
-	assign r_col[7] = l626 == 3'h7;
+	assign r_col[0] = dac_red_pipe == 3'h0;
+	assign r_col[1] = dac_red_pipe == 3'h1;
+	assign r_col[2] = dac_red_pipe == 3'h2;
+	assign r_col[3] = dac_red_pipe == 3'h3;
+	assign r_col[4] = dac_red_pipe == 3'h4;
+	assign r_col[5] = dac_red_pipe == 3'h5;
+	assign r_col[6] = dac_red_pipe == 3'h6;
+	assign r_col[7] = dac_red_pipe == 3'h7;
 	
-	assign g_col[0] = l627 == 3'h0;
-	assign g_col[1] = l627 == 3'h1;
-	assign g_col[2] = l627 == 3'h2;
-	assign g_col[3] = l627 == 3'h3;
-	assign g_col[4] = l627 == 3'h4;
-	assign g_col[5] = l627 == 3'h5;
-	assign g_col[6] = l627 == 3'h6;
-	assign g_col[7] = l627 == 3'h7;
+	assign g_col[0] = dac_grn_pipe == 3'h0;
+	assign g_col[1] = dac_grn_pipe == 3'h1;
+	assign g_col[2] = dac_grn_pipe == 3'h2;
+	assign g_col[3] = dac_grn_pipe == 3'h3;
+	assign g_col[4] = dac_grn_pipe == 3'h4;
+	assign g_col[5] = dac_grn_pipe == 3'h5;
+	assign g_col[6] = dac_grn_pipe == 3'h6;
+	assign g_col[7] = dac_grn_pipe == 3'h7;
 	
-	assign b_col[0] = l628 == 3'h0;
-	assign b_col[1] = l628 == 3'h1;
-	assign b_col[2] = l628 == 3'h2;
-	assign b_col[3] = l628 == 3'h3;
-	assign b_col[4] = l628 == 3'h4;
-	assign b_col[5] = l628 == 3'h5;
-	assign b_col[6] = l628 == 3'h6;
-	assign b_col[7] = l628 == 3'h7;
+	assign b_col[0] = dac_blu_pipe == 3'h0;
+	assign b_col[1] = dac_blu_pipe == 3'h1;
+	assign b_col[2] = dac_blu_pipe == 3'h2;
+	assign b_col[3] = dac_blu_pipe == 3'h3;
+	assign b_col[4] = dac_blu_pipe == 3'h4;
+	assign b_col[5] = dac_blu_pipe == 3'h5;
+	assign b_col[6] = dac_blu_pipe == 3'h6;
+	assign b_col[7] = dac_blu_pipe == 3'h7;
 	
-	assign w1103[0][0] = (normal_intensity & r_col[0]) | (~reg_m5 & r_col[0]) | (~reg_m5 & r_col[1]) | (w1102 & r_col[0]);
-	assign w1103[0][1] = (w1102 & r_col[1]);
-	assign w1103[0][2] = (normal_intensity & r_col[1]) | (w1102 & r_col[2]);
-	assign w1103[0][3] = (w1102 & r_col[3]);
-	assign w1103[0][4] = (normal_intensity & r_col[2]) | (w1102 & r_col[4]);
+	assign w1103[0][0] = (normal_intensity & r_col[0]) | (~reg_m5 & r_col[0]) | (~reg_m5 & r_col[1]) | (shadow_level & r_col[0]);
+	assign w1103[0][1] = (shadow_level & r_col[1]);
+	assign w1103[0][2] = (normal_intensity & r_col[1]) | (shadow_level & r_col[2]);
+	assign w1103[0][3] = (shadow_level & r_col[3]);
+	assign w1103[0][4] = (normal_intensity & r_col[2]) | (shadow_level & r_col[4]);
 	assign w1103[0][5] = (~reg_m5 & r_col[2]) | (~reg_m5 & r_col[3]);
-	assign w1103[0][6] = (w1102 & r_col[5]);
-	assign w1103[0][7] = (normal_intensity & r_col[3]) | (w1102 & r_col[6]);
-	assign w1103[0][8] = (w1102 & r_col[7]) | (highlight_flag & r_col[0]);
+	assign w1103[0][6] = (shadow_level & r_col[5]);
+	assign w1103[0][7] = (normal_intensity & r_col[3]) | (shadow_level & r_col[6]);
+	assign w1103[0][8] = (shadow_level & r_col[7]) | (highlight_flag & r_col[0]);
 	assign w1103[0][9] = (normal_intensity & r_col[4]) | (highlight_flag & r_col[1]);
 	assign w1103[0][10] = (highlight_flag & r_col[2]);
 	assign w1103[0][11] = (~reg_m5 & r_col[4]) | (~reg_m5 & r_col[5]);
@@ -6761,15 +6761,15 @@ module ym7101
 	assign w1103[0][15] = (highlight_flag & r_col[6]);
 	assign w1103[0][16] = (normal_intensity & r_col[7]) | (~reg_m5 & r_col[6]) | (~reg_m5 & r_col[7]) | (highlight_flag & r_col[7]);
 	
-	assign w1103[1][0] = (normal_intensity & g_col[0]) | (~reg_m5 & g_col[0]) | (~reg_m5 & g_col[1]) | (w1102 & g_col[0]);
-	assign w1103[1][1] = (w1102 & g_col[1]);
-	assign w1103[1][2] = (normal_intensity & g_col[1]) | (w1102 & g_col[2]);
-	assign w1103[1][3] = (w1102 & g_col[3]);
-	assign w1103[1][4] = (normal_intensity & g_col[2]) | (w1102 & g_col[4]);
+	assign w1103[1][0] = (normal_intensity & g_col[0]) | (~reg_m5 & g_col[0]) | (~reg_m5 & g_col[1]) | (shadow_level & g_col[0]);
+	assign w1103[1][1] = (shadow_level & g_col[1]);
+	assign w1103[1][2] = (normal_intensity & g_col[1]) | (shadow_level & g_col[2]);
+	assign w1103[1][3] = (shadow_level & g_col[3]);
+	assign w1103[1][4] = (normal_intensity & g_col[2]) | (shadow_level & g_col[4]);
 	assign w1103[1][5] = (~reg_m5 & g_col[2]) | (~reg_m5 & g_col[3]);
-	assign w1103[1][6] = (w1102 & g_col[5]);
-	assign w1103[1][7] = (normal_intensity & g_col[3]) | (w1102 & g_col[6]);
-	assign w1103[1][8] = (w1102 & g_col[7]) | (highlight_flag & g_col[0]);
+	assign w1103[1][6] = (shadow_level & g_col[5]);
+	assign w1103[1][7] = (normal_intensity & g_col[3]) | (shadow_level & g_col[6]);
+	assign w1103[1][8] = (shadow_level & g_col[7]) | (highlight_flag & g_col[0]);
 	assign w1103[1][9] = (normal_intensity & g_col[4]) | (highlight_flag & g_col[1]);
 	assign w1103[1][10] = (highlight_flag & g_col[2]);
 	assign w1103[1][11] = (~reg_m5 & g_col[4]) | (~reg_m5 & g_col[5]);
@@ -6779,15 +6779,15 @@ module ym7101
 	assign w1103[1][15] = (highlight_flag & g_col[6]);
 	assign w1103[1][16] = (normal_intensity & g_col[7]) | (~reg_m5 & g_col[6]) | (~reg_m5 & g_col[7]) | (highlight_flag & g_col[7]);
 	
-	assign w1103[2][0] = (normal_intensity & b_col[0]) | (~reg_m5 & b_col[0]) | (~reg_m5 & b_col[1]) | (w1102 & b_col[0]);
-	assign w1103[2][1] = (w1102 & b_col[1]);
-	assign w1103[2][2] = (normal_intensity & b_col[1]) | (w1102 & b_col[2]);
-	assign w1103[2][3] = (w1102 & b_col[3]);
-	assign w1103[2][4] = (normal_intensity & b_col[2]) | (w1102 & b_col[4]);
+	assign w1103[2][0] = (normal_intensity & b_col[0]) | (~reg_m5 & b_col[0]) | (~reg_m5 & b_col[1]) | (shadow_level & b_col[0]);
+	assign w1103[2][1] = (shadow_level & b_col[1]);
+	assign w1103[2][2] = (normal_intensity & b_col[1]) | (shadow_level & b_col[2]);
+	assign w1103[2][3] = (shadow_level & b_col[3]);
+	assign w1103[2][4] = (normal_intensity & b_col[2]) | (shadow_level & b_col[4]);
 	assign w1103[2][5] = (~reg_m5 & b_col[2]) | (~reg_m5 & b_col[3]);
-	assign w1103[2][6] = (w1102 & b_col[5]);
-	assign w1103[2][7] = (normal_intensity & b_col[3]) | (w1102 & b_col[6]);
-	assign w1103[2][8] = (w1102 & b_col[7]) | (highlight_flag & b_col[0]);
+	assign w1103[2][6] = (shadow_level & b_col[5]);
+	assign w1103[2][7] = (normal_intensity & b_col[3]) | (shadow_level & b_col[6]);
+	assign w1103[2][8] = (shadow_level & b_col[7]) | (highlight_flag & b_col[0]);
 	assign w1103[2][9] = (normal_intensity & b_col[4]) | (highlight_flag & b_col[1]);
 	assign w1103[2][10] = (highlight_flag & b_col[2]);
 	assign w1103[2][11] = (~reg_m5 & b_col[4]) | (~reg_m5 & b_col[5]);
@@ -6927,9 +6927,9 @@ module ym7101
 	// 64 entries × 9 bits (3×3-bit RGB). Indexed by the 6-bit color bus
 	// {pal[1:0], index[3:0]}. Written via the video MUX during active display.
 
-	wire [5:0] color_ram_index = l617;
+	wire [5:0] color_ram_index = color_bus_pipe;
 	
-	wire [8:0] color_ram_data_in = { l620, w1079, w1078 };
+	wire [8:0] color_ram_data_in = { cram_data_hi, cram_grn_bits, cram_red_bits };
 	
 	always @(posedge MCLK)
 	begin
@@ -7177,7 +7177,7 @@ module ym7101
 		(l183 ? { 5'h1f, l180 } : 16'hffff) &
 		(sat_rd_pipe_2 ? { 5'h1f, sat_field_latch } : 16'hffff) &
 		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'hffff) &
-		(l623_3 ? { 4'hf, l621[8:6], 1'h1, l621[5:3], 1'h1, l621[2:0], 1'h1 } : 16'hffff);
+		(cram_wr_dly_3 ? { 4'hf, cram_rd_latch[8:6], 1'h1, cram_rd_latch[5:3], 1'h1, cram_rd_latch[2:0], 1'h1 } : 16'hffff);
 		
 	wire [15:0] vram_data_pull =
 		(w328 ? 16'hffff : 16'h0) |
@@ -7187,7 +7187,7 @@ module ym7101
 		(l183 ? 16'h07ff : 16'h0) |
 		(sat_rd_pipe_2 ? 16'h07ff : 16'h0) |
 		(vram_dma_pipe ? 16'hffff : 16'h0) |
-		(l623_3 ? 16'heee : 16'h0);
+		(cram_wr_dly_3 ? 16'heee : 16'h0);
 	
 	wire [16:0] vram_address_val =
 		(w195 ? { reg_sa_high[0], reg_sa_low } : 17'h1ffff) &
@@ -7244,7 +7244,7 @@ module ym7101
 		(l183 ? { 5'h0, l180 } : 16'h0) |
 		(sat_rd_pipe_2 ? { 5'h0, sat_field_latch } : 16'h0) |
 		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'h0) |
-		(l623_3 ? { 4'h0, l621[8:6], 1'h0, l621[5:3], 1'h0, l621[2:0], 1'h0 } : 16'h0);*/
+		(cram_wr_dly_3 ? { 4'h0, cram_rd_latch[8:6], 1'h0, cram_rd_latch[5:3], 1'h0, cram_rd_latch[2:0], 1'h0 } : 16'h0);*/
 		
 	/*assign vram_address =
 		(w195 ? { reg_sa_high[0], reg_sa_low } : 17'h0) |
@@ -7316,7 +7316,7 @@ module ym7101
 		(w89 ? { 2'h3, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'hffff) &
 		(w95 ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
 		(w99 ? { 1'h1, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h1, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'hffff) &
-		(w91 ? { 5'h1f, ~w1094, ~w1093, ~w1098, ~w1092, ~w1091, ~w1099, ~w1090, ~w1089, ~w1100, ~l610, ~l612 } : 16'hffff) &
+		(w91 ? { 5'h1f, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'hffff) &
 		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'hffff);
 	
 	wire [15:0] io_data_pull =
@@ -7350,7 +7350,7 @@ module ym7101
 		(w89 ? { 2'h0, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'h0) |
 		(w95 ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
 		(w99 ? { 1'h0, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h0, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'h0) |
-		(w91 ? { 5'h0, ~w1094, ~w1093, ~w1098, ~w1092, ~w1091, ~w1099, ~w1090, ~w1089, ~w1100, ~l610, ~l612 } : 16'h0) |
+		(w91 ? { 5'h0, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'h0) |
 		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'h0);*/
 	
 	assign CD_o = io_data;
@@ -7378,14 +7378,14 @@ module ym7101
 	assign color_priority = color_bus[6];
 	
 	wire [6:0] color_bus_val =
-		(l606 ? { 1'h0, reg_m5 ? reg_col_pal : 2'h1, reg_col_index } : 7'h7f) &
-		(l603 ? { spr_pri_pipe_2, spr_pal_pipe_2, spr_idx_pipe_2 } : 7'h7f) &
-		(l605 ? { l321, l323, l319 } : 7'h7f) &
-		(l604 ? { l274, l272, l270 } : 7'h7f);
+		(sel_bg_pipe ? { 1'h0, reg_m5 ? reg_col_pal : 2'h1, reg_col_index } : 7'h7f) &
+		(sel_spr_pipe ? { spr_pri_pipe_2, spr_pal_pipe_2, spr_idx_pipe_2 } : 7'h7f) &
+		(sel_b_pipe ? { l321, l323, l319 } : 7'h7f) &
+		(sel_a_pipe ? { l274, l272, l270 } : 7'h7f);
 	
 	reg [6:0] color_bus_mem;
 	
-	assign color_bus = (l606 | l603 | l605 | l604) ? color_bus_val : color_bus_mem;
+	assign color_bus = (sel_bg_pipe | sel_spr_pipe | sel_b_pipe | sel_a_pipe) ? color_bus_val : color_bus_mem;
 	
 	always @(posedge MCLK)
 	begin
@@ -7434,10 +7434,10 @@ module ym7101
 	
 	assign vdp_hsync2 = vdp_hsync2_delay3;
 	
-	assign w1076_dp = { color_pal, color_index };
-	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617_dp(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w1076_dp), .data_out(l617_dp));
+	assign color_bus_dp = { color_pal, color_index };
+	ym_sr_bit_array #(.DATA_WIDTH(6)) sr617_dp(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(color_bus_dp), .data_out(color_bus_pipe_dp));
 	
-	always @(posedge MCLK) color_ram_out_dp <= color_ram[l617_dp];
+	always @(posedge MCLK) color_ram_out_dp <= color_ram[color_bus_pipe_dp];
 	
 	assign vdp_dma_oe_early = reg_8b_b6 ?
 		(io_m1_dff2_l2 | w15 | w28 | w30 | w102) :
