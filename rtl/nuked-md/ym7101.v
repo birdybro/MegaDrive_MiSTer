@@ -1843,96 +1843,96 @@ module ym7101
 	wire lb_wr_clk_5;
 	wire lb_wr_clk_6;
 	wire lb_wr_clk_7;
-	wire w918;
-	wire w919;
-	wire w920;
-	wire w921;
-	wire w922;
-	wire w923;
-	wire w924;
-	wire w925;
-	wire w926;
-	wire w927;
-	wire w928;
-	wire w929;
-	wire w930;
-	wire w931;
-	wire w932;
-	wire w933;
-	wire w934;
-	wire w935;
-	wire w936;
-	wire w937;
-	wire w938;
-	wire w939;
-	wire w940;
-	wire w941;
-	wire w942;
-	wire w943;
-	wire w944;
-	wire w945;
-	wire w946;
-	wire w947;
-	wire w948;
-	wire w949;
-	wire w950;
-	wire w951;
-	wire w952;
-	wire w953;
-	wire w954;
-	wire w955;
-	wire w956;
-	wire w957;
-	wire w958;
-	wire w959;
-	wire w960;
-	wire w961;
-	wire w962;
-	wire w963;
-	wire w964;
-	wire w965;
-	wire w966;
-	wire w967;
-	wire w968;
-	wire w969;
-	wire [1:0] l553;
-	wire l554;
-	wire [3:0] l555;
+	wire lb_idx_nz_0;
+	wire lb_idx_nz_1;
+	wire lb_idx_nz_2;
+	wire lb_idx_nz_3;
+	wire lb_idx_nz_4;
+	wire lb_idx_nz_5;
+	wire lb_idx_nz_6;
+	wire lb_idx_nz_7;
+	wire lb_collide_0;
+	wire lb_collide_1;
+	wire lb_collide_2;
+	wire lb_collide_3;
+	wire lb_collide_4;
+	wire lb_collide_5;
+	wire lb_collide_6;
+	wire lb_collide_7;
+	wire lb_px_nz_0;
+	wire lb_px_nz_1;
+	wire lb_px_nz_2;
+	wire lb_px_nz_3;
+	wire lb_px_nz_4;
+	wire lb_px_nz_5;
+	wire lb_px_nz_6;
+	wire lb_px_nz_7;
+	wire lb_wr_cond_0;
+	wire lb_wr_cond_1;
+	wire lb_wr_cond_2;
+	wire lb_wr_cond_3;
+	wire lb_wr_cond_4;
+	wire lb_wr_cond_5;
+	wire lb_wr_cond_6;
+	wire lb_wr_cond_7;
+	wire lb_wr_mode;
+	wire lb_clear;
+	wire test_idx_0;
+	wire test_idx_1;
+	wire test_idx_2;
+	wire test_idx_3;
+	wire test_rd_pal0_even;
+	wire test_rd_pal1_even;
+	wire test_rd_pri_even;
+	wire test_rd_idx0_even;
+	wire test_rd_idx1_even;
+	wire test_rd_idx2_even;
+	wire test_rd_idx3_even;
+	wire test_rd_pal0_odd;
+	wire test_rd_pal1_odd;
+	wire test_rd_pri_odd;
+	wire test_rd_idx0_odd;
+	wire test_rd_idx1_odd;
+	wire test_rd_idx2_odd;
+	wire test_rd_idx3_odd;
+	wire [1:0] spr_pal_pipe_0;
+	wire spr_pri_pipe_0;
+	wire [3:0] spr_idx_pipe_0;
 	// Final sprite pixel attributes (fed to priority MUX)
 	wire [1:0]spr_pal;      // sprite palette select
 	wire spr_priority;      // sprite priority flag
 	wire [3:0] spr_index;   // sprite color index
-	wire [1:0] w970;
-	wire w971;
-	wire [3:0] w972;
-	wire [1:0] l556;
-	wire l557;
-	wire [3:0] l558;
-	wire [1:0] l559;
-	wire l560;
-	wire [3:0] l561;
-	wire w973;
-	wire [1:0] w974;
-	wire w975;
-	wire w976;
-	wire w977;
-	wire w978;
-	wire l562;
-	wire l563;
-	wire w979;
-	wire [1:0] w980;
-	wire w982;
-	wire [1:0] w983;
-	wire l600;
-	wire w1020;
-	wire w1154;
+	wire [1:0] spr_pal_m5_sel;
+	wire spr_pri_m5_sel;
+	wire [3:0] spr_idx_m5_sel;
+	wire [1:0] spr_pal_pipe_1;
+	wire spr_pri_pipe_1;
+	wire [3:0] spr_idx_pipe_1;
+	wire [1:0] spr_pal_pipe_2;
+	wire spr_pri_pipe_2;
+	wire [3:0] spr_idx_pipe_2;
+	wire spr_out_pri;
+	wire [1:0] spr_out_pal;
+	wire spr_pal_is_3;
+	wire spr_idx_nonzero;
+	wire spr_idx_is_14;
+	wire spr_idx_is_15;
+	wire lb_rd_mask_pipe;
+	wire disp_gate_pipe_2;
+	wire lb_data_pri_hi;
+	wire [1:0] lb_data_pal_hi;
+	wire lb_data_pri_lo;
+	wire [1:0] lb_data_pal_lo;
+	wire spr_collision_pipe;
+	wire spr_collision_any;
+	wire spr_overflow_flag;
 	
 	// Line buffer output: 8 pixels unpacked from 56-bit entry
 	wire [1:0] linebuffer_out_pal[0:7];      // palette per pixel
 	wire linebuffer_out_priority[0:7];        // priority per pixel
 	wire [3:0] linebuffer_out_index[0:7];     // color index per pixel
 
-	// VRAM interface: RAS/CAS/WE sequencer, serial data, refresh (w985-w1020)
+	// VRAM interface: RAS/CAS/WE sequencer, serial data, refresh (w985-spr_collision_any)
 	wire l564;
 	wire l565;
 	wire l566;
@@ -2750,13 +2750,13 @@ module ym7101
 	
 	assign w65 = ~(~reg_m5 | io_address[1] | cpu_sel);
 	
-	assign w66 = ~t9 & w1154;
+	assign w66 = ~t9 & spr_overflow_flag;
 	
 	ym7101_rs_trig rs9(.MCLK(MCLK), .set(w120), .rst(w56), .q(t9));
 	
 	ym7101_rs_trig rs10(.MCLK(MCLK), .set(w66), .rst(l14), .q(t10));
 	
-	ym7101_rs_trig rs11(.MCLK(MCLK), .set(l600), .rst(l14), .q(t11));
+	ym7101_rs_trig rs11(.MCLK(MCLK), .set(spr_collision_pipe), .rst(l14), .q(t11));
 	
 	assign w67 = l115 | reg_test0[3];
 	
@@ -5559,9 +5559,9 @@ module ym7101
 	
 	assign lb_write_window = lb_write_valid | lb_write_pipe;
 	
-	ym_sr_bit sr464(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w951), .sr_out(lb_clear_pipe));
+	ym_sr_bit sr464(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(lb_clear), .sr_out(lb_clear_pipe));
 	
-	assign lb_write_any = lb_clear_pipe | lb_write_window | w951 | reg_test0[13];
+	assign lb_write_any = lb_clear_pipe | lb_write_window | lb_clear | reg_test0[13];
 	
 	assign lb_read_strobe_n = ~(lb_read_latch & ~reg_test0[13]);
 	
@@ -5749,7 +5749,7 @@ module ym7101
 	assign lb_wr_bank_2 = ~(test_bank_2_n & lb_read_strobe_n);
 	assign lb_wr_bank_3 = ~(test_bank_3_n & lb_read_strobe_n);
 	
-	assign lb_rd_mask_n = ~(~reg_test0[13] & l563);
+	assign lb_rd_mask_n = ~(~reg_test0[13] & disp_gate_pipe_2);
 	
 	assign col_eq_0 = pixel_col == 3'h0;
 	assign col_eq_1 = pixel_col == 3'h1;
@@ -5790,7 +5790,7 @@ module ym7101
 	
 	ym_slatch_t #(.DATA_WIDTH(4)) sl522(.MCLK(MCLK), .en(stage_strobe_7), .inp(pixel_data_mux[3:0]), .val(stage_px_7));
 	
-	assign lb_stage_strobe = clk2 & (l562 | pixel_done);
+	assign lb_stage_strobe = clk2 & (lb_rd_mask_pipe | pixel_done);
 	
 	ym_slatch #(.DATA_WIDTH(4)) sl523(.MCLK(MCLK), .en(lb_stage_strobe), .inp(stage_px_0), .val(lb_px_0));
 	
@@ -5848,14 +5848,14 @@ module ym7101
 	assign slot_wr_6 = slot_sel_6 & lb_write_en;
 	assign slot_wr_7 = slot_sel_7 & lb_write_en;
 	
-	assign lb_wr_en_0 = ~(lb_wr_bank_0 | (slot_wr_0 & w942));
-	assign lb_wr_en_1 = ~(lb_wr_bank_0 | (slot_wr_1 & w943));
-	assign lb_wr_en_2 = ~(lb_wr_bank_1 | (slot_wr_2 & w944));
-	assign lb_wr_en_3 = ~(lb_wr_bank_1 | (slot_wr_3 & w945));
-	assign lb_wr_en_4 = ~(lb_wr_bank_2 | (slot_wr_4 & w946));
-	assign lb_wr_en_5 = ~(lb_wr_bank_2 | (slot_wr_5 & w947));
-	assign lb_wr_en_6 = ~(lb_wr_bank_3 | (slot_wr_6 & w948));
-	assign lb_wr_en_7 = ~(lb_wr_bank_3 | (slot_wr_7 & w949));
+	assign lb_wr_en_0 = ~(lb_wr_bank_0 | (slot_wr_0 & lb_wr_cond_0));
+	assign lb_wr_en_1 = ~(lb_wr_bank_0 | (slot_wr_1 & lb_wr_cond_1));
+	assign lb_wr_en_2 = ~(lb_wr_bank_1 | (slot_wr_2 & lb_wr_cond_2));
+	assign lb_wr_en_3 = ~(lb_wr_bank_1 | (slot_wr_3 & lb_wr_cond_3));
+	assign lb_wr_en_4 = ~(lb_wr_bank_2 | (slot_wr_4 & lb_wr_cond_4));
+	assign lb_wr_en_5 = ~(lb_wr_bank_2 | (slot_wr_5 & lb_wr_cond_5));
+	assign lb_wr_en_6 = ~(lb_wr_bank_3 | (slot_wr_6 & lb_wr_cond_6));
+	assign lb_wr_en_7 = ~(lb_wr_bank_3 | (slot_wr_7 & lb_wr_cond_7));
 	
 	ym_dlatch_2 dl538(.MCLK(MCLK), .c2(clk2), .inp(lb_wr_en_0), .nval(lb_wr_latch_0));
 	
@@ -5889,134 +5889,134 @@ module ym7101
 	
 	assign lb_wr_clk_7 = lb_wr_latch_7 & clk1;
 	
-	assign w918 = linebuffer_out_index[0] != 4'h0;
-	assign w919 = linebuffer_out_index[1] != 4'h0;
-	assign w920 = linebuffer_out_index[2] != 4'h0;
-	assign w921 = linebuffer_out_index[3] != 4'h0;
-	assign w922 = linebuffer_out_index[4] != 4'h0;
-	assign w923 = linebuffer_out_index[5] != 4'h0;
-	assign w924 = linebuffer_out_index[6] != 4'h0;
-	assign w925 = linebuffer_out_index[7] != 4'h0;
+	assign lb_idx_nz_0 = linebuffer_out_index[0] != 4'h0;
+	assign lb_idx_nz_1 = linebuffer_out_index[1] != 4'h0;
+	assign lb_idx_nz_2 = linebuffer_out_index[2] != 4'h0;
+	assign lb_idx_nz_3 = linebuffer_out_index[3] != 4'h0;
+	assign lb_idx_nz_4 = linebuffer_out_index[4] != 4'h0;
+	assign lb_idx_nz_5 = linebuffer_out_index[5] != 4'h0;
+	assign lb_idx_nz_6 = linebuffer_out_index[6] != 4'h0;
+	assign lb_idx_nz_7 = linebuffer_out_index[7] != 4'h0;
 	
-	assign w926 = w918 & slot_wr_0 & w934;
-	assign w927 = w919 & slot_wr_1 & w935;
-	assign w928 = w920 & slot_wr_2 & w936;
-	assign w929 = w921 & slot_wr_3 & w937;
-	assign w930 = w922 & slot_wr_4 & w938;
-	assign w931 = w923 & slot_wr_5 & w939;
-	assign w932 = w924 & slot_wr_6 & w940;
-	assign w933 = w925 & slot_wr_7 & w941;
+	assign lb_collide_0 = lb_idx_nz_0 & slot_wr_0 & lb_px_nz_0;
+	assign lb_collide_1 = lb_idx_nz_1 & slot_wr_1 & lb_px_nz_1;
+	assign lb_collide_2 = lb_idx_nz_2 & slot_wr_2 & lb_px_nz_2;
+	assign lb_collide_3 = lb_idx_nz_3 & slot_wr_3 & lb_px_nz_3;
+	assign lb_collide_4 = lb_idx_nz_4 & slot_wr_4 & lb_px_nz_4;
+	assign lb_collide_5 = lb_idx_nz_5 & slot_wr_5 & lb_px_nz_5;
+	assign lb_collide_6 = lb_idx_nz_6 & slot_wr_6 & lb_px_nz_6;
+	assign lb_collide_7 = lb_idx_nz_7 & slot_wr_7 & lb_px_nz_7;
 	
-	assign w934 = lb_px_0 != 4'h0;
-	assign w935 = lb_px_1 != 4'h0;
-	assign w936 = lb_px_2 != 4'h0;
-	assign w937 = lb_px_3 != 4'h0;
-	assign w938 = lb_px_4 != 4'h0;
-	assign w939 = lb_px_5 != 4'h0;
-	assign w940 = lb_px_6 != 4'h0;
-	assign w941 = lb_px_7 != 4'h0;
+	assign lb_px_nz_0 = lb_px_0 != 4'h0;
+	assign lb_px_nz_1 = lb_px_1 != 4'h0;
+	assign lb_px_nz_2 = lb_px_2 != 4'h0;
+	assign lb_px_nz_3 = lb_px_3 != 4'h0;
+	assign lb_px_nz_4 = lb_px_4 != 4'h0;
+	assign lb_px_nz_5 = lb_px_5 != 4'h0;
+	assign lb_px_nz_6 = lb_px_6 != 4'h0;
+	assign lb_px_nz_7 = lb_px_7 != 4'h0;
 	
-	assign w942 = w950 ? w934 : ~w918;
-	assign w943 = w950 ? w935 : ~w919;
-	assign w944 = w950 ? w936 : ~w920;
-	assign w945 = w950 ? w937 : ~w921;
-	assign w946 = w950 ? w938 : ~w922;
-	assign w947 = w950 ? w939 : ~w923;
-	assign w948 = w950 ? w940 : ~w924;
-	assign w949 = w950 ? w941 : ~w925;
+	assign lb_wr_cond_0 = lb_wr_mode ? lb_px_nz_0 : ~lb_idx_nz_0;
+	assign lb_wr_cond_1 = lb_wr_mode ? lb_px_nz_1 : ~lb_idx_nz_1;
+	assign lb_wr_cond_2 = lb_wr_mode ? lb_px_nz_2 : ~lb_idx_nz_2;
+	assign lb_wr_cond_3 = lb_wr_mode ? lb_px_nz_3 : ~lb_idx_nz_3;
+	assign lb_wr_cond_4 = lb_wr_mode ? lb_px_nz_4 : ~lb_idx_nz_4;
+	assign lb_wr_cond_5 = lb_wr_mode ? lb_px_nz_5 : ~lb_idx_nz_5;
+	assign lb_wr_cond_6 = lb_wr_mode ? lb_px_nz_6 : ~lb_idx_nz_6;
+	assign lb_wr_cond_7 = lb_wr_mode ? lb_px_nz_7 : ~lb_idx_nz_7;
 	
-	assign w950 = 1'h0;
+	assign lb_wr_mode = 1'h0;
 	
-	assign w951 = ~lb_read_active_comb;
+	assign lb_clear = ~lb_read_active_comb;
 	
-	assign w952 = reg_test_18[7:6] == 2'h0;
-	assign w953 = reg_test_18[7:6] == 2'h1;
-	assign w954 = reg_test_18[7:6] == 2'h2;
-	assign w955 = reg_test_18[7:6] == 2'h3;
+	assign test_idx_0 = reg_test_18[7:6] == 2'h0;
+	assign test_idx_1 = reg_test_18[7:6] == 2'h1;
+	assign test_idx_2 = reg_test_18[7:6] == 2'h2;
+	assign test_idx_3 = reg_test_18[7:6] == 2'h3;
 	
-	assign w956 =
-		(w952 & linebuffer_out_pal[0][0]) |
-		(w953 & linebuffer_out_pal[2][0]) |
-		(w954 & linebuffer_out_pal[4][0]) |
-		(w955 & linebuffer_out_pal[6][0]);
+	assign test_rd_pal0_even =
+		(test_idx_0 & linebuffer_out_pal[0][0]) |
+		(test_idx_1 & linebuffer_out_pal[2][0]) |
+		(test_idx_2 & linebuffer_out_pal[4][0]) |
+		(test_idx_3 & linebuffer_out_pal[6][0]);
 	
-	assign w957 =
-		(w952 & linebuffer_out_pal[0][1]) |
-		(w953 & linebuffer_out_pal[2][1]) |
-		(w954 & linebuffer_out_pal[4][1]) |
-		(w955 & linebuffer_out_pal[6][1]);
+	assign test_rd_pal1_even =
+		(test_idx_0 & linebuffer_out_pal[0][1]) |
+		(test_idx_1 & linebuffer_out_pal[2][1]) |
+		(test_idx_2 & linebuffer_out_pal[4][1]) |
+		(test_idx_3 & linebuffer_out_pal[6][1]);
 	
-	assign w958 =
-		(w952 & linebuffer_out_priority[0]) |
-		(w953 & linebuffer_out_priority[2]) |
-		(w954 & linebuffer_out_priority[4]) |
-		(w955 & linebuffer_out_priority[6]);
+	assign test_rd_pri_even =
+		(test_idx_0 & linebuffer_out_priority[0]) |
+		(test_idx_1 & linebuffer_out_priority[2]) |
+		(test_idx_2 & linebuffer_out_priority[4]) |
+		(test_idx_3 & linebuffer_out_priority[6]);
 	
-	assign w959 =
-		(w952 & linebuffer_out_index[0][0]) |
-		(w953 & linebuffer_out_index[2][0]) |
-		(w954 & linebuffer_out_index[4][0]) |
-		(w955 & linebuffer_out_index[6][0]);
+	assign test_rd_idx0_even =
+		(test_idx_0 & linebuffer_out_index[0][0]) |
+		(test_idx_1 & linebuffer_out_index[2][0]) |
+		(test_idx_2 & linebuffer_out_index[4][0]) |
+		(test_idx_3 & linebuffer_out_index[6][0]);
 	
-	assign w960 =
-		(w952 & linebuffer_out_index[0][1]) |
-		(w953 & linebuffer_out_index[2][1]) |
-		(w954 & linebuffer_out_index[4][1]) |
-		(w955 & linebuffer_out_index[6][1]);
+	assign test_rd_idx1_even =
+		(test_idx_0 & linebuffer_out_index[0][1]) |
+		(test_idx_1 & linebuffer_out_index[2][1]) |
+		(test_idx_2 & linebuffer_out_index[4][1]) |
+		(test_idx_3 & linebuffer_out_index[6][1]);
 	
-	assign w961 =
-		(w952 & linebuffer_out_index[0][2]) |
-		(w953 & linebuffer_out_index[2][2]) |
-		(w954 & linebuffer_out_index[4][2]) |
-		(w955 & linebuffer_out_index[6][2]);
+	assign test_rd_idx2_even =
+		(test_idx_0 & linebuffer_out_index[0][2]) |
+		(test_idx_1 & linebuffer_out_index[2][2]) |
+		(test_idx_2 & linebuffer_out_index[4][2]) |
+		(test_idx_3 & linebuffer_out_index[6][2]);
 	
-	assign w962 =
-		(w952 & linebuffer_out_index[0][3]) |
-		(w953 & linebuffer_out_index[2][3]) |
-		(w954 & linebuffer_out_index[4][3]) |
-		(w955 & linebuffer_out_index[6][3]);
+	assign test_rd_idx3_even =
+		(test_idx_0 & linebuffer_out_index[0][3]) |
+		(test_idx_1 & linebuffer_out_index[2][3]) |
+		(test_idx_2 & linebuffer_out_index[4][3]) |
+		(test_idx_3 & linebuffer_out_index[6][3]);
 	
-	assign w963 =
-		(w952 & linebuffer_out_pal[1][0]) |
-		(w953 & linebuffer_out_pal[3][0]) |
-		(w954 & linebuffer_out_pal[5][0]) |
-		(w955 & linebuffer_out_pal[7][0]);
+	assign test_rd_pal0_odd =
+		(test_idx_0 & linebuffer_out_pal[1][0]) |
+		(test_idx_1 & linebuffer_out_pal[3][0]) |
+		(test_idx_2 & linebuffer_out_pal[5][0]) |
+		(test_idx_3 & linebuffer_out_pal[7][0]);
 	
-	assign w964 =
-		(w952 & linebuffer_out_pal[1][1]) |
-		(w953 & linebuffer_out_pal[3][1]) |
-		(w954 & linebuffer_out_pal[5][1]) |
-		(w955 & linebuffer_out_pal[7][1]);
+	assign test_rd_pal1_odd =
+		(test_idx_0 & linebuffer_out_pal[1][1]) |
+		(test_idx_1 & linebuffer_out_pal[3][1]) |
+		(test_idx_2 & linebuffer_out_pal[5][1]) |
+		(test_idx_3 & linebuffer_out_pal[7][1]);
 	
-	assign w965 =
-		(w952 & linebuffer_out_priority[1]) |
-		(w953 & linebuffer_out_priority[3]) |
-		(w954 & linebuffer_out_priority[5]) |
-		(w955 & linebuffer_out_priority[7]);
+	assign test_rd_pri_odd =
+		(test_idx_0 & linebuffer_out_priority[1]) |
+		(test_idx_1 & linebuffer_out_priority[3]) |
+		(test_idx_2 & linebuffer_out_priority[5]) |
+		(test_idx_3 & linebuffer_out_priority[7]);
 	
-	assign w966 =
-		(w952 & linebuffer_out_index[1][0]) |
-		(w953 & linebuffer_out_index[3][0]) |
-		(w954 & linebuffer_out_index[5][0]) |
-		(w955 & linebuffer_out_index[7][0]);
+	assign test_rd_idx0_odd =
+		(test_idx_0 & linebuffer_out_index[1][0]) |
+		(test_idx_1 & linebuffer_out_index[3][0]) |
+		(test_idx_2 & linebuffer_out_index[5][0]) |
+		(test_idx_3 & linebuffer_out_index[7][0]);
 	
-	assign w967 =
-		(w952 & linebuffer_out_index[1][1]) |
-		(w953 & linebuffer_out_index[3][1]) |
-		(w954 & linebuffer_out_index[5][1]) |
-		(w955 & linebuffer_out_index[7][1]);
+	assign test_rd_idx1_odd =
+		(test_idx_0 & linebuffer_out_index[1][1]) |
+		(test_idx_1 & linebuffer_out_index[3][1]) |
+		(test_idx_2 & linebuffer_out_index[5][1]) |
+		(test_idx_3 & linebuffer_out_index[7][1]);
 	
-	assign w968 =
-		(w952 & linebuffer_out_index[1][2]) |
-		(w953 & linebuffer_out_index[3][2]) |
-		(w954 & linebuffer_out_index[5][2]) |
-		(w955 & linebuffer_out_index[7][2]);
+	assign test_rd_idx2_odd =
+		(test_idx_0 & linebuffer_out_index[1][2]) |
+		(test_idx_1 & linebuffer_out_index[3][2]) |
+		(test_idx_2 & linebuffer_out_index[5][2]) |
+		(test_idx_3 & linebuffer_out_index[7][2]);
 	
-	assign w969 =
-		(w952 & linebuffer_out_index[1][3]) |
-		(w953 & linebuffer_out_index[3][3]) |
-		(w954 & linebuffer_out_index[5][3]) |
-		(w955 & linebuffer_out_index[7][3]);
+	assign test_rd_idx3_odd =
+		(test_idx_0 & linebuffer_out_index[1][3]) |
+		(test_idx_1 & linebuffer_out_index[3][3]) |
+		(test_idx_2 & linebuffer_out_index[5][3]) |
+		(test_idx_3 & linebuffer_out_index[7][3]);
 	
 	wire [7:0] load_val_pal0;
 	wire [7:0] load_val_pal1;
@@ -6040,80 +6040,80 @@ module ym7101
 		end
 	endgenerate
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr546(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr546(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_pal0), .next(spr_pal[0]));
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr547(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr547(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_pal1), .next(spr_pal[1]));
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr548(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr548(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_priority), .next(spr_priority));
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr549(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr549(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_index0), .next(spr_index[0]));
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr550(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr550(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_index1), .next(spr_index[1]));
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr551(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr551(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_index2), .next(spr_index[2]));
 	
-	ym_dbg_read #(.DATA_WIDTH(8)) sr552(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(w951),
+	ym_dbg_read #(.DATA_WIDTH(8)) sr552(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .prev(1'h0), .load(lb_clear),
 		.load_val(load_val_index3), .next(spr_index[3]));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr553(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_pal), .data_out(l553));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr553(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_pal), .data_out(spr_pal_pipe_0));
 	
-	ym_sr_bit sr554(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_priority), .sr_out(l554));
+	ym_sr_bit sr554(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_priority), .sr_out(spr_pri_pipe_0));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr555(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_index), .data_out(l555));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr555(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_index), .data_out(spr_idx_pipe_0));
 	
-	assign w970 = reg_m5 ? l553 : spr_pal;
+	assign spr_pal_m5_sel = reg_m5 ? spr_pal_pipe_0 : spr_pal;
 	
-	assign w971 = reg_m5 ? l554 : spr_priority;
+	assign spr_pri_m5_sel = reg_m5 ? spr_pri_pipe_0 : spr_priority;
 	
-	assign w972 = reg_m5 ? l555 : spr_index;
+	assign spr_idx_m5_sel = reg_m5 ? spr_idx_pipe_0 : spr_index;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr556(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w970), .data_out(l556));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr556(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_pal_m5_sel), .data_out(spr_pal_pipe_1));
 	
-	ym_sr_bit sr557(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w971), .sr_out(l557));
+	ym_sr_bit sr557(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_pri_m5_sel), .sr_out(spr_pri_pipe_1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr558(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w972), .data_out(l558));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr558(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_idx_m5_sel), .data_out(spr_idx_pipe_1));
 	
-	assign w973 = l557 & reg_m5;
+	assign spr_out_pri = spr_pri_pipe_1 & reg_m5;
 	
-	assign w974 = reg_m5 ? l556 : 2'h1;
+	assign spr_out_pal = reg_m5 ? spr_pal_pipe_1 : 2'h1;
 	
-	assign w975 = l556 == 2'h3;
+	assign spr_pal_is_3 = spr_pal_pipe_1 == 2'h3;
 	
-	assign w976 = l558 != 4'h0;
+	assign spr_idx_nonzero = spr_idx_pipe_1 != 4'h0;
 	
-	assign w977 = l558 == 4'he;
+	assign spr_idx_is_14 = spr_idx_pipe_1 == 4'he;
 
-	assign w978 = l558 == 4'hf;
+	assign spr_idx_is_15 = spr_idx_pipe_1 == 4'hf;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr559(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w974), .data_out(l559));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr559(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_out_pal), .data_out(spr_pal_pipe_2));
 	
-	ym_sr_bit sr560(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w973), .sr_out(l560));
+	ym_sr_bit sr560(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_out_pri), .sr_out(spr_pri_pipe_2));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr561(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l558), .data_out(l561));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr561(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_idx_pipe_1), .data_out(spr_idx_pipe_2));
 	
-	ym_sr_bit sr562(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(lb_rd_mask_n), .sr_out(l562));
+	ym_sr_bit sr562(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(lb_rd_mask_n), .sr_out(lb_rd_mask_pipe));
 	
-	ym_dlatch_1 dl563(.MCLK(MCLK), .c1(clk1), .inp(disp_gate_delay), .nval(l563));
+	ym_dlatch_1 dl563(.MCLK(MCLK), .c1(clk1), .inp(disp_gate_delay), .nval(disp_gate_pipe_2));
 	
-	assign w979 = reg_test0[13] ? io_data[10] : lb_pri_out;
+	assign lb_data_pri_hi = reg_test0[13] ? io_data[10] : lb_pri_out;
 	
-	assign w980 = reg_test0[13] ? io_data[9:8] : lb_pal_out;
+	assign lb_data_pal_hi = reg_test0[13] ? io_data[9:8] : lb_pal_out;
 	
-	assign w982 = reg_test0[13] ? io_data[2] : lb_pri_out;
+	assign lb_data_pri_lo = reg_test0[13] ? io_data[2] : lb_pri_out;
 	
-	assign w983 = reg_test0[13] ? io_data[1:0] : lb_pal_out;
+	assign lb_data_pal_lo = reg_test0[13] ? io_data[1:0] : lb_pal_out;
 	
-	ym_sr_bit sr600(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(w1020), .sr_out(l600));
+	ym_sr_bit sr600(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(spr_collision_any), .sr_out(spr_collision_pipe));
 	
-	assign w1020 = w926 | w927 | w928 | w929 | w930 | w931 | w932 | w933;
+	assign spr_collision_any = lb_collide_0 | lb_collide_1 | lb_collide_2 | lb_collide_3 | lb_collide_4 | lb_collide_5 | lb_collide_6 | lb_collide_7;
 	
-	assign w1154 = spr_overflow_trig & l115;
+	assign spr_overflow_flag = spr_overflow_trig & l115;
 	
 	// -------------------------------------------------------------------------
 	// SAT cache (Sprite Attribute Table)
@@ -6232,36 +6232,36 @@ module ym7101
 	
 	wire [55:0] linebuffer_data_in;
 	
-	assign linebuffer_data_in[0] = w982;
-	assign linebuffer_data_in[2:1] = w983;
+	assign linebuffer_data_in[0] = lb_data_pri_lo;
+	assign linebuffer_data_in[2:1] = lb_data_pal_lo;
 	assign linebuffer_data_in[6:3] = lb_px_0;
 	
-	assign linebuffer_data_in[7] = w979;
-	assign linebuffer_data_in[9:8] = w980;
+	assign linebuffer_data_in[7] = lb_data_pri_hi;
+	assign linebuffer_data_in[9:8] = lb_data_pal_hi;
 	assign linebuffer_data_in[13:10] = lb_px_1;
 	
-	assign linebuffer_data_in[14] = w982;
-	assign linebuffer_data_in[16:15] = w983;
+	assign linebuffer_data_in[14] = lb_data_pri_lo;
+	assign linebuffer_data_in[16:15] = lb_data_pal_lo;
 	assign linebuffer_data_in[20:17] = lb_px_2;
 	
-	assign linebuffer_data_in[21] = w979;
-	assign linebuffer_data_in[23:22] = w980;
+	assign linebuffer_data_in[21] = lb_data_pri_hi;
+	assign linebuffer_data_in[23:22] = lb_data_pal_hi;
 	assign linebuffer_data_in[27:24] = lb_px_3;
 	
-	assign linebuffer_data_in[28] = w982;
-	assign linebuffer_data_in[30:29] = w983;
+	assign linebuffer_data_in[28] = lb_data_pri_lo;
+	assign linebuffer_data_in[30:29] = lb_data_pal_lo;
 	assign linebuffer_data_in[34:31] = lb_px_4;
 	
-	assign linebuffer_data_in[35] = w979;
-	assign linebuffer_data_in[37:36] = w980;
+	assign linebuffer_data_in[35] = lb_data_pri_hi;
+	assign linebuffer_data_in[37:36] = lb_data_pal_hi;
 	assign linebuffer_data_in[41:38] = lb_px_5;
 	
-	assign linebuffer_data_in[42] = w982;
-	assign linebuffer_data_in[44:43] = w983;
+	assign linebuffer_data_in[42] = lb_data_pri_lo;
+	assign linebuffer_data_in[44:43] = lb_data_pal_lo;
 	assign linebuffer_data_in[48:45] = lb_px_6;
 	
-	assign linebuffer_data_in[49] = w979;
-	assign linebuffer_data_in[51:50] = w980;
+	assign linebuffer_data_in[49] = lb_data_pri_hi;
+	assign linebuffer_data_in[51:50] = lb_data_pal_hi;
 	assign linebuffer_data_in[55:52] = lb_px_7;
 	
 	wire [55:0] linebuffer_out2 = lb_write_any ? linebuffer_out : ~56'h0;
@@ -6500,27 +6500,27 @@ module ym7101
 	
 	ym_sr_bit sr602(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w303), .sr_out(cram_wr_lo));
 	
-	assign w1022 = l273 ? w973 : ~l320;
+	assign w1022 = l273 ? spr_out_pri : ~l320;
 	
-	assign w1023 = ~l273 & w973 & l320;
+	assign w1023 = ~l273 & spr_out_pri & l320;
 	
-	assign w1024 = l273 & ~w973 & ~l320;
+	assign w1024 = l273 & ~spr_out_pri & ~l320;
 	
-	assign w1025 = ~l273 & ~w973 & l320;
+	assign w1025 = ~l273 & ~spr_out_pri & l320;
 	
-	assign w1026 = l273 & ~w973 & l320;
+	assign w1026 = l273 & ~spr_out_pri & l320;
 	
-	assign w1027 = w1029 & ~l273 & ~w973 & ~l320;
+	assign w1027 = w1029 & ~l273 & ~spr_out_pri & ~l320;
 	
-	assign w1028 = w1029 & ~l273 & w973 & ~l320;
+	assign w1028 = w1029 & ~l273 & spr_out_pri & ~l320;
 	
 	assign w1029 = reg_ste & reg_m5;
 	
-	assign w1030 = w1029 & w975 & w1065;
+	assign w1030 = w1029 & spr_pal_is_3 & w1065;
 	
-	assign w1031 = w1030 | ~w976;
+	assign w1031 = w1030 | ~spr_idx_nonzero;
 	
-	assign w1032 = ~w646 & (reg_m5 | w976);
+	assign w1032 = ~w646 & (reg_m5 | spr_idx_nonzero);
 	
 	assign w1033 = ~reg_m5 | ~w648;
 	
@@ -6537,7 +6537,7 @@ module ym7101
 	
 	assign w1041 = w1038 | w1039 | w1040 | w1022 | w1023;
 	
-	assign w1042 = w1041 & w976 & w1062;
+	assign w1042 = w1041 & spr_idx_nonzero & w1062;
 	
 	assign w1043 = w1042 & ~w1030;
 	
@@ -6587,17 +6587,17 @@ module ym7101
 	
 	ym_sr_bit sr606(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1061), .sr_out(l606));
 	
-	assign w1063 = ~w1044 & ~w977;
+	assign w1063 = ~w1044 & ~spr_idx_is_14;
 	
 	assign w1064 = ~w1027 & ~w1028;
 	
-	assign w1065 = w977 | w978;
+	assign w1065 = spr_idx_is_14 | spr_idx_is_15;
 	
-	assign w1066 = w1064 & w977 & w1045;
+	assign w1066 = w1064 & spr_idx_is_14 & w1045;
 	
 	ym_sr_bit sr607(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1066), .sr_out(l607));
 	
-	assign w1067 = (w1045 & w978) | (~w977 & w1027) | (~w1064 & w1063);
+	assign w1067 = (w1045 & spr_idx_is_15) | (~spr_idx_is_14 & w1027) | (~w1064 & w1063);
 	
 	assign w1068 = w1067 & l618;
 	
@@ -7315,7 +7315,7 @@ module ym7101
 		(w87 ? { 8'hff, ~l110, ~w360, ~w379, ~w393, ~w402, ~w417, ~w415, ~w424 } : 16'hffff) &
 		(w89 ? { 2'h3, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'hffff) &
 		(w95 ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
-		(w99 ? { 1'h1, ~w969, ~w968, ~w967, ~w966, ~w965, ~w964, ~w963, 1'h1, ~w962, ~w961, ~w960, ~w959, ~w958, ~w957, ~w956 } : 16'hffff) &
+		(w99 ? { 1'h1, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h1, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'hffff) &
 		(w91 ? { 5'h1f, ~w1094, ~w1093, ~w1098, ~w1092, ~w1091, ~w1099, ~w1090, ~w1089, ~w1100, ~l610, ~l612 } : 16'hffff) &
 		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'hffff);
 	
@@ -7349,7 +7349,7 @@ module ym7101
 		(w87 ? { 8'h0, ~l110, ~w360, ~w379, ~w393, ~w402, ~w417, ~w415, ~w424 } : 16'h0) |
 		(w89 ? { 2'h0, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'h0) |
 		(w95 ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
-		(w99 ? { 1'h0, ~w969, ~w968, ~w967, ~w966, ~w965, ~w964, ~w963, 1'h0, ~w962, ~w961, ~w960, ~w959, ~w958, ~w957, ~w956 } : 16'h0) |
+		(w99 ? { 1'h0, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h0, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'h0) |
 		(w91 ? { 5'h0, ~w1094, ~w1093, ~w1098, ~w1092, ~w1091, ~w1099, ~w1090, ~w1089, ~w1100, ~l610, ~l612 } : 16'h0) |
 		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'h0);*/
 	
@@ -7379,7 +7379,7 @@ module ym7101
 	
 	wire [6:0] color_bus_val =
 		(l606 ? { 1'h0, reg_m5 ? reg_col_pal : 2'h1, reg_col_index } : 7'h7f) &
-		(l603 ? { l560, l559, l561 } : 7'h7f) &
+		(l603 ? { spr_pri_pipe_2, spr_pal_pipe_2, spr_idx_pipe_2 } : 7'h7f) &
 		(l605 ? { l321, l323, l319 } : 7'h7f) &
 		(l604 ? { l274, l272, l270 } : 7'h7f);
 	
