@@ -1932,78 +1932,78 @@ module ym7101
 	wire linebuffer_out_priority[0:7];        // priority per pixel
 	wire [3:0] linebuffer_out_index[0:7];     // color index per pixel
 
-	// VRAM interface: RAS/CAS/WE sequencer, serial data, refresh (w985-spr_collision_any)
-	wire l564;
-	wire l565;
-	wire l566;
-	wire l567;
-	wire w985;
-	wire w986;
-	wire w987;
-	wire w988;
-	wire w989;
-	wire w990;
-	wire l568;
-	wire w991;
-	wire w992;
-	wire l569;
-	wire l570;
-	wire l571;
-	wire w993;
-	wire l572;
-	wire l573;
-	wire l574;
-	wire l575;
-	wire l576;
-	wire l577;
-	wire l578;
-	wire l579;
-	wire w994;
-	wire l580;
-	wire l581;
-	wire w995;
-	wire w996;
-	wire w997;
-	wire l582;
-	wire w998;
-	wire l583;
-	wire l584;
-	wire w999;
-	wire l585;
-	wire w1000;
-	wire l586;
-	wire l587;
-	wire l588;
-	wire l589;
-	wire l590;
-	wire w1001;
-	wire w1002;
-	wire w1003;
-	wire w1004;
-	wire l591;
-	wire w1005;
-	wire w1006;
-	wire w1007;
-	wire w1008;
-	wire w1009;
-	wire w1010;
-	wire w1011;
-	wire [7:0] w1012;
-	wire w1013;
-	wire [7:0] l592;
-	wire [7:0] w1014;
-	wire [7:0] l593;
-	wire [7:0] w1015;
-	wire [7:0] l594;
-	wire [7:0] w1016;
-	wire [7:0] l595;
-	wire [7:0] l596;
-	wire [7:0] w1017;
-	wire [7:0] l597;
-	wire [7:0] l598;
-	wire [7:0] l599;
-	wire [7:0] w1018;
-	wire [7:0] w1019;
+	// VRAM interface: RAS/CAS/WE sequencer, serial data, refresh (vram_oe1_comb-spr_collision_any)
+	wire vram_clk_latch;
+	wire vram_clk_pipe;
+	wire vram_clk_pipe_2;
+	wire vram_clk_pipe_3;
+	wire vram_oe1_comb;
+	wire vram_we0_comb;
+	wire vram_we1_comb;
+	wire vram_cas_comb;
+	wire vram_ras_comb;
+	wire vram_data_dir;
+	wire vram_access_pipe;
+	wire vram_access_comb;
+	wire vram_refresh_comb;
+	wire vram_refresh_latch;
+	wire vram_refresh_pipe;
+	wire vram_access_delay;
+	wire vram_oe_gate;
+	wire vram_cycle_latch;
+	wire vram_cycle_pipe;
+	wire vram_req_pipe;
+	wire vram_active_latch;
+	wire vram_phase_pipe;
+	wire vram_phase_lat_1;
+	wire vram_phase_lat_2;
+	wire vram_phase_lat_3;
+	wire vram_addr_gate;
+	wire vram_addr_latch;
+	wire vram_wr_pipe;
+	wire vram_sd_sel;
+	wire vram_addr_hi_sel;
+	wire vram_addr_lo_sel;
+	wire vram_wr_timing;
+	wire vram_capture_strobe;
+	wire vram_dma_pipe;
+	wire vram_we_pipe;
+	wire vram_we_comb;
+	wire vram_we_delay;
+	wire vram_refresh_trig;
+	wire vram_serial_sel;
+	wire vram_cas_sel;
+	wire vram_timing_0;
+	wire vram_timing_1;
+	wire vram_req_pipe_1;
+	wire vram_active_comb;
+	wire vram_addr_strobe;
+	wire vram_data_strobe;
+	wire vram_dma_comb;
+	wire vram_128k_pipe;
+	wire vram_wr_strobe;
+	wire vram_sc_comb;
+	wire vram_se_comb;
+	wire vram_timing_any;
+	wire vram_ys_mux;
+	wire vram_m5_bit1;
+	wire vram_addr_bit;
+	wire [7:0] vram_row_addr;
+	wire vram_128k_bit;
+	wire [7:0] vram_row_latch;
+	wire [7:0] vram_col_addr;
+	wire [7:0] vram_col_latch;
+	wire [7:0] vram_addr_out;
+	wire [7:0] vram_data_addr;
+	wire [7:0] vram_wdata_lo_sel;
+	wire [7:0] vram_wdata_lo;
+	wire [7:0] vram_wdata_hi;
+	wire [7:0] vram_wdata_hi_sel;
+	wire [7:0] vram_wdata_hi_out;
+	wire [7:0] vram_rdata_hi;
+	wire [7:0] vram_rdata_lo;
+	wire [7:0] vram_ad_out;
+	wire [7:0] vram_rd_out;
 	
 	// Video MUX: sprite/plane/background priority, shadow/highlight (w1021-w1073)
 	wire w1021;
@@ -6320,169 +6320,169 @@ module ym7101
 	// timing, captures serial data from the SD bus, and manages DRAM refresh
 	// cycles. The VRAM address and data buses use a wired-AND val/pull pattern.
 
-	ym_dlatch_1 dl564(.MCLK(MCLK), .c1(hclk1), .inp(l116), .nval(l564));
+	ym_dlatch_1 dl564(.MCLK(MCLK), .c1(hclk1), .inp(l116), .nval(vram_clk_latch));
 	
-	ym_sr_bit sr565(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(l564), .sr_out(l565));
+	ym_sr_bit sr565(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(vram_clk_latch), .sr_out(vram_clk_pipe));
 	
-	ym_dlatch_1 dl566(.MCLK(MCLK), .c1(clk1), .inp(l565), .nval(l566));
+	ym_dlatch_1 dl566(.MCLK(MCLK), .c1(clk1), .inp(vram_clk_pipe), .nval(vram_clk_pipe_2));
 	
-	ym_dlatch_2 dl567(.MCLK(MCLK), .c2(clk2), .inp(l566), .nval(l567));
+	ym_dlatch_2 dl567(.MCLK(MCLK), .c2(clk2), .inp(vram_clk_pipe_2), .nval(vram_clk_pipe_3));
 	
-	wire l576_delay = l576; // FIXME
+	wire vram_phase_delay = vram_phase_pipe; // FIXME
 	
-	assign w985 = (l565 & w993 & l579)
-		| (l575 & l576)
-		| (l575 & l576_delay);
+	assign vram_oe1_comb = (vram_clk_pipe & vram_oe_gate & vram_phase_lat_3)
+		| (vram_active_latch & vram_phase_pipe)
+		| (vram_active_latch & vram_phase_delay);
 	
-	assign w986 = l568 & l577 & l579;
-	assign w987 = l577 & l584 & l579;
+	assign vram_we0_comb = vram_access_pipe & vram_phase_lat_1 & vram_phase_lat_3;
+	assign vram_we1_comb = vram_phase_lat_1 & vram_we_pipe & vram_phase_lat_3;
 	
-	assign w988 = (l566 & l587) | l579;
-	assign w989 = (l566 & ~l587) | l578;
+	assign vram_cas_comb = (vram_clk_pipe_2 & vram_cas_sel) | vram_phase_lat_3;
+	assign vram_ras_comb = (vram_clk_pipe_2 & ~vram_cas_sel) | vram_phase_lat_2;
 	
-	assign w990 = (w992 & l579) | l576 | reg_test0[5];
+	assign vram_data_dir = (vram_refresh_comb & vram_phase_lat_3) | vram_phase_pipe | reg_test0[5];
 	
-	ym_sr_bit sr568(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w991), .sr_out(l568));
+	ym_sr_bit sr568(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_access_comb), .sr_out(vram_access_pipe));
 	
-	assign w991 = w286 | l571;
+	assign vram_access_comb = w286 | vram_access_delay;
 	
-	assign w992 = l569 | ~l570;
+	assign vram_refresh_comb = vram_refresh_latch | ~vram_refresh_pipe;
 	
-	ym_dlatch_2 dl569(.MCLK(MCLK), .c2(hclk2), .inp(l570), .nval(l569));
+	ym_dlatch_2 dl569(.MCLK(MCLK), .c2(hclk2), .inp(vram_refresh_pipe), .nval(vram_refresh_latch));
 	
-	ym_dlatch_1 dl570(.MCLK(MCLK), .c1(hclk1), .inp(w1000), .nval(l570));
+	ym_dlatch_1 dl570(.MCLK(MCLK), .c1(hclk1), .inp(vram_refresh_trig), .nval(vram_refresh_pipe));
 	
-	ym_sr_bit sr571(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w286), .sr_out(l571));
+	ym_sr_bit sr571(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w286), .sr_out(vram_access_delay));
 	
-	assign w993 = ~w992 & (l572 | ~l573);
+	assign vram_oe_gate = ~vram_refresh_comb & (vram_cycle_latch | ~vram_cycle_pipe);
 	
-	ym_dlatch_2 dl572(.MCLK(MCLK), .c2(hclk2), .inp(l573), .nval(l572));
+	ym_dlatch_2 dl572(.MCLK(MCLK), .c2(hclk2), .inp(vram_cycle_pipe), .nval(vram_cycle_latch));
 	
-	ym_dlatch_1 dl573(.MCLK(MCLK), .c1(hclk1), .inp(l590), .nval(l573));
+	ym_dlatch_1 dl573(.MCLK(MCLK), .c1(hclk1), .inp(vram_req_pipe_1), .nval(vram_cycle_pipe));
 	
-	ym_sr_bit sr574(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l109), .sr_out(l574));
+	ym_sr_bit sr574(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l109), .sr_out(vram_req_pipe));
 	
-	ym_dlatch_1 dl575(.MCLK(MCLK), .c1(hclk1), .inp(w1001), .nval(l575));
+	ym_dlatch_1 dl575(.MCLK(MCLK), .c1(hclk1), .inp(vram_active_comb), .nval(vram_active_latch));
 	
-	ym_sr_bit sr576(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(~l564), .sr_out(l576));
+	ym_sr_bit sr576(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(~vram_clk_latch), .sr_out(vram_phase_pipe));
 	
-	ym_dlatch_1 dl577(.MCLK(MCLK), .c1(clk1), .inp(l576), .nval(l577));
+	ym_dlatch_1 dl577(.MCLK(MCLK), .c1(clk1), .inp(vram_phase_pipe), .nval(vram_phase_lat_1));
 	
-	ym_dlatch_2 dl578(.MCLK(MCLK), .c2(clk2), .inp(l577), .nval(l578));
+	ym_dlatch_2 dl578(.MCLK(MCLK), .c2(clk2), .inp(vram_phase_lat_1), .nval(vram_phase_lat_2));
 	
-	ym_dlatch_1 dl579(.MCLK(MCLK), .c1(clk1), .inp(~l578), .nval(l579));
+	ym_dlatch_1 dl579(.MCLK(MCLK), .c1(clk1), .inp(~vram_phase_lat_2), .nval(vram_phase_lat_3));
 	
-	assign w994 = ~((l116 & ~w265 & ~w263) | (w265 & l581));
+	assign vram_addr_gate = ~((l116 & ~w265 & ~w263) | (w265 & vram_wr_pipe));
 	
-	ym_dlatch_1 dl580(.MCLK(MCLK), .c1(hclk1), .inp(w994), .nval(l580));
+	ym_dlatch_1 dl580(.MCLK(MCLK), .c1(hclk1), .inp(vram_addr_gate), .nval(vram_addr_latch));
 	
-	ym_sr_bit sr581(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l582), .sr_out(l581));
+	ym_sr_bit sr581(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_timing), .sr_out(vram_wr_pipe));
 	
-	assign w995 = l565;
-	assign w996 = l576 & l567; // addr high
-	assign w997 = l578 & l576; // addr low
+	assign vram_sd_sel = vram_clk_pipe;
+	assign vram_addr_hi_sel = vram_phase_pipe & vram_clk_pipe_3; // addr high
+	assign vram_addr_lo_sel = vram_phase_lat_2 & vram_phase_pipe; // addr low
 	
-	ym_sr_bit sr582(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w195), .sr_out(l582));
+	ym_sr_bit sr582(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w195), .sr_out(vram_wr_timing));
 	
-	assign w998 = l577 & l579;
+	assign vram_capture_strobe = vram_phase_lat_1 & vram_phase_lat_3;
 	
-	ym_sr_bit sr583(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1004), .sr_out(l583));
+	ym_sr_bit sr583(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_dma_comb), .sr_out(vram_dma_pipe));
 	
-	ym_sr_bit sr584(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w999), .sr_out(l584));
+	ym_sr_bit sr584(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_we_comb), .sr_out(vram_we_pipe));
 	
-	assign w999 = w288 | l585;
+	assign vram_we_comb = w288 | vram_we_delay;
 	
-	ym_sr_bit sr585(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w288), .sr_out(l585));
+	ym_sr_bit sr585(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w288), .sr_out(vram_we_delay));
 	
-	assign w1000 = l585 | l571;
+	assign vram_refresh_trig = vram_we_delay | vram_access_delay;
 	
-	ym_sr_bit sr586(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w1007), .sr_out(l586));
+	ym_sr_bit sr586(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(vram_se_comb), .sr_out(vram_serial_sel));
 	
-	ym_sr_bit sr587(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w1008), .sr_out(l587));
+	ym_sr_bit sr587(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_timing_any), .sr_out(vram_cas_sel));
 	
-	ym_sr_bit sr588(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l108), .sr_out(l588));
+	ym_sr_bit sr588(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l108), .sr_out(vram_timing_0));
 	
-	ym_sr_bit sr589(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l588), .sr_out(l589));
+	ym_sr_bit sr589(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_timing_0), .sr_out(vram_timing_1));
 	
-	ym_sr_bit sr590(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l574), .sr_out(l590));
+	ym_sr_bit sr590(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_req_pipe), .sr_out(vram_req_pipe_1));
 	
-	assign w1001 = l574 | l590 | w1008;
+	assign vram_active_comb = vram_req_pipe | vram_req_pipe_1 | vram_timing_any;
 	
-	assign w1002 = l116 & hclk1;
+	assign vram_addr_strobe = l116 & hclk1;
 	
-	assign w1003 = hclk2 & l580;
+	assign vram_data_strobe = hclk2 & vram_addr_latch;
 	
-	assign w1004 = l116 & l30;
+	assign vram_dma_comb = l116 & l30;
 	
-	ym_sr_bit sr591(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w265), .sr_out(l591));
+	ym_sr_bit sr591(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w265), .sr_out(vram_128k_pipe));
 	
-	assign w1005 = hclk1 & l116;
+	assign vram_wr_strobe = hclk1 & l116;
 	
-	assign w1006 = clk1 & (~w109 | hclk2);
+	assign vram_sc_comb = clk1 & (~w109 | hclk2);
 	
-	assign w1007 = w109 & hclk1;
+	assign vram_se_comb = w109 & hclk1;
 	
-	assign w1008 = l588 | l589;
+	assign vram_timing_any = vram_timing_0 | vram_timing_1;
 	
-	assign w1009 = reg_test0[5] ? vram_address[16] : l614;
+	assign vram_ys_mux = reg_test0[5] ? vram_address[16] : l614;
 	
-	assign w1010 = reg_m5 & vram_address[1];
+	assign vram_m5_bit1 = reg_m5 & vram_address[1];
 	
-	assign w1011 = w1010 | (~reg_m5 & vram_address[9]);
+	assign vram_addr_bit = vram_m5_bit1 | (~reg_m5 & vram_address[9]);
 	
-	assign w1013 = reg_8b_b4 ? reg_8b_b5 : vram_address[16];
+	assign vram_128k_bit = reg_8b_b4 ? reg_8b_b5 : vram_address[16];
 	
-	assign w1012 = w109 ? // 128k
-		{ w1013, vram_address[15:10], w1010 } :
-		{ vram_address[15:10], w1011, vram_address[0] };
+	assign vram_row_addr = w109 ? // 128k
+		{ vram_128k_bit, vram_address[15:10], vram_m5_bit1 } :
+		{ vram_address[15:10], vram_addr_bit, vram_address[0] };
 	
-	assign w1014 = reg_m5 ? vram_address[9:2] : vram_address[8:1];
+	assign vram_col_addr = reg_m5 ? vram_address[9:2] : vram_address[8:1];
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl592(.MCLK(MCLK), .en(w1002), .inp(w1012), .val(l592));
+	ym_slatch #(.DATA_WIDTH(8)) sl592(.MCLK(MCLK), .en(vram_addr_strobe), .inp(vram_row_addr), .val(vram_row_latch));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl593(.MCLK(MCLK), .en(w1002), .inp(w1014), .val(l593));
+	ym_slatch #(.DATA_WIDTH(8)) sl593(.MCLK(MCLK), .en(vram_addr_strobe), .inp(vram_col_addr), .val(vram_col_latch));
 	
-	assign w1015 =
-		(w997 ? l592 : 8'h0) |
-		(w996 ? l593 : 8'h0) |
-		(w995 ? l594 : 8'h0);
+	assign vram_addr_out =
+		(vram_addr_lo_sel ? vram_row_latch : 8'h0) |
+		(vram_addr_hi_sel ? vram_col_latch : 8'h0) |
+		(vram_sd_sel ? vram_data_addr : 8'h0);
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl594(.MCLK(MCLK), .en(w1003), .inp(w1016), .val(l594));
+	ym_slatch #(.DATA_WIDTH(8)) sl594(.MCLK(MCLK), .en(vram_data_strobe), .inp(vram_wdata_lo_sel), .val(vram_data_addr));
 	
-	assign w1016 = l591 ? l599 : l595;
+	assign vram_wdata_lo_sel = vram_128k_pipe ? vram_rdata_lo : vram_wdata_lo;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl595(.MCLK(MCLK), .en(w1005), .inp(vram_data[7:0]), .val(l595));
+	ym_slatch #(.DATA_WIDTH(8)) sl595(.MCLK(MCLK), .en(vram_wr_strobe), .inp(vram_data[7:0]), .val(vram_wdata_lo));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl596(.MCLK(MCLK), .en(w1005), .inp(vram_data[15:8]), .val(l596));
+	ym_slatch #(.DATA_WIDTH(8)) sl596(.MCLK(MCLK), .en(vram_wr_strobe), .inp(vram_data[15:8]), .val(vram_wdata_hi));
 	
-	assign w1017 = l591 ? l598 : l596;
+	assign vram_wdata_hi_sel = vram_128k_pipe ? vram_rdata_hi : vram_wdata_hi;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl597(.MCLK(MCLK), .en(w1003), .inp(w1017), .val(l597));
+	ym_slatch #(.DATA_WIDTH(8)) sl597(.MCLK(MCLK), .en(vram_data_strobe), .inp(vram_wdata_hi_sel), .val(vram_wdata_hi_out));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl598(.MCLK(MCLK), .en(w998), .inp(RD_i), .val(l598));
+	ym_slatch #(.DATA_WIDTH(8)) sl598(.MCLK(MCLK), .en(vram_capture_strobe), .inp(RD_i), .val(vram_rdata_hi));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl599(.MCLK(MCLK), .en(w998), .inp(AD_i), .val(l599));
+	ym_slatch #(.DATA_WIDTH(8)) sl599(.MCLK(MCLK), .en(vram_capture_strobe), .inp(AD_i), .val(vram_rdata_lo));
 	
-	assign w1018 = reg_test0[5] ? vram_address[7:0] : w1015;
+	assign vram_ad_out = reg_test0[5] ? vram_address[7:0] : vram_addr_out;
 	
-	assign w1019 = reg_test0[5] ? vram_address[15:8] : l597;
+	assign vram_rd_out = reg_test0[5] ? vram_address[15:8] : vram_wdata_hi_out;
 	
-	assign SE0 = l586;
-	assign SE1 = ~l586;
-	assign SC = ~w1006;
-	assign RAS1 = ~w989;
-	assign CAS1 = ~w988;
-	assign WE1 = ~w987;
-	assign WE0 = ~w986;
-	assign OE1 = ~w985;
+	assign SE0 = vram_serial_sel;
+	assign SE1 = ~vram_serial_sel;
+	assign SC = ~vram_sc_comb;
+	assign RAS1 = ~vram_ras_comb;
+	assign CAS1 = ~vram_cas_comb;
+	assign WE1 = ~vram_we1_comb;
+	assign WE0 = ~vram_we0_comb;
+	assign OE1 = ~vram_oe1_comb;
 	
-	assign RD_d = ~w990;
-	assign AD_d = ~w990;
+	assign RD_d = ~vram_data_dir;
+	assign AD_d = ~vram_data_dir;
 	
-	assign RD_o = w1019;
-	assign AD_o = w1018;
+	assign RD_o = vram_rd_out;
+	assign AD_o = vram_ad_out;
 	
-	assign YS = w1009;
+	assign YS = vram_ys_mux;
 	
 	assign SPA_B_pull = ~l613;
 	
@@ -7176,7 +7176,7 @@ module ym7101
 		(w326 ? { l102, w354 } : 16'hffff) &
 		(l183 ? { 5'h1f, l180 } : 16'hffff) &
 		(sat_rd_pipe_2 ? { 5'h1f, sat_field_latch } : 16'hffff) &
-		(l583 ? { l598, l599 } : 16'hffff) &
+		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'hffff) &
 		(l623_3 ? { 4'hf, l621[8:6], 1'h1, l621[5:3], 1'h1, l621[2:0], 1'h1 } : 16'hffff);
 		
 	wire [15:0] vram_data_pull =
@@ -7186,7 +7186,7 @@ module ym7101
 		(w326 ? 16'hffff : 16'h0) |
 		(l183 ? 16'h07ff : 16'h0) |
 		(sat_rd_pipe_2 ? 16'h07ff : 16'h0) |
-		(l583 ? 16'hffff : 16'h0) |
+		(vram_dma_pipe ? 16'hffff : 16'h0) |
 		(l623_3 ? 16'heee : 16'h0);
 	
 	wire [16:0] vram_address_val =
@@ -7243,7 +7243,7 @@ module ym7101
 		(w326 ? { l102, w354 } : 16'h0) |
 		(l183 ? { 5'h0, l180 } : 16'h0) |
 		(sat_rd_pipe_2 ? { 5'h0, sat_field_latch } : 16'h0) |
-		(l583 ? { l598, l599 } : 16'h0) |
+		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'h0) |
 		(l623_3 ? { 4'h0, l621[8:6], 1'h0, l621[5:3], 1'h0, l621[2:0], 1'h0 } : 16'h0);*/
 		
 	/*assign vram_address =
