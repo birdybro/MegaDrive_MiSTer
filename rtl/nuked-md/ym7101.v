@@ -2129,91 +2129,91 @@ module ym7101
 	// PSG (SN76489) signals
 	wire psg_clk1;
 	wire psg_clk2;
-	wire l631;
-	wire l632;
-	wire w1104;
-	wire w1105;
-	wire l633;
-	wire l634;
+	wire psg_rst_pipe_1;
+	wire psg_rst_pipe_2;
+	wire psg_rst_edge;
+	wire psg_div_fb;
+	wire psg_div_out;
+	wire psg_div_latch;
 	wire psg_hclk1;
 	wire psg_hclk2;
-	wire t43;
-	wire w1106;
-	wire l635;
-	wire l636;
-	wire l637;
-	wire t44;
-	wire l638;
-	wire w1107;
-	wire w1108;
-	wire w1109;
-	wire w1110;
-	wire l639;
-	wire w1111;
-	wire w1112;
-	wire w1113;
-	wire w1114;
-	wire w1115;
-	wire [9:0] w1116;
-	wire [9:0] w1117;
-	wire w1118;
-	wire [15:0] l640;
-	wire w1119;
-	wire w1120;
-	wire [9:0] l641;
-	wire [9:0] l642;
-	wire [9:0] l643;
-	wire [9:0] l644;
-	wire w1121;
-	wire w1122;
-	wire w1123;
-	wire w1124;
-	wire w1125;
-	wire l645;
-	wire l646;
-	wire l647;
-	wire l648;
-	wire l649;
-	wire [9:0] w1126;
-	wire w1127;
-	wire w1128;
-	wire w1129;
-	wire w1130;
-	wire w1131;
-	wire [3:0] l650;
-	wire w1132;
-	wire l651;
-	wire w1133;
-	wire [3:0] l652;
-	wire [7:0] l653;
-	wire [7:0] w1134;
-	wire [2:0] l654;
-	wire w1135;
-	wire w1136;
-	wire w1137;
-	wire w1138;
-	wire w1139;
-	wire w1140;
-	wire w1141;
-	wire w1142;
-	wire [3:0] w1143;
-	wire [3:0] l655;
-	wire [3:0] l656;
-	wire [3:0] l657;
-	wire [3:0] l658;
-	wire w1144;
-	wire [9:0] l659;
-	wire [9:0] l660;
-	wire [9:0] l661;
-	wire [2:0] l662;
-	wire w1145;
-	wire w1146;
-	wire w1147;
-	wire w1148;
-	wire [3:0] w1149;
-	wire [3:0] w1150;
-	wire [3:0] w1151;
-	wire [3:0] w1152;
+	wire psg_wr_trig;
+	wire psg_wr_comb;
+	wire psg_wr_pipe_1;
+	wire psg_wr_pipe_2;
+	wire psg_rst_hclk;
+	wire psg_noise_trig;
+	wire psg_noise_pipe;
+	wire psg_tone_en;
+	wire psg_cnt_down;
+	wire psg_cnt_up;
+	wire psg_cnt_zero;
+	wire psg_cnt_zero_pipe;
+	wire psg_noise_fb;
+	wire psg_test_mute_0;
+	wire psg_test_mute_1;
+	wire psg_test_mute_2;
+	wire psg_test_mute_3;
+	wire [9:0] psg_freq_mux;
+	wire [9:0] psg_freq_inc;
+	wire psg_lfsr_fb;
+	wire [15:0] psg_lfsr;
+	wire psg_lfsr_nz;
+	wire psg_lfsr_gate;
+	wire [9:0] psg_freq_pipe_0;
+	wire [9:0] psg_freq_pipe_1;
+	wire [9:0] psg_freq_pipe_2;
+	wire [9:0] psg_freq_pipe_3;
+	wire psg_tone_active;
+	wire psg_ch0_out;
+	wire psg_ch1_out;
+	wire psg_ch2_out;
+	wire psg_ch3_out;
+	wire psg_sq_0;
+	wire psg_sq_1;
+	wire psg_sq_2;
+	wire psg_sq_3;
+	wire psg_div_cnt;
+	wire [9:0] psg_freq_sel;
+	wire psg_freq_match;
+	wire psg_ch3_sel;
+	wire psg_ch2_sel;
+	wire psg_ch1_sel;
+	wire psg_ch0_sel;
+	wire [3:0] psg_ch_ring;
+	wire psg_ring_wrap;
+	wire psg_rst_sync;
+	wire psg_not_rst;
+	wire [3:0] psg_tone_ring;
+	wire [7:0] psg_data_latch;
+	wire [7:0] psg_data_mux;
+	wire [2:0] psg_reg_addr;
+	wire psg_wr_vol0;
+	wire psg_wr_vol1;
+	wire psg_wr_freq2;
+	wire psg_wr_freq1;
+	wire psg_wr_vol2;
+	wire psg_wr_freq0;
+	wire psg_wr_vol3;
+	wire psg_wr_noise;
+	wire [3:0] psg_vol_data;
+	wire [3:0] psg_vol_0;
+	wire [3:0] psg_vol_1;
+	wire [3:0] psg_vol_2;
+	wire [3:0] psg_vol_3;
+	wire psg_latch_mode;
+	wire [9:0] psg_freq_0;
+	wire [9:0] psg_freq_1;
+	wire [9:0] psg_freq_2;
+	wire [2:0] psg_noise_ctrl;
+	wire psg_sq0_mute;
+	wire psg_sq1_mute;
+	wire psg_sq2_mute;
+	wire psg_noise_mute;
+	wire [3:0] psg_atten_0;
+	wire [3:0] psg_atten_1;
+	wire [3:0] psg_atten_2;
+	wire [3:0] psg_atten_3;
 
 	// VDP configuration registers (directly named from register map)
 	wire [14:0] reg_test0;   // test register 0
@@ -6954,172 +6954,172 @@ module ym7101
 	assign psg_clk1 = cpu_clk0;
 	assign psg_clk2 = ~cpu_clk0;
 	
-	ym_sr_bit sr631(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(reset_comb), .sr_out(l631));
-	ym_sr_bit sr632(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(l631), .sr_out(l632));
+	ym_sr_bit sr631(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(reset_comb), .sr_out(psg_rst_pipe_1));
+	ym_sr_bit sr632(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(psg_rst_pipe_1), .sr_out(psg_rst_pipe_2));
 	
-	assign w1104 = l631 & ~l632;
+	assign psg_rst_edge = psg_rst_pipe_1 & ~psg_rst_pipe_2;
 	
-	assign w1105 = ~w1104 & ~l633;
+	assign psg_div_fb = ~psg_rst_edge & ~psg_div_out;
 	
-	ym_cnt_bit cnt649(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .c_in(l633), .reset(w1104), .val(l649));
+	ym_cnt_bit cnt649(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .c_in(psg_div_out), .reset(psg_rst_edge), .val(psg_div_cnt));
 	
-	ym_sr_bit sr633(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(w1105), .sr_out(l633));
+	ym_sr_bit sr633(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(psg_div_fb), .sr_out(psg_div_out));
 	
-	ym_dlatch_1 dl634(.MCLK(MCLK), .c1(psg_clk1), .inp(l649), .nval(l634));
+	ym_dlatch_1 dl634(.MCLK(MCLK), .c1(psg_clk1), .inp(psg_div_cnt), .nval(psg_div_latch));
 	
-	assign psg_hclk1 = l634 & l633;
+	assign psg_hclk1 = psg_div_latch & psg_div_out;
 	
-	assign psg_hclk2 = ~l634 & l633;
+	assign psg_hclk2 = ~psg_div_latch & psg_div_out;
 	
-	ym7101_rs_trig rs43(.MCLK(MCLK), .set(l635), .rst(w111), .q(t43));
+	ym7101_rs_trig rs43(.MCLK(MCLK), .set(psg_wr_pipe_1), .rst(w111), .q(psg_wr_trig));
 	
-	assign w1106 = ~t43 & ~w111;
+	assign psg_wr_comb = ~psg_wr_trig & ~w111;
 	
-	ym_sr_bit sr635(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(w1106), .sr_out(l635));
+	ym_sr_bit sr635(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(psg_wr_comb), .sr_out(psg_wr_pipe_1));
 	
-	ym_sr_bit sr636(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(l635), .sr_out(l636));
+	ym_sr_bit sr636(.MCLK(MCLK), .c1(psg_clk1), .c2(psg_clk2), .bit_in(psg_wr_pipe_1), .sr_out(psg_wr_pipe_2));
 	
-	ym_sr_bit sr637(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(reset_comb), .sr_out(l637));
+	ym_sr_bit sr637(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(reset_comb), .sr_out(psg_rst_hclk));
 	
-	ym7101_rs_trig rs44(.MCLK(MCLK), .set(w1142), .rst(l638), .q(t44));
+	ym7101_rs_trig rs44(.MCLK(MCLK), .set(psg_wr_noise), .rst(psg_noise_pipe), .q(psg_noise_trig));
 	
-	ym_sr_bit sr638(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(t44), .sr_out(l638));
+	ym_sr_bit sr638(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_noise_trig), .sr_out(psg_noise_pipe));
 	
-	assign w1107 = ~l638 & ~l637;
+	assign psg_tone_en = ~psg_noise_pipe & ~psg_rst_hclk;
 	
-	assign w1108 = w1107 & ~w1110;
+	assign psg_cnt_down = psg_tone_en & ~psg_cnt_zero;
 	
-	assign w1109 = w1107 & w1110;
+	assign psg_cnt_up = psg_tone_en & psg_cnt_zero;
 	
-	assign w1110 = ~l639 & w1111;
+	assign psg_cnt_zero = ~psg_cnt_zero_pipe & psg_noise_fb;
 	
-	ym_sr_bit sr639(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(w1111), .sr_out(l639));
+	ym_sr_bit sr639(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_noise_fb), .sr_out(psg_cnt_zero_pipe));
 	
-	assign w1111 = l662[1:0] == 2'h3 ? l647 : l648;
+	assign psg_noise_fb = psg_noise_ctrl[1:0] == 2'h3 ? psg_sq_2 : psg_sq_3;
 	
-	assign w1112 = reg_test0[9] & reg_test0[11:10] != 2'h0;
-	assign w1113 = reg_test0[9] & reg_test0[11:10] != 2'h1;
-	assign w1114 = reg_test0[9] & reg_test0[11:10] != 2'h2;
-	assign w1115 = reg_test0[9] & reg_test0[11:10] != 2'h3;
+	assign psg_test_mute_0 = reg_test0[9] & reg_test0[11:10] != 2'h0;
+	assign psg_test_mute_1 = reg_test0[9] & reg_test0[11:10] != 2'h1;
+	assign psg_test_mute_2 = reg_test0[9] & reg_test0[11:10] != 2'h2;
+	assign psg_test_mute_3 = reg_test0[9] & reg_test0[11:10] != 2'h3;
 	
-	assign w1116 = w1121 ? l644 : 10'h0;
+	assign psg_freq_mux = psg_tone_active ? psg_freq_pipe_3 : 10'h0;
 	
-	assign w1117 = w1116 + 10'h1;
+	assign psg_freq_inc = psg_freq_mux + 10'h1;
 	
-	assign w1118 = l640[15] ^ l640[12];
+	assign psg_lfsr_fb = psg_lfsr[15] ^ psg_lfsr[12];
 	
-	ym_sr_bit_en #(.SR_LENGTH(16)) sr640(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .en1(w1109), .en2(w1108),
-		.data_in(~w1119 | ~w1120), .data_out(l640));
+	ym_sr_bit_en #(.SR_LENGTH(16)) sr640(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .en1(psg_cnt_up), .en2(psg_cnt_down),
+		.data_in(~psg_lfsr_nz | ~psg_lfsr_gate), .data_out(psg_lfsr));
 	
-	assign w1119 = l640[14:0] != 15'h0;
+	assign psg_lfsr_nz = psg_lfsr[14:0] != 15'h0;
 	
-	assign w1120 = ~(w1118 & l662[2]);
+	assign psg_lfsr_gate = ~(psg_lfsr_fb & psg_noise_ctrl[2]);
 	
-	ym_sr_bit_array #(.DATA_WIDTH(10)) sr641(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(w1117), .data_out(l641));
+	ym_sr_bit_array #(.DATA_WIDTH(10)) sr641(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(psg_freq_inc), .data_out(psg_freq_pipe_0));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(10)) sr642(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(l641), .data_out(l642));
+	ym_sr_bit_array #(.DATA_WIDTH(10)) sr642(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(psg_freq_pipe_0), .data_out(psg_freq_pipe_1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(10)) sr643(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(l642), .data_out(l643));
+	ym_sr_bit_array #(.DATA_WIDTH(10)) sr643(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(psg_freq_pipe_1), .data_out(psg_freq_pipe_2));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(10)) sr644(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(l643), .data_out(l644));
+	ym_sr_bit_array #(.DATA_WIDTH(10)) sr644(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .data_in(psg_freq_pipe_2), .data_out(psg_freq_pipe_3));
 	
-	assign w1121 = ~l651 & ~w1127;
+	assign psg_tone_active = ~psg_rst_sync & ~psg_freq_match;
 	
-	assign w1122 = l650[0] & l652[3];
-	assign w1123 = l650[0] & l652[2];
-	assign w1124 = l650[0] & l652[1];
-	assign w1125 = l650[0] & l652[0];
+	assign psg_ch0_out = psg_ch_ring[0] & psg_tone_ring[3];
+	assign psg_ch1_out = psg_ch_ring[0] & psg_tone_ring[2];
+	assign psg_ch2_out = psg_ch_ring[0] & psg_tone_ring[1];
+	assign psg_ch3_out = psg_ch_ring[0] & psg_tone_ring[0];
 	
-	ym_cnt_bit cnt645(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(w1122), .reset(l651), .val(l645));
+	ym_cnt_bit cnt645(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(psg_ch0_out), .reset(psg_rst_sync), .val(psg_sq_0));
 	
-	ym_cnt_bit cnt646(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(w1123), .reset(l651), .val(l646));
+	ym_cnt_bit cnt646(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(psg_ch1_out), .reset(psg_rst_sync), .val(psg_sq_1));
 	
-	ym_cnt_bit cnt647(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(w1124), .reset(l651), .val(l647));
+	ym_cnt_bit cnt647(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(psg_ch2_out), .reset(psg_rst_sync), .val(psg_sq_2));
 	
-	ym_cnt_bit cnt648(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(w1125), .reset(l651), .val(l648));
+	ym_cnt_bit cnt648(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .c_in(psg_ch3_out), .reset(psg_rst_sync), .val(psg_sq_3));
 	
-	assign w1126 =
-		(w1131 ? l659 : 10'h0) |
-		(w1130 ? l660 : 10'h0) |
-		(w1129 ? l661 : 10'h0) |
-		(w1128 ? { 3'h0, l662[1:0] == 2'h2, l662[1:0] == 2'h1, l662[1:0] == 2'h0, 4'h0 } : 10'h0);
+	assign psg_freq_sel =
+		(psg_ch0_sel ? psg_freq_0 : 10'h0) |
+		(psg_ch1_sel ? psg_freq_1 : 10'h0) |
+		(psg_ch2_sel ? psg_freq_2 : 10'h0) |
+		(psg_ch3_sel ? { 3'h0, psg_noise_ctrl[1:0] == 2'h2, psg_noise_ctrl[1:0] == 2'h1, psg_noise_ctrl[1:0] == 2'h0, 4'h0 } : 10'h0);
 	
-	assign w1127 = w1126 <= l644;
+	assign psg_freq_match = psg_freq_sel <= psg_freq_pipe_3;
 	
-	assign w1128 = l650[3] & ~l651;
-	assign w1129 = l650[2] & ~l651;
-	assign w1130 = l650[1] & ~l651;
-	assign w1131 = l650[0] & ~l651;
+	assign psg_ch3_sel = psg_ch_ring[3] & ~psg_rst_sync;
+	assign psg_ch2_sel = psg_ch_ring[2] & ~psg_rst_sync;
+	assign psg_ch1_sel = psg_ch_ring[1] & ~psg_rst_sync;
+	assign psg_ch0_sel = psg_ch_ring[0] & ~psg_rst_sync;
 	
-	ym_sr_bit sr650_0(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(w1132), .sr_out(l650[0]));
+	ym_sr_bit sr650_0(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_ring_wrap), .sr_out(psg_ch_ring[0]));
 	
-	ym_sr_bit sr650_1(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l650[0]), .sr_out(l650[1]));
+	ym_sr_bit sr650_1(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_ch_ring[0]), .sr_out(psg_ch_ring[1]));
 	
-	ym_sr_bit sr650_2(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l650[1]), .sr_out(l650[2]));
+	ym_sr_bit sr650_2(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_ch_ring[1]), .sr_out(psg_ch_ring[2]));
 	
-	ym_sr_bit sr650_3(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l650[2]), .sr_out(l650[3]));
+	ym_sr_bit sr650_3(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_ch_ring[2]), .sr_out(psg_ch_ring[3]));
 
-	assign w1132 = l650[2:0] == 3'h0 & ~l637;
+	assign psg_ring_wrap = psg_ch_ring[2:0] == 3'h0 & ~psg_rst_hclk;
 	
-	ym_sr_bit sr651(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l637), .sr_out(l651));
+	ym_sr_bit sr651(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_rst_hclk), .sr_out(psg_rst_sync));
 	
-	assign w1133 = ~l651;
+	assign psg_not_rst = ~psg_rst_sync;
 	
-	ym_sr_bit sr652_0(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(w1127), .sr_out(l652[0]));
+	ym_sr_bit sr652_0(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_freq_match), .sr_out(psg_tone_ring[0]));
 	
-	ym_sr_bit sr652_1(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l652[0]), .sr_out(l652[1]));
+	ym_sr_bit sr652_1(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_tone_ring[0]), .sr_out(psg_tone_ring[1]));
 	
-	ym_sr_bit sr652_2(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l652[1]), .sr_out(l652[2]));
+	ym_sr_bit sr652_2(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_tone_ring[1]), .sr_out(psg_tone_ring[2]));
 	
-	ym_sr_bit sr652_3(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(l652[2]), .sr_out(l652[3]));
+	ym_sr_bit sr652_3(.MCLK(MCLK), .c1(psg_hclk1), .c2(psg_hclk2), .bit_in(psg_tone_ring[2]), .sr_out(psg_tone_ring[3]));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl653(.MCLK(MCLK), .en(w111), .inp(io_data[7:0]), .val(l653));
+	ym_slatch #(.DATA_WIDTH(8)) sl653(.MCLK(MCLK), .en(w111), .inp(io_data[7:0]), .val(psg_data_latch));
 	
-	assign w1134 = w1133 ? l653 : 8'h0;
+	assign psg_data_mux = psg_not_rst ? psg_data_latch : 8'h0;
 	
-	ym_slatch #(.DATA_WIDTH(3)) sl654(.MCLK(MCLK), .en(l635 & w1134[7]), .inp(w1134[6:4]), .val(l654));
+	ym_slatch #(.DATA_WIDTH(3)) sl654(.MCLK(MCLK), .en(psg_wr_pipe_1 & psg_data_mux[7]), .inp(psg_data_mux[6:4]), .val(psg_reg_addr));
 	
-	assign w1135 = l637 | (l636 & l654 == 3'h1);
-	assign w1136 = l637 | (l636 & l654 == 3'h3);
-	assign w1137 = l637 | (l636 & l654 == 3'h4);
-	assign w1138 = l637 | (l636 & l654 == 3'h2);
-	assign w1139 = l637 | (l636 & l654 == 3'h5);
-	assign w1140 = l637 | (l636 & l654 == 3'h0);
-	assign w1141 = l637 | (l636 & l654 == 3'h7);
-	assign w1142 = l637 | (l636 & l654 == 3'h6);
+	assign psg_wr_vol0 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h1);
+	assign psg_wr_vol1 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h3);
+	assign psg_wr_freq2 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h4);
+	assign psg_wr_freq1 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h2);
+	assign psg_wr_vol2 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h5);
+	assign psg_wr_freq0 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h0);
+	assign psg_wr_vol3 = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h7);
+	assign psg_wr_noise = psg_rst_hclk | (psg_wr_pipe_2 & psg_reg_addr == 3'h6);
 	
-	assign w1143 = w1133 ? w1134[3:0] : 4'hf;
+	assign psg_vol_data = psg_not_rst ? psg_data_mux[3:0] : 4'hf;
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl655(.MCLK(MCLK), .en(w1135), .inp(w1143), .val(l655));
+	ym_slatch #(.DATA_WIDTH(4)) sl655(.MCLK(MCLK), .en(psg_wr_vol0), .inp(psg_vol_data), .val(psg_vol_0));
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl656(.MCLK(MCLK), .en(w1136), .inp(w1143), .val(l656));
+	ym_slatch #(.DATA_WIDTH(4)) sl656(.MCLK(MCLK), .en(psg_wr_vol1), .inp(psg_vol_data), .val(psg_vol_1));
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl657(.MCLK(MCLK), .en(w1139), .inp(w1143), .val(l657));
+	ym_slatch #(.DATA_WIDTH(4)) sl657(.MCLK(MCLK), .en(psg_wr_vol2), .inp(psg_vol_data), .val(psg_vol_2));
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl658(.MCLK(MCLK), .en(w1141), .inp(w1143), .val(l658));
+	ym_slatch #(.DATA_WIDTH(4)) sl658(.MCLK(MCLK), .en(psg_wr_vol3), .inp(psg_vol_data), .val(psg_vol_3));
 	
-	assign w1144 = w1134[7] | l637;
+	assign psg_latch_mode = psg_data_mux[7] | psg_rst_hclk;
 	
-	ym_slatch #(.DATA_WIDTH(6)) sl661_1(.MCLK(MCLK), .en(w1137 & ~w1134[7]), .inp(w1134[5:0]), .val(l661[9:4]));
-	ym_slatch #(.DATA_WIDTH(4)) sl661_2(.MCLK(MCLK), .en(w1137 & w1144), .inp(w1134[3:0]), .val(l661[3:0]));
+	ym_slatch #(.DATA_WIDTH(6)) sl661_1(.MCLK(MCLK), .en(psg_wr_freq2 & ~psg_data_mux[7]), .inp(psg_data_mux[5:0]), .val(psg_freq_2[9:4]));
+	ym_slatch #(.DATA_WIDTH(4)) sl661_2(.MCLK(MCLK), .en(psg_wr_freq2 & psg_latch_mode), .inp(psg_data_mux[3:0]), .val(psg_freq_2[3:0]));
 	
-	ym_slatch #(.DATA_WIDTH(6)) sl660_1(.MCLK(MCLK), .en(w1138 & ~w1134[7]), .inp(w1134[5:0]), .val(l660[9:4]));
-	ym_slatch #(.DATA_WIDTH(4)) sl660_2(.MCLK(MCLK), .en(w1138 & w1144), .inp(w1134[3:0]), .val(l660[3:0]));
+	ym_slatch #(.DATA_WIDTH(6)) sl660_1(.MCLK(MCLK), .en(psg_wr_freq1 & ~psg_data_mux[7]), .inp(psg_data_mux[5:0]), .val(psg_freq_1[9:4]));
+	ym_slatch #(.DATA_WIDTH(4)) sl660_2(.MCLK(MCLK), .en(psg_wr_freq1 & psg_latch_mode), .inp(psg_data_mux[3:0]), .val(psg_freq_1[3:0]));
 	
-	ym_slatch #(.DATA_WIDTH(6)) sl659_1(.MCLK(MCLK), .en(w1140 & ~w1134[7]), .inp(w1134[5:0]), .val(l659[9:4]));
-	ym_slatch #(.DATA_WIDTH(4)) sl659_2(.MCLK(MCLK), .en(w1140 & w1144), .inp(w1134[3:0]), .val(l659[3:0]));
+	ym_slatch #(.DATA_WIDTH(6)) sl659_1(.MCLK(MCLK), .en(psg_wr_freq0 & ~psg_data_mux[7]), .inp(psg_data_mux[5:0]), .val(psg_freq_0[9:4]));
+	ym_slatch #(.DATA_WIDTH(4)) sl659_2(.MCLK(MCLK), .en(psg_wr_freq0 & psg_latch_mode), .inp(psg_data_mux[3:0]), .val(psg_freq_0[3:0]));
 	
-	ym_slatch #(.DATA_WIDTH(3)) sl662(.MCLK(MCLK), .en(w1142), .inp(w1134[2:0]), .val(l662));
+	ym_slatch #(.DATA_WIDTH(3)) sl662(.MCLK(MCLK), .en(psg_wr_noise), .inp(psg_data_mux[2:0]), .val(psg_noise_ctrl));
 	
-	assign w1145 = ~reg_test0[9] & ~l645;
-	assign w1146 = ~reg_test0[9] & ~l646;
-	assign w1147 = ~reg_test0[9] & ~l647;
-	assign w1148 = ~reg_test0[9] & ~l640[14];
+	assign psg_sq0_mute = ~reg_test0[9] & ~psg_sq_0;
+	assign psg_sq1_mute = ~reg_test0[9] & ~psg_sq_1;
+	assign psg_sq2_mute = ~reg_test0[9] & ~psg_sq_2;
+	assign psg_noise_mute = ~reg_test0[9] & ~psg_lfsr[14];
 	
-	assign w1149 = w1145 ? 4'hf : l655;
-	assign w1150 = w1146 ? 4'hf : l656;
-	assign w1151 = w1147 ? 4'hf : l657;
-	assign w1152 = w1148 ? 4'hf : l658;
+	assign psg_atten_0 = psg_sq0_mute ? 4'hf : psg_vol_0;
+	assign psg_atten_1 = psg_sq1_mute ? 4'hf : psg_vol_1;
+	assign psg_atten_2 = psg_sq2_mute ? 4'hf : psg_vol_2;
+	assign psg_atten_3 = psg_noise_mute ? 4'hf : psg_vol_3;
 	
 	function [15:0] psg_vol;
 		input [3:0] value;
@@ -7148,10 +7148,10 @@ module ym7101
 
 	wire [15:0] psg_val[0:3]; // PSG Volume
 
-	assign psg_val[0] = w1112 ? -16'd1270 : psg_vol(w1149);
-	assign psg_val[1] = w1113 ? -16'd1270 : psg_vol(w1150);
-	assign psg_val[2] = w1114 ? -16'd1270 : psg_vol(w1151);
-	assign psg_val[3] = w1115 ? -16'd1270 : psg_vol(w1152);
+	assign psg_val[0] = psg_test_mute_0 ? -16'd1270 : psg_vol(psg_atten_0);
+	assign psg_val[1] = psg_test_mute_1 ? -16'd1270 : psg_vol(psg_atten_1);
+	assign psg_val[2] = psg_test_mute_2 ? -16'd1270 : psg_vol(psg_atten_2);
+	assign psg_val[3] = psg_test_mute_3 ? -16'd1270 : psg_vol(psg_atten_3);
 	
 	//assign SOUND = psg_val[0] + psg_val[1] + psg_val[2] + psg_val[3];
 	
@@ -7317,7 +7317,7 @@ module ym7101
 		(w95 ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
 		(w99 ? { 1'h1, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h1, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'hffff) &
 		(w91 ? { 5'h1f, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'hffff) &
-		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'hffff);
+		(w93 ? { ~psg_atten_0, ~psg_atten_1, ~psg_atten_2, ~psg_atten_3 } : 16'hffff);
 	
 	wire [15:0] io_data_pull =
 		(vdp_data_dir ? 16'hffff : 16'h0) |
@@ -7351,7 +7351,7 @@ module ym7101
 		(w95 ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
 		(w99 ? { 1'h0, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h0, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'h0) |
 		(w91 ? { 5'h0, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'h0) |
-		(w93 ? { ~w1149, ~w1150, ~w1151, ~w1152 } : 16'h0);*/
+		(w93 ? { ~psg_atten_0, ~psg_atten_1, ~psg_atten_2, ~psg_atten_3 } : 16'h0);*/
 	
 	assign CD_o = io_data;
 	
@@ -7453,7 +7453,7 @@ endmodule
 //   set=1 → q=1, nq=0
 //   rst=1 → q=0, nq=1
 //   else  → q holds, nq = ~q
-// Used throughout ym7101 for timing triggers (t1-t44).
+// Used throughout ym7101 for timing triggers (t1-psg_noise_trig).
 module ym7101_rs_trig
 	(
 	input MCLK,
