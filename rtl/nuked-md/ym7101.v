@@ -259,7 +259,7 @@ module ym7101
 	reg [22:0] io_address;
 	wire io_address_22o;
 	wire io_oe0;   // RAM output enable
-	wire w1153;
+	wire cpu_wr_cas_gate;
 	wire io_cas0;  // RAM CAS
 	wire io_ras0;  // RAM RAS
 	wire io_lwr;   // lower byte write
@@ -269,75 +269,75 @@ module ym7101
 	wire io_ipl2;  // interrupt priority level bit 2
 	reg [15:0] io_data;
 
-	// I/O block: CPU bus decode, DTACK, register access, DMA/FIFO (w1-w290)
-	wire w1;
+	// I/O block: CPU bus decode, DTACK, register access, DMA/FIFO (cpu_wr_strobe-w290)
+	wire cpu_wr_strobe;
 	wire dff1_l2;
 	wire dff2_l2;
-	wire t1;
-	wire w2;
-	wire w3;
-	wire w4;
+	wire bus_br_hold;
+	wire addr_hi_sel;
+	wire dma_req_any;
+	wire dma_rst;
 	wire dff3_l2;
 	wire dff4_l2;
-	wire t2;
-	wire t3;
-	wire t4;
-	wire w5;
-	wire l1;
-	wire l2;
-	wire l3;
-	wire w6;
-	wire l4;
-	wire w7;
-	wire l5;
-	wire w8;
-	wire l6;
-	wire l7;
-	wire l8;
-	wire w9;
-	wire w10;
-	wire w11;
-	wire w12;
-	wire w13;
-	wire w14;
-	wire w15;
-	wire w16;
-	wire w17; // nc
-	wire w18;
-	wire w19;
-	wire w20;
-	wire w21;
-	wire w22;
-	wire w23;
-	wire w24;
-	wire w25;
+	wire dma_copy_req;
+	wire bus_granted;
+	wire dma_68k_req;
+	wire arb_grant_cond;
+	wire edclk_pipe1;
+	wire edclk_pipe2;
+	wire edclk_pipe3;
+	wire edclk_13_gap;
+	wire edclk_gap;
+	wire bus_access_gate_n;
+	wire dma_addr_dly;
+	wire dma_addr_hold;
+	wire bus_phase_a;
+	wire bus_phase_b;
+	wire bus_phase_c;
+	wire any_irq_active;
+	wire bus_idle;
+	wire ipl1_src;
+	wire ipl2_src;
+	wire dma_ext_gate;
+	wire ras_z80_gate;
+	wire cas_z80_gate;
+	wire ras_dma_gate;
+	wire cas_readback; // nc
+	wire dma_addr_bus;
+	wire oe_late_phase;
+	wire ras_early;
+	wire ras_gated;
+	wire ras_sel;
+	wire dtack_gate_n;
+	wire cas_68k;
+	wire oe_cpu_rd;
 	wire dff5_l2;
 	wire dff6_l2;
-	wire w26;
+	wire dff_timing_gate;
 	wire dff7_l2;
-	wire w27;
-	wire w28;
+	wire z80_ras_pulse;
+	wire z80_cas_pulse;
 	wire dff8_l2;
 	wire dff9_l2;
-	wire w29;
-	wire w30;
-	wire w31;
+	wire bus_late;
+	wire bus_phase2;
+	wire dtack_rst_cond;
 	wire dff10_l2;
 	wire dff11_l2;
-	wire w32;
-	wire w33;
-	wire w34;
-	wire w35;
-	wire w36;
-	wire w37;
+	wire bus_wr_phase;
+	wire bus_invalid;
+	wire bus_active;
+	wire intak_clear;
+	wire bus_valid;
+	wire as_inactive;
 	wire dff12_l2;
-	wire w38;
+	wire bus_cycle_rst;
 	wire dff13_l2;
 	wire dff14_l2;
 	wire dff15_l2;
-	wire w39;
-	wire w40;
-	wire w41;
+	wire dtack_done;
+	wire bus_allow;
+	wire arb_cnt_rst;
 	wire dff16_l2;
 	wire dff17_l2;
 	wire dff18_l2;
@@ -353,80 +353,80 @@ module ym7101
 	wire dff27_l2;
 	wire dff28_l2;
 	wire dff29_l2;
-	wire w43;
-	wire w44;
-	wire w45;
-	wire w46;
-	wire w47;
-	wire t5;
-	wire w48;
-	wire l9;
-	wire l10;
-	wire l11;
-	wire w49;
-	wire w50;
-	wire t6;
-	wire l12;
-	wire w51;
-	wire l13;
-	wire w52;
-	wire l14;
-	wire w53;
-	wire w54;
+	wire arb_cnt_hi;
+	wire arb_cnt_top;
+	wire m68k_int_ack;
+	wire int_ack_any;
+	wire z80_int_ack;
+	wire int_ack_latch;
+	wire int_ack_m5;
+	wire int_ack_sync;
+	wire int_ack_dly1;
+	wire int_ack_dly2;
+	wire int_latch_rst;
+	wire status_rd_set;
+	wire status_rd_pend;
+	wire status_rd_dly;
+	wire status_rd_gate;
+	wire status_rd_dly2;
+	wire status_clr_n;
+	wire status_clr_latch;
+	wire m4_int_en;
+	wire vint_clr;
 	wire dff30_l2;
 	wire dff31_l2;
-	wire w55;
+	wire hint_clr;
 	wire dff32_l2;
-	wire w56;
-	wire w57;
-	wire w58;
-	wire t7;
-	wire t8;
-	wire w59;
-	wire w60;
-	wire w61;
-	wire w62;
-	wire w63;
+	wire eint_clr;
+	wire hint_irq;
+	wire vint_irq;
+	wire hint_pend;
+	wire vint_irq_pend;
+	wire vint_set_cond;
+	wire eint_irq;
+	wire dma_enable;
+	wire dma_68k_start;
+	wire dma_copy_start;
 	wire bgack_pull_ctl; // BGACK pull control (bus grant acknowledge)
-	wire w65;
-	wire w66;
-	wire t9;
-	wire t10;
-	wire t11;
-	wire w67;
-	wire w68;
-	wire w69;
-	wire l15;
-	wire w70;
-	wire w71;
-	wire w72;
-	wire w73;
-	wire w74;
-	wire w75;
-	wire w76;
-	wire w77;
-	wire w78;
-	wire w79;
-	wire w80;
-	wire w81;
-	wire w82;
-	wire w83;
-	wire w84;
-	wire w85;
-	wire w86;
-	wire w87;
-	wire w88;
-	wire w89;
-	wire w90;
-	wire w91;
-	wire w92;
-	wire w93;
-	wire w94;
-	wire w95;
-	wire w96;
-	wire w97;
-	wire w98;
-	wire w99;
+	wire z80_hv_sel;
+	wire spr_of_latch;
+	wire eint_pend;
+	wire spr_overflow;
+	wire spr_collision;
+	wire hint_cnt_tick;
+	wire hint_cnt_reload;
+	wire hint_cnt_load;
+	wire hint_fired;
+	wire vdp_addr_68k;
+	wire z80_vdp_rd;
+	wire hv_byte_sel;
+	wire hv_data_sel;
+	wire tst18_sel_f;
+	wire tst18_sel_8;
+	wire tst18_sel_7;
+	wire tst18_sel_6;
+	wire tst18_sel_5;
+	wire tst18_sel_4;
+	wire tst18_sel_3;
+	wire tst18_sel_2;
+	wire tst18_sel_1;
+	wire tst18_sel_0;
+	wire tst_fn0_wr;
+	wire tst_fn1_wr;
+	wire tst_fn2_wr;
+	wire tst_fn2_rd;
+	wire tst_fn3_wr;
+	wire tst_fn3_rd;
+	wire tst_fn4_wr;
+	wire tst_fn4_rd;
+	wire tst_fn5_wr;
+	wire tst_fn5_rd;
+	wire tst_fn6_wr;
+	wire tst_fn6_rd;
+	wire tst_fn7_wr;
+	wire tst_fn7_rd;
+	wire tst_fn8_wr;
+	wire tst_fn8_rd;
 	wire int_reset_state; // internal reset state
 	wire w101;
 	wire w102;
@@ -2516,299 +2516,299 @@ module ym7101
 	
 	assign io_m1_s5 = io_m1_s4 & io_m1_s1;
 	
-	assign io_oe0 = io_m1_s5 | w25 | w27 | w118 | l8;
+	assign io_oe0 = io_m1_s5 | oe_cpu_rd | z80_ras_pulse | w118 | bus_phase_c;
 	
-	assign w1153  = w1 & ~w2;
+	assign cpu_wr_cas_gate  = cpu_wr_strobe & ~addr_hi_sel;
 	
 	assign io_cas0 = reg_8b_b6 ?
-		(io_m1_dff2_l2 | w15 | w28 | w30 | w102) :
-		(l8 | w25 | w1153);
+		(io_m1_dff2_l2 | cas_z80_gate | z80_cas_pulse | bus_phase2 | w102) :
+		(bus_phase_c | oe_cpu_rd | cpu_wr_cas_gate);
 	
 	assign io_ras0 = reg_8b_b6 ?
-		(io_m1_s4 | w21 | w14 | w27) :
-		(io_m1_s2 | w22 | w16);
+		(io_m1_s4 | ras_gated | ras_z80_gate | z80_ras_pulse) :
+		(io_m1_s2 | ras_sel | ras_dma_gate);
 	
 	assign io_wr = cpu_rw & dff1_l2;
 	
 	assign io_lwr = cpu_wr | (cpu_lds & io_wr);
 	assign io_uwr = cpu_uds & io_wr;
 	
-	assign w1 = ~cpu_rw & (cpu_uds | cpu_lds);
-	ym7101_dff dff1(.MCLK(MCLK), .clk(~cpu_clk1), .inp(w23), .rst(1'h0), .outp(dff1_l2));
+	assign cpu_wr_strobe = ~cpu_rw & (cpu_uds | cpu_lds);
+	ym7101_dff dff1(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dtack_gate_n), .rst(1'h0), .outp(dff1_l2));
 	
 	ym7101_dff dff2(.MCLK(MCLK), .clk(cpu_clk1), .inp(cpu_bg), .rst(1'h0), .outp(dff2_l2));
 	
-	ym7101_rs_trig rs1(.MCLK(MCLK), .set(cpu_bg | reset_comb), .rst(~reg_data_l2[7] & reg_wr_8B & reg_m5), .q(t1));
+	ym7101_rs_trig rs1(.MCLK(MCLK), .set(cpu_bg | reset_comb), .rst(~reg_data_l2[7] & reg_wr_8B & reg_m5), .q(bus_br_hold));
 	
-	assign w2 = w35 & (&io_address[22:20]);
+	assign addr_hi_sel = intak_clear & (&io_address[22:20]);
 	
-	assign io_address_22o = ~(l4 & w247 & (l6 | ~l7));
+	assign io_address_22o = ~(edclk_gap & w247 & (bus_phase_a | ~bus_phase_b));
 	
-	ym7101_dff dff4(.MCLK(MCLK), .clk(hclk2), .inp(w3), .rst(w4), .outp(dff4_l2));
-	ym7101_dff dff3(.MCLK(MCLK), .clk(hclk2), .inp(dff4_l2), .rst(w4), .outp(dff3_l2));
+	ym7101_dff dff4(.MCLK(MCLK), .clk(hclk2), .inp(dma_req_any), .rst(dma_rst), .outp(dff4_l2));
+	ym7101_dff dff3(.MCLK(MCLK), .clk(hclk2), .inp(dff4_l2), .rst(dma_rst), .outp(dff3_l2));
 	
-	assign w3 = t2 | t3;
+	assign dma_req_any = dma_copy_req | bus_granted;
 	
-	assign w4 = reset_comb | l48;
+	assign dma_rst = reset_comb | l48;
 	
-	ym7101_rs_trig rs2(.MCLK(MCLK), .set(w63), .rst(w4), .q(t2));
-	ym7101_rs_trig rs3(.MCLK(MCLK), .set(w5), .rst(w4), .q(t3));
-	ym7101_rs_trig rs4(.MCLK(MCLK), .set(w62), .rst(w4 | w5), .q(t4));
+	ym7101_rs_trig rs2(.MCLK(MCLK), .set(dma_copy_start), .rst(dma_rst), .q(dma_copy_req));
+	ym7101_rs_trig rs3(.MCLK(MCLK), .set(arb_grant_cond), .rst(dma_rst), .q(bus_granted));
+	ym7101_rs_trig rs4(.MCLK(MCLK), .set(dma_68k_start), .rst(dma_rst | arb_grant_cond), .q(dma_68k_req));
 	
-	assign w5 = dff22_l2 & cpu_bgack & DTACK_i & dff2_l2 & cpu_sel & w37;
+	assign arb_grant_cond = dff22_l2 & cpu_bgack & DTACK_i & dff2_l2 & cpu_sel & as_inactive;
 	
-	assign io_ipl1 = ~(w11 & cpu_sel);
-	assign io_ipl2 = ~(w12 & cpu_sel);
+	assign io_ipl1 = ~(ipl1_src & cpu_sel);
+	assign io_ipl2 = ~(ipl2_src & cpu_sel);
 	
-	ym_sr_bit sr1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(edclk_dly), .sr_out(l1));
-	ym_sr_bit sr2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l1), .sr_out(l2));
-	ym_sr_bit sr3(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l2), .sr_out(l3));
-	ym_sr_bit sr4(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~(edclk_dly | l1 | l2 | l3)), .sr_out(l4));
-	ym_sr_bit sr5(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_addr_oe), .sr_out(l5));
-	ym_dlatch_1 dl6(.MCLK(MCLK), .c1(hclk1), .inp(~(w7 & w8 & odd_slot)), .nval(l6));
-	ym_dlatch_1 dl7(.MCLK(MCLK), .c1(clk1), .inp(l6), .nval(l7));
-	ym_dlatch_2 dl8(.MCLK(MCLK), .c2(clk2), .inp(l7), .nval(l8));
+	ym_sr_bit sr1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(edclk_dly), .sr_out(edclk_pipe1));
+	ym_sr_bit sr2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(edclk_pipe1), .sr_out(edclk_pipe2));
+	ym_sr_bit sr3(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(edclk_pipe2), .sr_out(edclk_pipe3));
+	ym_sr_bit sr4(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~(edclk_dly | edclk_pipe1 | edclk_pipe2 | edclk_pipe3)), .sr_out(edclk_gap));
+	ym_sr_bit sr5(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_addr_oe), .sr_out(dma_addr_dly));
+	ym_dlatch_1 dl6(.MCLK(MCLK), .c1(hclk1), .inp(~(bus_access_gate_n & dma_addr_hold & odd_slot)), .nval(bus_phase_a));
+	ym_dlatch_1 dl7(.MCLK(MCLK), .c1(clk1), .inp(bus_phase_a), .nval(bus_phase_b));
+	ym_dlatch_2 dl8(.MCLK(MCLK), .c2(clk2), .inp(bus_phase_b), .nval(bus_phase_c));
 	
-	assign w6 = ~(l1 | l3);
-	assign w7 = ~(w6 & w252);
+	assign edclk_13_gap = ~(edclk_pipe1 | edclk_pipe3);
+	assign bus_access_gate_n = ~(edclk_13_gap & w252);
 	
-	assign w8 = l5 & dma_addr_oe;
+	assign dma_addr_hold = dma_addr_dly & dma_addr_oe;
 	
-	assign w9 = w58 | w57 | w60;
-	assign w10 = ~dff13_l2;
+	assign any_irq_active = vint_irq | hint_irq | eint_irq;
+	assign bus_idle = ~dff13_l2;
 	
-	assign w11 = w58 | w60;
-	assign w12 = w57 | w60;
+	assign ipl1_src = vint_irq | eint_irq;
+	assign ipl2_src = hint_irq | eint_irq;
 	
-	assign w13 = l4 & w246;
+	assign dma_ext_gate = edclk_gap & w246;
 	
-	assign w14 = ~l7 | (l6 & w13);
+	assign ras_z80_gate = ~bus_phase_b | (bus_phase_a & dma_ext_gate);
 	
-	assign w15 = (~l4 & l6) | (l8 & w13);
+	assign cas_z80_gate = (~edclk_gap & bus_phase_a) | (bus_phase_c & dma_ext_gate);
 	
-	assign w16 = (~l7 & w13) | (l8 & w13);
+	assign ras_dma_gate = (~bus_phase_b & dma_ext_gate) | (bus_phase_c & dma_ext_gate);
 	
-	assign w17 = l2 & l8;
+	assign cas_readback = edclk_pipe2 & bus_phase_c;
 	
-	assign w18 = dma_addr_oe & l4 & l8;
+	assign dma_addr_bus = dma_addr_oe & edclk_gap & bus_phase_c;
 	
-	assign w19 = w29 & w34;
+	assign oe_late_phase = bus_late & bus_active;
 	
-	assign w20 = w34 & dff7_l2;
+	assign ras_early = bus_active & dff7_l2;
 	
-	assign w21 = w34 & w26;
+	assign ras_gated = bus_active & dff_timing_gate;
 	
-	assign w22 = w10 ? w21 : w20;
+	assign ras_sel = bus_idle ? ras_gated : ras_early;
 	
-	assign w23 = ~((w10 & w30) | (dff5_l2 & w34));
+	assign dtack_gate_n = ~((bus_idle & bus_phase2) | (dff5_l2 & bus_active));
 	
-	assign w24 = w34 & (dff6_l2 | (dff11_l2 & w10));
+	assign cas_68k = bus_active & (dff6_l2 | (dff11_l2 & bus_idle));
 	
-	assign w25 = cpu_rd & l17;
+	assign oe_cpu_rd = cpu_rd & l17;
 	
-	ym7101_dff dff5(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff6_l2), .rst(w10), .outp(dff5_l2));
-	ym7101_dff dff6(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff7_l2), .rst(w10), .outp(dff6_l2));
+	ym7101_dff dff5(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff6_l2), .rst(bus_idle), .outp(dff5_l2));
+	ym7101_dff dff6(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff7_l2), .rst(bus_idle), .outp(dff6_l2));
 	
-	assign w26 = ~(~dff6_l2 & dff8_l2);
+	assign dff_timing_gate = ~(~dff6_l2 & dff8_l2);
 	
-	ym7101_dff dff7(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff8_l2), .rst(w10), .outp(dff7_l2));
+	ym7101_dff dff7(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff8_l2), .rst(bus_idle), .outp(dff7_l2));
 	
-	assign w27 = dff17_l2 & ~dff19_l2;
+	assign z80_ras_pulse = dff17_l2 & ~dff19_l2;
 	
-	assign w28 = dff16_l2 & ~dff19_l2;
+	assign z80_cas_pulse = dff16_l2 & ~dff19_l2;
 	
-	ym7101_dff dff8(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff9_l2), .rst(w10), .outp(dff8_l2));
+	ym7101_dff dff8(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff9_l2), .rst(bus_idle), .outp(dff8_l2));
 	
-	ym7101_dff dff9(.MCLK(MCLK), .clk(cpu_clk1), .inp(w30), .rst(w10), .outp(dff9_l2));
+	ym7101_dff dff9(.MCLK(MCLK), .clk(cpu_clk1), .inp(bus_phase2), .rst(bus_idle), .outp(dff9_l2));
 	
-	assign w29 = ~(w10 | dff9_l2);
+	assign bus_late = ~(bus_idle | dff9_l2);
 	
-	assign w30 = w34 & dff10_l2;
+	assign bus_phase2 = bus_active & dff10_l2;
 	
-	assign w31 = reset_comb | dff21_l2 | dff13_l2;
+	assign dtack_rst_cond = reset_comb | dff21_l2 | dff13_l2;
 	
-	ym7101_dff dff10(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff11_l2), .rst(w33), .outp(dff10_l2));
-	ym7101_dff dff11(.MCLK(MCLK), .clk(cpu_clk1), .inp(w36), .rst(w33), .outp(dff11_l2));
+	ym7101_dff dff10(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff11_l2), .rst(bus_invalid), .outp(dff10_l2));
+	ym7101_dff dff11(.MCLK(MCLK), .clk(cpu_clk1), .inp(bus_valid), .rst(bus_invalid), .outp(dff11_l2));
 	
-	assign w32 = dff11_l2 & w1;
+	assign bus_wr_phase = dff11_l2 & cpu_wr_strobe;
 	
-	assign w33 = ~w36;
+	assign bus_invalid = ~bus_valid;
 	
-	assign w34 = w2 & w36;
+	assign bus_active = addr_hi_sel & bus_valid;
 	
-	assign w35 = ~cpu_intak;
+	assign intak_clear = ~cpu_intak;
 	
-	assign w36 = cpu_as & w40;
+	assign bus_valid = cpu_as & bus_allow;
 	
-	assign w37 = ~cpu_as;
+	assign as_inactive = ~cpu_as;
 	
-	ym7101_dff dff12(.MCLK(MCLK), .clk(w37), .inp(1'h1), .rst(w10), .outp(dff12_l2));
+	ym7101_dff dff12(.MCLK(MCLK), .clk(as_inactive), .inp(1'h1), .rst(bus_idle), .outp(dff12_l2));
 	
-	assign w38 = dff12_l2 | reset_comb;
+	assign bus_cycle_rst = dff12_l2 | reset_comb;
 	
-	ym7101_dff dff13(.MCLK(MCLK), .clk(w34), .inp(w44), .rst(w38), .outp(dff13_l2));
+	ym7101_dff dff13(.MCLK(MCLK), .clk(bus_active), .inp(arb_cnt_top), .rst(bus_cycle_rst), .outp(dff13_l2));
 	
-	ym7101_dff dff14(.MCLK(MCLK), .clk(cpu_clk1), .inp(w43), .rst(1'h0), .outp(dff14_l2));
+	ym7101_dff dff14(.MCLK(MCLK), .clk(cpu_clk1), .inp(arb_cnt_hi), .rst(1'h0), .outp(dff14_l2));
 	
-	ym7101_dff dff15(.MCLK(MCLK), .clk(dff14_l2), .inp(w44), .rst(w31), .outp(dff15_l2));
+	ym7101_dff dff15(.MCLK(MCLK), .clk(dff14_l2), .inp(arb_cnt_top), .rst(dtack_rst_cond), .outp(dff15_l2));
 	
-	assign w39 = ~dff15_l2;
+	assign dtack_done = ~dff15_l2;
 	
-	assign w40 = w39 | dff21_l2;
+	assign bus_allow = dtack_done | dff21_l2;
 	
-	assign w41 = ~(~dff21_l2 & cpu_sel & w26);
+	assign arb_cnt_rst = ~(~dff21_l2 & cpu_sel & dff_timing_gate);
 	
-	ym7101_dff dff16(.MCLK(MCLK), .clk(cpu_clk1), .inp(1'h1), .rst(w39), .outp(dff16_l2));
-	ym7101_dff dff17(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff16_l2), .rst(w39), .outp(dff17_l2));
-	ym7101_dff dff18(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff17_l2), .rst(w39), .outp(dff18_l2));
-	ym7101_dff dff19(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff18_l2), .rst(w39), .outp(dff19_l2));
-	ym7101_dff dff20(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff19_l2), .rst(w39), .outp(dff20_l2));
+	ym7101_dff dff16(.MCLK(MCLK), .clk(cpu_clk1), .inp(1'h1), .rst(dtack_done), .outp(dff16_l2));
+	ym7101_dff dff17(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff16_l2), .rst(dtack_done), .outp(dff17_l2));
+	ym7101_dff dff18(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff17_l2), .rst(dtack_done), .outp(dff18_l2));
+	ym7101_dff dff19(.MCLK(MCLK), .clk(~cpu_clk1), .inp(dff18_l2), .rst(dtack_done), .outp(dff19_l2));
+	ym7101_dff dff20(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff19_l2), .rst(dtack_done), .outp(dff20_l2));
 	
 	ym7101_dff dff21(.MCLK(MCLK), .clk(cpu_clk1), .inp(dff20_l2), .rst(1'h0), .outp(dff21_l2));
 	
-	ym7101_dff dff22(.MCLK(MCLK), .clk(cpu_clk1), .inp(t4), .rst(1'h0), .outp(dff22_l2));
+	ym7101_dff dff22(.MCLK(MCLK), .clk(cpu_clk1), .inp(dma_68k_req), .rst(1'h0), .outp(dff22_l2));
 	
 	assign br_pull_ctl = ~(dff22_l2 & cpu_sel);
 	
 	wire [6:0] i_sum = {6'h0, bgack_pull_ctl} + { dff29_l2, dff28_l2, dff27_l2, dff26_l2, dff25_l2, dff24_l2, dff23_l2 };
 	
-	ym7101_dff dff23(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[0]), .rst(w41), .outp(dff23_l2));
-	ym7101_dff dff24(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[1]), .rst(w41), .outp(dff24_l2));
-	ym7101_dff dff25(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[2]), .rst(w41), .outp(dff25_l2));
-	ym7101_dff dff26(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[3]), .rst(w41), .outp(dff26_l2));
-	ym7101_dff dff27(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[4]), .rst(w41), .outp(dff27_l2));
-	ym7101_dff dff28(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[5]), .rst(w41), .outp(dff28_l2));
-	ym7101_dff dff29(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[6]), .rst(w41), .outp(dff29_l2));
+	ym7101_dff dff23(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[0]), .rst(arb_cnt_rst), .outp(dff23_l2));
+	ym7101_dff dff24(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[1]), .rst(arb_cnt_rst), .outp(dff24_l2));
+	ym7101_dff dff25(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[2]), .rst(arb_cnt_rst), .outp(dff25_l2));
+	ym7101_dff dff26(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[3]), .rst(arb_cnt_rst), .outp(dff26_l2));
+	ym7101_dff dff27(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[4]), .rst(arb_cnt_rst), .outp(dff27_l2));
+	ym7101_dff dff28(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[5]), .rst(arb_cnt_rst), .outp(dff28_l2));
+	ym7101_dff dff29(.MCLK(MCLK), .clk(cpu_clk1), .inp(i_sum[6]), .rst(arb_cnt_rst), .outp(dff29_l2));
 	
-	assign w43 = dff25_l2 & dff24_l2 & dff26_l2 & w44;
+	assign arb_cnt_hi = dff25_l2 & dff24_l2 & dff26_l2 & arb_cnt_top;
 	
-	assign w44 = dff28_l2 & dff27_l2 & dff29_l2;
+	assign arb_cnt_top = dff28_l2 & dff27_l2 & dff29_l2;
 	
-	assign w45 = cpu_as & cpu_intak;
+	assign m68k_int_ack = cpu_as & cpu_intak;
 	
-	assign w46 = w45 | w47;
+	assign int_ack_any = m68k_int_ack | z80_int_ack;
 	
-	assign w47 = cpu_m1 & cpu_iorq;
+	assign z80_int_ack = cpu_m1 & cpu_iorq;
 	
-	ym7101_rs_trig rs5(.MCLK(MCLK), .set(w46), .rst(l9), .q(t5));
+	ym7101_rs_trig rs5(.MCLK(MCLK), .set(int_ack_any), .rst(int_ack_sync), .q(int_ack_latch));
 	
-	assign w48 = t5 & reg_m5;
+	assign int_ack_m5 = int_ack_latch & reg_m5;
 	
-	ym_sr_bit sr9(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w48), .sr_out(l9));
-	ym_dlatch_1 dl10(.MCLK(MCLK), .c1(clk1), .inp(l9), .nval(l10));
-	ym_dlatch_2 dl11(.MCLK(MCLK), .c2(clk2), .inp(l10), .nval(l11));
+	ym_sr_bit sr9(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(int_ack_m5), .sr_out(int_ack_sync));
+	ym_dlatch_1 dl10(.MCLK(MCLK), .c1(clk1), .inp(int_ack_sync), .nval(int_ack_dly1));
+	ym_dlatch_2 dl11(.MCLK(MCLK), .c2(clk2), .inp(int_ack_dly1), .nval(int_ack_dly2));
 	
-	assign w49 = reset_comb | (l11 & l10);
+	assign int_latch_rst = reset_comb | (int_ack_dly2 & int_ack_dly1);
 	
-	assign w50 = reset_comb | w114;
+	assign status_rd_set = reset_comb | w114;
 	
-	ym7101_rs_trig rs6(.MCLK(MCLK), .set(w50), .rst(l13), .q(t6));
+	ym7101_rs_trig rs6(.MCLK(MCLK), .set(status_rd_set), .rst(status_rd_dly2), .q(status_rd_pend));
 	
-	ym_sr_bit sr12(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(t6), .sr_out(l12));
+	ym_sr_bit sr12(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(status_rd_pend), .sr_out(status_rd_dly));
 	
-	assign w51 = ~(l12 | reset_comb);
+	assign status_rd_gate = ~(status_rd_dly | reset_comb);
 	
-	ym_sr_bit sr13(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l12), .sr_out(l13));
+	ym_sr_bit sr13(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(status_rd_dly), .sr_out(status_rd_dly2));
 	
-	assign w52 = ~(l13 & w51);
+	assign status_clr_n = ~(status_rd_dly2 & status_rd_gate);
 	
-	ym_dlatch_1 dl14(.MCLK(MCLK), .c1(hclk1), .inp(w52), .nval(l14));
+	ym_dlatch_1 dl14(.MCLK(MCLK), .c1(hclk1), .inp(status_clr_n), .nval(status_clr_latch));
 	
-	assign w53 = l14 & ~reg_m5;
+	assign m4_int_en = status_clr_latch & ~reg_m5;
 	
-	assign w54 = w53 | dff30_l2;
+	assign vint_clr = m4_int_en | dff30_l2;
 	
-	ym7101_dff dff30(.MCLK(MCLK), .clk(~w48), .inp(w58), .rst(w49), .outp(dff30_l2));
+	ym7101_dff dff30(.MCLK(MCLK), .clk(~int_ack_m5), .inp(vint_irq), .rst(int_latch_rst), .outp(dff30_l2));
 	
-	ym7101_dff dff31(.MCLK(MCLK), .clk(~w48), .inp(w57), .rst(w49), .outp(dff31_l2));
+	ym7101_dff dff31(.MCLK(MCLK), .clk(~int_ack_m5), .inp(hint_irq), .rst(int_latch_rst), .outp(dff31_l2));
 	
-	assign w55 = w53 | dff31_l2;
+	assign hint_clr = m4_int_en | dff31_l2;
 	
-	ym7101_dff dff32(.MCLK(MCLK), .clk(~w48), .inp(w60), .rst(w49), .outp(dff32_l2));
+	ym7101_dff dff32(.MCLK(MCLK), .clk(~int_ack_m5), .inp(eint_irq), .rst(int_latch_rst), .outp(dff32_l2));
 	
-	assign w56 = w53 | dff32_l2;
+	assign eint_clr = m4_int_en | dff32_l2;
 	
-	assign w57 = t7 & ~w60 & reg_ie1;
+	assign hint_irq = hint_pend & ~eint_irq & reg_ie1;
 	
-	assign w58 = ~w57 & ~w60 & t8 & reg_ie2;
+	assign vint_irq = ~hint_irq & ~eint_irq & vint_irq_pend & reg_ie2;
 	
-	ym7101_rs_trig rs7(.MCLK(MCLK), .set(l15), .rst(w55), .q(t7));
+	ym7101_rs_trig rs7(.MCLK(MCLK), .set(hint_fired), .rst(hint_clr), .q(hint_pend));
 	
-	ym7101_rs_trig rs8(.MCLK(MCLK), .set(w59), .rst(w54), .q(t8));
+	ym7101_rs_trig rs8(.MCLK(MCLK), .set(vint_set_cond), .rst(vint_clr), .q(vint_irq_pend));
 	
-	assign w59 = reg_m5 & l81;
+	assign vint_set_cond = reg_m5 & l81;
 	
-	assign w60 = t9 & reg_ie0;
+	assign eint_irq = eint_pend & reg_ie0;
 	
-	assign w61 = reg_m1 & reg_m5;
+	assign dma_enable = reg_m1 & reg_m5;
 	
-	assign w62 = w61 & ~reg_dmd[1] & w182;
+	assign dma_68k_start = dma_enable & ~reg_dmd[1] & w182;
 	
-	assign w63 = w61 & w182 & reg_dmd[1];
+	assign dma_copy_start = dma_enable & w182 & reg_dmd[1];
 	
-	assign bgack_pull_ctl = ~t3;
+	assign bgack_pull_ctl = ~bus_granted;
 	
-	assign w65 = ~(~reg_m5 | io_address[1] | cpu_sel);
+	assign z80_hv_sel = ~(~reg_m5 | io_address[1] | cpu_sel);
 	
-	assign w66 = ~t9 & spr_overflow_flag;
+	assign spr_of_latch = ~eint_pend & spr_overflow_flag;
 	
-	ym7101_rs_trig rs9(.MCLK(MCLK), .set(w120), .rst(w56), .q(t9));
+	ym7101_rs_trig rs9(.MCLK(MCLK), .set(w120), .rst(eint_clr), .q(eint_pend));
 	
-	ym7101_rs_trig rs10(.MCLK(MCLK), .set(w66), .rst(l14), .q(t10));
+	ym7101_rs_trig rs10(.MCLK(MCLK), .set(spr_of_latch), .rst(status_clr_latch), .q(spr_overflow));
 	
-	ym7101_rs_trig rs11(.MCLK(MCLK), .set(spr_collision_pipe), .rst(l14), .q(t11));
+	ym7101_rs_trig rs11(.MCLK(MCLK), .set(spr_collision_pipe), .rst(status_clr_latch), .q(spr_collision));
 	
-	assign w67 = active_end | reg_test0[3];
+	assign hint_cnt_tick = active_end | reg_test0[3];
 	
-	assign w68 = ~(vdisp_en_trig | vcnt_at_max | reg_test0[3]);
+	assign hint_cnt_reload = ~(vdisp_en_trig | vcnt_at_max | reg_test0[3]);
 	
 	wire cnt1_of;
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w67), .reset(1'h0), .load(w69), .load_val(reg_hit), .c_out(cnt1_of));
+		.c_in(hint_cnt_tick), .reset(1'h0), .load(hint_cnt_load), .load_val(reg_hit), .c_out(cnt1_of));
 		
-	assign w69 = w68 | l15;
+	assign hint_cnt_load = hint_cnt_reload | hint_fired;
 	
-	ym_sr_bit sr15(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cnt1_of & ~w68), .sr_out(l15));
+	ym_sr_bit sr15(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cnt1_of & ~hint_cnt_reload), .sr_out(hint_fired));
 	
-	assign w70 = cpu_sel & (io_address & 23'h738070) == 23'h600000;
+	assign vdp_addr_68k = cpu_sel & (io_address & 23'h738070) == 23'h600000;
 	
-	assign w71 = ~cpu_sel & reg_test0[2] & w142;
+	assign z80_vdp_rd = ~cpu_sel & reg_test0[2] & w142;
 
-	assign w72 = w65 ? w252 : cpu_pal;
+	assign hv_byte_sel = z80_hv_sel ? w252 : cpu_pal;
 	
-	assign w73 = w65 ? l46 : dff3_l2;
+	assign hv_data_sel = z80_hv_sel ? l46 : dff3_l2;
 	
-	assign w74 = reg_test_18[11:8] == 4'hf;
-	assign w75 = reg_test_18[11:8] == 4'h8;
-	assign w76 = reg_test_18[11:8] == 4'h7;
-	assign w77 = reg_test_18[11:8] == 4'h6;
-	assign w78 = reg_test_18[11:8] == 4'h5;
-	assign w79 = reg_test_18[11:8] == 4'h4;
-	assign w80 = reg_test_18[11:8] == 4'h3;
-	assign w81 = reg_test_18[11:8] == 4'h2;
-	assign w82 = reg_test_18[11:8] == 4'h1;
-	assign w83 = reg_test_18[11:8] == 4'h0;
+	assign tst18_sel_f = reg_test_18[11:8] == 4'hf;
+	assign tst18_sel_8 = reg_test_18[11:8] == 4'h8;
+	assign tst18_sel_7 = reg_test_18[11:8] == 4'h7;
+	assign tst18_sel_6 = reg_test_18[11:8] == 4'h6;
+	assign tst18_sel_5 = reg_test_18[11:8] == 4'h5;
+	assign tst18_sel_4 = reg_test_18[11:8] == 4'h4;
+	assign tst18_sel_3 = reg_test_18[11:8] == 4'h3;
+	assign tst18_sel_2 = reg_test_18[11:8] == 4'h2;
+	assign tst18_sel_1 = reg_test_18[11:8] == 4'h1;
+	assign tst18_sel_0 = reg_test_18[11:8] == 4'h0;
 	
-	assign w84 = w83 & w129;
-	assign w85 = w82 & w129;
-	assign w86 = w81 & w129;
-	assign w87 = w81 & w135;
-	assign w88 = w80 & w129;
-	assign w89 = w80 & w135;
-	assign w90 = w79 & w129;
-	assign w91 = w79 & w135;
-	assign w92 = w78 & w129;
-	assign w93 = w78 & w135;
-	assign w94 = w77 & w129;
-	assign w95 = w77 & w135;
-	assign w96 = w76 & w129;
-	assign w97 = w76 & w135;
-	assign w98 = w75 & w129;
-	assign w99 = w75 & w135;
-	assign int_reset_state = ~(w74 & w129);
+	assign tst_fn0_wr = tst18_sel_0 & w129;
+	assign tst_fn1_wr = tst18_sel_1 & w129;
+	assign tst_fn2_wr = tst18_sel_2 & w129;
+	assign tst_fn2_rd = tst18_sel_2 & w135;
+	assign tst_fn3_wr = tst18_sel_3 & w129;
+	assign tst_fn3_rd = tst18_sel_3 & w135;
+	assign tst_fn4_wr = tst18_sel_4 & w129;
+	assign tst_fn4_rd = tst18_sel_4 & w135;
+	assign tst_fn5_wr = tst18_sel_5 & w129;
+	assign tst_fn5_rd = tst18_sel_5 & w135;
+	assign tst_fn6_wr = tst18_sel_6 & w129;
+	assign tst_fn6_rd = tst18_sel_6 & w135;
+	assign tst_fn7_wr = tst18_sel_7 & w129;
+	assign tst_fn7_rd = tst18_sel_7 & w135;
+	assign tst_fn8_wr = tst18_sel_8 & w129;
+	assign tst_fn8_rd = tst18_sel_8 & w135;
+	assign int_reset_state = ~(tst18_sel_f & w129);
 	
-	assign w101 = w16 | dff11_l2 | io_m1_s3;
+	assign w101 = ras_dma_gate | dff11_l2 | io_m1_s3;
 	
 	assign w102 = io_m1_s3 & w104;
 	
@@ -2836,12 +2836,12 @@ module ym7101
 	assign w113 = w112 | w132;
 	assign w114 = w113 & w130;
 	
-	assign w115 = reg_8b_b6 & w30;
-	assign w116 = w115 | w24;
+	assign w115 = reg_8b_b6 & bus_phase2;
+	assign w116 = w115 | cas_68k;
 	
-	assign dtack_pull_ctl = ~(w24 | w125 | w128 | w129 | w133); // dtack
+	assign dtack_pull_ctl = ~(cas_68k | w125 | w128 | w129 | w133); // dtack
 	
-	assign w118 = (w1 & 1'h0) | (w32 & w116) | w19;
+	assign w118 = (cpu_wr_strobe & 1'h0) | (bus_wr_phase & w116) | oe_late_phase;
 	
 	ym_slatch sl17(.MCLK(MCLK), .en(cpu_clk0), .inp(cpu_rd), .val(l17));
 	
@@ -2853,11 +2853,11 @@ module ym7101
 	
 	ym7101_rs_trig rs12(.MCLK(MCLK), .set(w120), .rst(w121), .q(t12));
 	
-	assign int_pull_ctl = ~(cpu_sel ? t12 : w9); // z80 int
+	assign int_pull_ctl = ~(cpu_sel ? t12 : any_irq_active); // z80 int
 	
 	assign w123 = reg_lsm0_latch ? vcnt_ext[8] : vcnt_ext[0];
 	
-	assign w124 = w70 & cpu_as & w158;
+	assign w124 = vdp_addr_68k & cpu_as & w158;
 	
 	assign w125 = cpu_sel & w146;
 	
@@ -2885,7 +2885,7 @@ module ym7101
 	
 	assign w136 = l48 | reset_comb;
 	
-	assign w137 = t1 & t14 & w168;
+	assign w137 = bus_br_hold & t14 & w168;
 	
 	ym7101_rs_trig rs14(.MCLK(MCLK), .set(w138), .rst(w143), .q(t14));
 	
@@ -2933,7 +2933,7 @@ module ym7101
 	
 	assign w150 = t21 & w153;
 	
-	assign cpu_data_oe = w152 | w47;
+	assign cpu_data_oe = w152 | z80_int_ack;
 	
 	assign w152 = w113 | w135 | w142;
 	
@@ -3001,7 +3001,7 @@ module ym7101
 	
 	assign w180 = w245 | w346;
 	
-	ym_dlatch_1 dl20(.MCLK(MCLK), .c1(clk1), .inp(w18), .val(l20));
+	ym_dlatch_1 dl20(.MCLK(MCLK), .c1(clk1), .inp(dma_addr_bus), .val(l20));
 	
 	assign w181 = l20 | w164 | w168 | w191 | w261;
 	
@@ -3129,11 +3129,11 @@ module ym7101
 	assign w247 = dff3_l2 & reg_dmd == 2'h0;
 	assign w248 = dff3_l2 & reg_dmd == 2'h2;
 	
-	ym_sr_bit sr40(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w18), .sr_out(l40));
+	ym_sr_bit sr40(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(dma_addr_bus), .sr_out(l40));
 	
-	assign w249 = l40 & w18;
+	assign w249 = l40 & dma_addr_bus;
 	
-	ym_dlatch_2 dl41(.MCLK(MCLK), .c2(hclk2), .inp(w18), .val(l41));
+	ym_dlatch_2 dl41(.MCLK(MCLK), .c2(hclk2), .inp(dma_addr_bus), .val(l41));
 	
 	assign w250 = w187 | l50 | l41;
 	
@@ -3444,9 +3444,9 @@ module ym7101
 	
 	ym_slatch_r #(.DATA_WIDTH(12)) sl_test_18(.MCLK(MCLK), .en(w128), .rst(reset_ext), .inp(io_data[11:0]), .val(reg_test_18));
 	
-	ym_slatch_r #(.DATA_WIDTH(15)) sl_test0(.MCLK(MCLK), .en(w84), .rst(reset_ext), .inp(io_data[14:0]), .val(reg_test0));
+	ym_slatch_r #(.DATA_WIDTH(15)) sl_test0(.MCLK(MCLK), .en(tst_fn0_wr), .rst(reset_ext), .inp(io_data[14:0]), .val(reg_test0));
 	
-	ym_slatch_r #(.DATA_WIDTH(11)) sl_test1(.MCLK(MCLK), .en(w85), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1));
+	ym_slatch_r #(.DATA_WIDTH(11)) sl_test1(.MCLK(MCLK), .en(tst_fn1_wr), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1));
 	
 	ym_slatch #(.DATA_WIDTH(2)) sl_code_01(.MCLK(MCLK), .en(w164), .inp(w350[7:6]), .val(reg_code[1:0]));
 	ym_slatch_r #(.DATA_WIDTH(3)) sl_code_234(.MCLK(MCLK), .en(w168), .rst(w204), .inp(io_data[6:4]), .val(reg_code[4:2]));
@@ -3571,13 +3571,13 @@ module ym7101
 	
 	ym_sr_bit sr112(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_spr_end), .sr_out(spr_end_dly));
 	
-	assign hcnt_load_en = spr_end_dly | w88 | reset_comb | hcnt_m5_reload;
+	assign hcnt_load_en = spr_end_dly | tst_fn3_wr | reset_comb | hcnt_m5_reload;
 	
 	assign hcnt_inc_gate = ~(hcnt_load_en | reg_test1[3]);
 	
 	assign hcnt_inc_en = hcnt_inc_gate | (reg_test1[3] & ~cpu_intak);
 	
-	assign hcnt_load_val = w88 ? io_data[8:0] : { 4'he, ~hcnt_rld_b0, hcnt_rld_b3, hcnt_rld_b2, hcnt_rld_b1, hcnt_rld_b0 };
+	assign hcnt_load_val = tst_fn3_wr ? io_data[8:0] : { 4'he, ~hcnt_rld_b0, hcnt_rld_b3, hcnt_rld_b2, hcnt_rld_b1, hcnt_rld_b0 };
 	
 	assign hcnt_rld_b0 = ~reg_80_b0 & reg_rs1 & reg_m5;
 
@@ -3821,7 +3821,7 @@ module ym7101
 	
 	assign csync_prog_mode = reg_m5 & reg_80_b3;
 	
-	assign vcnt_load_val = w86 ? io_data[8:0] :
+	assign vcnt_load_val = tst_fn2_wr ? io_data[8:0] :
 		{ 2'h3, ~pal_m4, vcnt_rld_b5, ~v28_mode, vcnt_rld_b3, ~cpu_pal, pal_even_field, field_xor_region };
 	
 	assign vcnt_rld_b5 = ntsc_v28 | pal_m4;
@@ -3840,7 +3840,7 @@ module ym7101
 	
 	assign vcnt_inc_en = (~reg_test1[2] & active_end & ~vcnt_load_en) | (reg_test1[2] & ~cpu_bg);
 	
-	assign vcnt_load_en = vcnt_wrap_cond | reset_comb | w86 | vcnt_adj_reload;
+	assign vcnt_load_en = vcnt_wrap_cond | reset_comb | tst_fn2_wr | vcnt_adj_reload;
 	
 	assign vcnt_wrap_cond = active_end & vcnt_eq_dly;
 	
@@ -4676,7 +4676,7 @@ module ym7101
 	
 	ym_sr_bit sr274(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l273), .sr_out(l274));
 	
-	assign w614 = sub_slot_active | w90;
+	assign w614 = sub_slot_active | tst_fn4_wr;
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl275(.MCLK(MCLK), .en(w622), .inp(vram_serial), .val(l275));
 	
@@ -4872,7 +4872,7 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(2)) sr323(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l322), .data_out(l323));
 	
-	assign w649 = w92 | pre_wrap_active;
+	assign w649 = tst_fn5_wr | pre_wrap_active;
 	
 	// -------------------------------------------------------------------------
 	// VSRAM (Vertical Scroll RAM)
@@ -5136,13 +5136,13 @@ module ym7101
 	assign test_sel_ne1 = reg_test_18[6:5] != 2'h1;
 	assign test_sel_ne0 = reg_test_18[6:5] != 2'h0;
 	
-	assign test_wr_attr = w96 & reg_test_18[6] & ~reg_test_18[5];
+	assign test_wr_attr = tst_fn7_wr & reg_test_18[6] & ~reg_test_18[5];
 	
 	assign sprdata_wr_attr = test_wr_attr | sprdata_wr_norm;
 	
-	assign test_wr_hpos = w96 & ~reg_test_18[6] & reg_test_18[5];
+	assign test_wr_hpos = tst_fn7_wr & ~reg_test_18[6] & reg_test_18[5];
 	
-	assign test_wr_pat = w96 & ~reg_test_18[6] & ~reg_test_18[5];
+	assign test_wr_pat = tst_fn7_wr & ~reg_test_18[6] & ~reg_test_18[5];
 	
 	assign sprdata_wr_pat = test_wr_pat | sprdata_wr_norm;
 	
@@ -5218,7 +5218,7 @@ module ym7101
 	
 	assign vram_attr_sel = attr_phase_0 ? vram_attr_hi : vram_attr_lo;
 	
-	assign spr_cnt_shift_en = spr_cnt_wr_en | w94 | w95;
+	assign spr_cnt_shift_en = spr_cnt_wr_en | tst_fn6_wr | tst_fn6_rd;
 	
 	ym_sr_bit_en #(.SR_LENGTH(10)) sr388(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spr_cnt_data[0]), .data_out(spr_cnt_sr_0));
 	
@@ -5240,7 +5240,7 @@ module ym7101
 	
 	assign spr_cnt_wr_en = ~reg_test0[14] & spr_found_any;
 	
-	assign spr_cnt_data = w94 ? io_data[3:0] : y_delta_result[3:0];
+	assign spr_cnt_data = tst_fn6_wr ? io_data[3:0] : y_delta_result[3:0];
 	
 	ym_slatch sl_86_b2(.MCLK(MCLK), .en(reg_wr_89), .inp(reg_data_l2[2]), .val(reg_86_b2));
 	
@@ -5299,9 +5299,9 @@ module ym7101
 	
 	ym_sr_bit sr402(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(m4_border_dly), .sr_out(attr_phase_1));
 	
-	assign spridx_data_mux = w94 ? io_data[10:4] : sat_idx_pipe_2;
+	assign spridx_data_mux = tst_fn6_wr ? io_data[10:4] : sat_idx_pipe_2;
 	
-	assign spridx_ovfl_mux = w94 ? io_data[11] : render_active_pipe;
+	assign spridx_ovfl_mux = tst_fn6_wr ? io_data[11] : render_active_pipe;
 	
 	ym_sr_bit_en #(.SR_LENGTH(20)) sr403(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_data_mux[0]), .data_out(spridx_sr_0));
 	
@@ -5349,7 +5349,7 @@ module ym7101
 	
 	assign sprdata_in_yoff = (sprdata_test_sel ? io_data[13:8] : 6'h0) | (sprdata_norm_sel ? yoff : 6'h0);
 	
-	assign sprdata_rd_strobe = hclk1 & (w97 | xtile_done);
+	assign sprdata_rd_strobe = hclk1 & (tst_fn7_rd | xtile_done);
 	
 	assign sprdata_test_mux = (~test_sel_ne2 ? {spr_rd_yoff[2:0], spr_rd_ys, spr_rd_xs, spr_rd_pri, spr_rd_pal, spr_rd_hflip } : 11'h0) |
 		(~test_sel_ne1 ? spr_rd_hpos : 11'h0) |
@@ -5739,10 +5739,10 @@ module ym7101
 	
 	ym_sr_bit sr514(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(disp_gate_edge), .sr_out(disp_gate_delay));
 	
-	assign test_bank_0_n = ~(~reg_test_18[7] & ~reg_test_18[6] & w98);
-	assign test_bank_1_n = ~(~reg_test_18[7] & reg_test_18[6] & w98);
-	assign test_bank_2_n = ~(reg_test_18[7] & ~reg_test_18[6] & w98);
-	assign test_bank_3_n = ~(reg_test_18[7] & reg_test_18[6] & w98);
+	assign test_bank_0_n = ~(~reg_test_18[7] & ~reg_test_18[6] & tst_fn8_wr);
+	assign test_bank_1_n = ~(~reg_test_18[7] & reg_test_18[6] & tst_fn8_wr);
+	assign test_bank_2_n = ~(reg_test_18[7] & ~reg_test_18[6] & tst_fn8_wr);
+	assign test_bank_3_n = ~(reg_test_18[7] & reg_test_18[6] & tst_fn8_wr);
 	
 	assign lb_wr_bank_0 = ~(test_bank_0_n & lb_read_strobe_n);
 	assign lb_wr_bank_1 = ~(test_bank_1_n & lb_read_strobe_n);
@@ -7305,53 +7305,53 @@ module ym7101
 	
 	wire [15:0] io_data_val =
 		(vdp_data_dir ? CD_i : 16'hffff) &
-		(w97 ? { 2'h3, spr_rd_yoff[5:3], sprdata_test_mux } : 16'hffff) &
-		(w71 ? { 5'h1f, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'hff} : 16'hffff) &
-		(w114 ? { 6'h3f, l46, w252, t9, t10, t11, field_bit, active_disp_gate, vint_delayed, w73, w72 } : 16'hffff) &
+		(tst_fn7_rd ? { 2'h3, spr_rd_yoff[5:3], sprdata_test_mux } : 16'hffff) &
+		(z80_vdp_rd ? { 5'h1f, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'hff} : 16'hffff) &
+		(w114 ? { 6'h3f, l46, w252, eint_pend, spr_overflow, spr_collision, field_bit, active_disp_gate, vint_delayed, hv_data_sel, hv_byte_sel } : 16'hffff) &
 		(w134 ? { l90[7:0], 8'hff } : 16'hffff) &
 		(w142 ? { 8'hff, w347[7:0] } : 16'hffff) &
 		(w160 ? { l93[7:0], l92[7:0] } : 16'hffff) &
-		(w47 ? { 8'hff, 5'h0, w12, w11, 1'h0 } : 16'hffff) &
-		(w87 ? { 8'hff, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'hffff) &
-		(w89 ? { 2'h3, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'hffff) &
-		(w95 ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
-		(w99 ? { 1'h1, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h1, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'hffff) &
-		(w91 ? { 5'h1f, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'hffff) &
-		(w93 ? { ~psg_atten_0, ~psg_atten_1, ~psg_atten_2, ~psg_atten_3 } : 16'hffff);
+		(z80_int_ack ? { 8'hff, 5'h0, ipl2_src, ipl1_src, 1'h0 } : 16'hffff) &
+		(tst_fn2_rd ? { 8'hff, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'hffff) &
+		(tst_fn3_rd ? { 2'h3, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'hffff) &
+		(tst_fn6_rd ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
+		(tst_fn8_rd ? { 1'h1, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h1, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'hffff) &
+		(tst_fn4_rd ? { 5'h1f, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'hffff) &
+		(tst_fn5_rd ? { ~psg_atten_0, ~psg_atten_1, ~psg_atten_2, ~psg_atten_3 } : 16'hffff);
 	
 	wire [15:0] io_data_pull =
 		(vdp_data_dir ? 16'hffff : 16'h0) |
-		(w97 ? 16'h3fff : 16'h0) |
-		(w71 ? 16'h0700 : 16'h0) |
+		(tst_fn7_rd ? 16'h3fff : 16'h0) |
+		(z80_vdp_rd ? 16'h0700 : 16'h0) |
 		(w114 ? 16'h03ff : 16'h0) |
 		(w134 ? 16'hff00 : 16'h0) |
 		(w142 ? 16'h00ff : 16'h0) |
 		(w160 ? 16'hffff : 16'h0) |
-		(w47 ? 16'h00ff : 16'h0) |
-		(w87 ? 16'h00ff : 16'h0) |
-		(w89 ? 16'h3fff : 16'h0) |
-		(w95 ? 16'h0fff : 16'h0) |
-		(w99 ? 16'h7f7f : 16'h0) |
-		(w91 ? 16'h07ff : 16'h0) |
-		(w93 ? 16'hffff : 16'h0);
+		(z80_int_ack ? 16'h00ff : 16'h0) |
+		(tst_fn2_rd ? 16'h00ff : 16'h0) |
+		(tst_fn3_rd ? 16'h3fff : 16'h0) |
+		(tst_fn6_rd ? 16'h0fff : 16'h0) |
+		(tst_fn8_rd ? 16'h7f7f : 16'h0) |
+		(tst_fn4_rd ? 16'h07ff : 16'h0) |
+		(tst_fn5_rd ? 16'hffff : 16'h0);
 	
 	//reg [15:0] io_data_mem = 16'h0;
 	
 	/*assign io_data =
 		(vdp_data_dir ? CD_i : 16'h0) |
-		(w97 ? { 2'h0, spr_rd_yoff[5:3], sprdata_test_mux } : 16'h0) |
-		(w71 ? { 5'h0, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'h0} : 16'h0) |
-		(w114 ? { 6'h0, l46, w252, t9, t10, t11, field_bit, active_disp_gate, vint_delayed, w73, w72 } : 16'h0) |
+		(tst_fn7_rd ? { 2'h0, spr_rd_yoff[5:3], sprdata_test_mux } : 16'h0) |
+		(z80_vdp_rd ? { 5'h0, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'h0} : 16'h0) |
+		(w114 ? { 6'h0, l46, w252, eint_pend, spr_overflow, spr_collision, field_bit, active_disp_gate, vint_delayed, hv_data_sel, hv_byte_sel } : 16'h0) |
 		(w134 ? { l90[7:0], 8'h0 } : 16'h0) |
 		(w142 ? { 8'h0, w347[7:0] } : 16'h0) |
 		(w160 ? { l93[7:0], l92[7:0] } : 16'h0) |
-		(w47 ? { 8'h0, 5'h0, w12, w11, 1'h0 } : 16'h0) |
-		(w87 ? { 8'h0, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'h0) |
-		(w89 ? { 2'h0, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'h0) |
-		(w95 ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
-		(w99 ? { 1'h0, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h0, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'h0) |
-		(w91 ? { 5'h0, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'h0) |
-		(w93 ? { ~psg_atten_0, ~psg_atten_1, ~psg_atten_2, ~psg_atten_3 } : 16'h0);*/
+		(z80_int_ack ? { 8'h0, 5'h0, ipl2_src, ipl1_src, 1'h0 } : 16'h0) |
+		(tst_fn2_rd ? { 8'h0, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'h0) |
+		(tst_fn3_rd ? { 2'h0, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'h0) |
+		(tst_fn6_rd ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
+		(tst_fn8_rd ? { 1'h0, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h0, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'h0) |
+		(tst_fn4_rd ? { 5'h0, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'h0) |
+		(tst_fn5_rd ? { ~psg_atten_0, ~psg_atten_1, ~psg_atten_2, ~psg_atten_3 } : 16'h0);*/
 	
 	assign CD_o = io_data;
 	
@@ -7440,10 +7440,10 @@ module ym7101
 	always @(posedge MCLK) color_ram_out_dp <= color_ram[color_bus_pipe_dp];
 	
 	assign vdp_dma_oe_early = reg_8b_b6 ?
-		(io_m1_dff2_l2 | w15 | w28 | w30 | w102) :
-		(l6 | l8 | w25 | w1153);
+		(io_m1_dff2_l2 | cas_z80_gate | z80_cas_pulse | bus_phase2 | w102) :
+		(bus_phase_a | bus_phase_c | oe_cpu_rd | cpu_wr_cas_gate);
 	
-	assign vdp_dma = l6 | l8;
+	assign vdp_dma = bus_phase_a | bus_phase_c;
 
 endmodule
 
@@ -7453,7 +7453,7 @@ endmodule
 //   set=1 → q=1, nq=0
 //   rst=1 → q=0, nq=1
 //   else  → q holds, nq = ~q
-// Used throughout ym7101 for timing triggers (t1-psg_noise_trig).
+// Used throughout ym7101 for timing triggers (bus_br_hold-psg_noise_trig).
 module ym7101_rs_trig
 	(
 	input MCLK,
@@ -7502,25 +7502,25 @@ module ym7101_dff #(parameter DATA_WIDTH = 1)
 	output [DATA_WIDTH-1:0] outp
 	);
 	
-	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
+	reg [DATA_WIDTH-1:0] edclk_pipe1 = {DATA_WIDTH{1'h0}}, edclk_pipe2 = {DATA_WIDTH{1'h0}};
 	
-	wire [DATA_WIDTH-1:0] l2_assign = rst ? {DATA_WIDTH{1'h0}} : (clk ? l1 : l2);
+	wire [DATA_WIDTH-1:0] l2_assign = rst ? {DATA_WIDTH{1'h0}} : (clk ? edclk_pipe1 : edclk_pipe2);
 	
 	assign outp = l2_assign;
-	//assign outp = l2;
+	//assign outp = edclk_pipe2;
 	
 	always @(posedge MCLK)
 	begin
 		if (rst)
 		begin
-			l1 <= {DATA_WIDTH{1'h0}};
+			edclk_pipe1 <= {DATA_WIDTH{1'h0}};
 		end
 		else
 		begin
 			if (~clk)
-				l1 <= inp;
+				edclk_pipe1 <= inp;
 		end
-		l2 <= l2_assign;
+		edclk_pipe2 <= l2_assign;
 	end
 	
 endmodule
@@ -7534,24 +7534,24 @@ endmodule
 	output [DATA_WIDTH-1:0] outp
 	);
 	
-	reg [DATA_WIDTH-1:0] l1 = {DATA_WIDTH{1'h0}}, l2 = {DATA_WIDTH{1'h0}};
+	reg [DATA_WIDTH-1:0] edclk_pipe1 = {DATA_WIDTH{1'h0}}, edclk_pipe2 = {DATA_WIDTH{1'h0}};
 	
 	//assign outp = l2_assign;
-	assign outp = l2;
+	assign outp = edclk_pipe2;
 	
 	always @(*)
 	begin
 		if (rst)
 		begin
-			l1 <= {DATA_WIDTH{1'h0}};
-			l2 <= {DATA_WIDTH{1'h0}};
+			edclk_pipe1 <= {DATA_WIDTH{1'h0}};
+			edclk_pipe2 <= {DATA_WIDTH{1'h0}};
 		end
 		else
 		begin
 			if (~clk)
-				l1 <= inp;
+				edclk_pipe1 <= inp;
 			else
-				l2 <= l1;
+				edclk_pipe2 <= edclk_pipe1;
 		end
 	end
 	
@@ -7566,16 +7566,16 @@ endmodule*/
 	output [DATA_WIDTH-1:0] outp
 	);
 	
-	reg [DATA_WIDTH-1:0] l2 = {DATA_WIDTH{1'h0}};
+	reg [DATA_WIDTH-1:0] edclk_pipe2 = {DATA_WIDTH{1'h0}};
 
-	assign outp = l2;
+	assign outp = edclk_pipe2;
 	
 	always @(posedge clk or posedge rst)
 	begin
 		if (rst)
-			l2 <= {DATA_WIDTH{1'h0}};
+			edclk_pipe2 <= {DATA_WIDTH{1'h0}};
 		else
-			l2 <= inp;
+			edclk_pipe2 <= inp;
 	end
 	
 endmodule*/
