@@ -269,7 +269,7 @@ module ym7101
 	wire io_ipl2;  // interrupt priority level bit 2
 	reg [15:0] io_data;
 
-	// I/O block: CPU bus decode, DTACK, register access, DMA/FIFO (cpu_wr_strobe-w290)
+	// I/O block: CPU bus decode, DTACK, register access, DMA/FIFO (cpu_wr_strobe-fifo_slot_en)
 	wire cpu_wr_strobe;
 	wire dff1_l2;
 	wire dff2_l2;
@@ -546,38 +546,38 @@ module ym7101
 	wire dma_wr_path;
 	wire dma_ext_cycle;
 	wire dma_data_active;
-	wire w192;
-	wire w193;
-	wire w194;
-	wire w195;
+	wire code_not_vram;
+	wire cram_wr_gate;
+	wire auto_rd_cond;
+	wire dma_ext_copy;
 	wire dma_ext_dly;
-	wire w196;
+	wire dma_ext_cond;
 	wire dma_start_pend;
-	wire w197;
-	wire w198;
-	wire w199;
-	wire w200;
-	wire w201;
-	wire w202;
-	wire l29;
-	wire l30;
-	wire w203;
-	wire w204;
-	wire l31;
-	wire l32;
-	wire l33;
-	wire l34;
-	wire w205;
-	wire w206;
-	wire w207;
-	wire w208;
-	wire w209;
-	wire w210;
-	wire w211;
-	wire w212;
-	wire w213;
-	wire w214;
-	wire w215;
+	wire dma_pend_clr;
+	wire dma_pend_set;
+	wire dma_copy_trig;
+	wire dma_norm_trig;
+	wire cram_wr_sel;
+	wire vsram_wr_sel;
+	wire vram_wr_pipe1;
+	wire vram_wr_pipe2;
+	wire sms_rd_trig;
+	wire code_hi_rst;
+	wire reg_wr_pipe;
+	wire cram_gate_pipe;
+	wire cram_rd_pipe2;
+	wire cram_rd_active;
+	wire reg_wr_strobe;
+	wire reg_sel_grp0;
+	wire reg_sel_grp1;
+	wire reg_sel_grp2;
+	wire reg_sel_grp1m5;
+	wire wr_en_8F;
+	wire wr_en_93;
+	wire wr_en_94;
+	wire wr_en_8B_scr;
+	wire wr_en_96;
+	wire wr_en_8C;
 	// Register write strobes (active for one cycle when CPU writes reg 0x80-0x97)
 	wire reg_wr_80; // reg 0x80 write strobe
 	wire reg_wr_81; // reg 0x81 write strobe
@@ -594,197 +594,197 @@ module ym7101
 	wire reg_wr_8C; // reg 0x8C write strobe
 	wire reg_wr_8D; // reg 0x8D write strobe
 	wire reg_wr_hi; // reg 0x8E-0x97 write range
-	wire w231;
-	wire w232;
-	wire w233;
-	wire w234;
-	wire w235;
+	wire wr_en_88;
+	wire wr_en_8E;
+	wire wr_en_8D_m5;
+	wire dma_cnt_tst;
+	wire dma_cnt_norm;
 
 	// VRAM address pipeline latches (DMA/FIFO address stages, 17-bit)
-	wire [16:0] l35;
-	wire [16:0] l36;
-	wire [16:0] l37;
-	wire [16:0] l38;
-	wire [16:0] l39;
-	wire w244;
-	wire w245;
-	wire w246;
-	wire w247;
-	wire w248;
-	wire l40;
-	wire w249;
-	wire l41;
-	wire w250;
-	wire w251;
-	wire l42;
-	wire w252;
-	wire l43;
-	wire l44;
-	wire l45;
-	wire w253;
-	wire w254;
-	wire w255;
-	wire l46;
-	wire w256;
-	wire w257;
-	wire w258;
-	wire w259;
-	wire w260;
-	wire w261;
-	wire w262; // nc
-	wire w263;
-	wire w264;
-	wire w265;
-	wire l47;
-	wire w266;
+	wire [16:0] fifo_addr_pipe;
+	wire [16:0] fifo_data_0;
+	wire [16:0] fifo_data_1;
+	wire [16:0] fifo_data_2;
+	wire [16:0] fifo_data_3;
+	wire dma_len_last;
+	wire dma_copy_mode;
+	wire dma_68k_mode;
+	wire dma_fill_mode;
+	wire dma_ext_mode;
+	wire dma_addr_pipe;
+	wire dma_addr_edge;
+	wire dma_addr_latch2;
+	wire dma_wr_active;
+	wire dma_len_hi_cry;
+	wire fifo_wr_pipe1;
+	wire fifo_wr_gate;
+	wire fifo_wr_pipe2;
+	wire dma_slot_pipe1;
+	wire dma_slot_pipe2;
+	wire dma_slot_edge;
+	wire dma_state_set;
+	wire dma_src_hi_cry;
+	wire dma_state;
+	wire fifo_empty_slot;
+	wire fifo_rd_s2;
+	wire fifo_rd_s0;
+	wire fifo_rd_s3;
+	wire fifo_rd_s1;
+	wire fifo_rd_trigger;
+	wire dma_ext_busy; // nc
+	wire dma_ext_state;
+	wire fifo_wr_trig;
+	wire dma_copy_active;
+	wire vram_addr_b0_lat;
+	wire addr_latch_en;
 	wire dma_addr_oe; // DMA address bus drive enable
-	wire l48;
-	wire w268;
-	wire w269;
-	wire l49;
-	wire w270;
-	wire w271;
+	wire dma_len_done_dly;
+	wire non_dma_slot;
+	wire slot_no_dma;
+	wire idle_slot_dly;
+	wire dma_active_rst;
+	wire dma_active_set;
 	wire dma_active_trig; // DMA active trigger
-	wire l50;
-	wire w272;
-	wire w273;
-	wire w274;
-	wire w275;
-	wire w276;
-	wire w277;
-	wire w278;
-	wire w279;
-	wire w280;
-	wire w281;
-	wire w282;
-	wire w283;
-	wire w284;
-	wire w285;
-	wire w286;
-	wire w287;
-	wire w288;
-	wire w289;
-	wire w290;
-	wire [1:0] l51;
-	wire w291;
-	wire w292;
-	wire w293;
-	wire w294;
-	wire w295;
-	wire w296;
-	wire w297;
-	wire l52;
-	wire l53;
-	wire l54;
-	wire w298;
-	wire w299;
-	wire w300;
-	wire l55;
-	wire l56;
-	wire l57;
-	wire l58;
-	wire l59;
-	wire l60;
-	wire l61;
-	wire l62;
-	wire l63;
-	wire l64;
-	wire l65;
-	wire l66;
-	wire l67;
-	wire l68;
-	wire l69;
-	wire l70;
-	wire l71;
-	wire l72;
-	wire l73;
-	wire l74;
-	wire l75;
-	wire l76;
-	wire l77;
-	wire l78;
-	wire w301;
-	wire w302;
-	wire w303;
-	wire w304;
-	wire w305;
-	wire w306;
-	wire w307;
-	wire w308;
-	wire w309;
-	wire w310;
-	wire w311;
-	wire w312;
-	wire w313;
-	wire w314;
-	wire w315;
-	wire w316;
-	wire w317;
-	wire w318;
-	wire w319;
-	wire w320;
-	wire w321;
-	wire w322;
-	wire w323;
-	wire w324;
-	wire w325;
-	wire w326;
-	wire w327;
-	wire w328;
-	wire w329;
-	wire w330;
-	wire w331;
-	wire w332;
-	wire w333;
-	wire w334;
-	wire l79;
-	wire l80;
-	wire w335;
-	wire l81;
-	wire w336;
-	wire w337;
-	wire w338;
-	wire l82;
-	wire l83;
-	wire l84;
-	wire w339;
-	wire w340;
-	wire l85;
-	wire l86;
-	wire l87;
-	wire w341;
-	wire w342;
-	wire l88;
-	wire l89;
-	wire w343;
-	wire w344;
-	wire w345;
-	wire w346;
-	// VRAM data pipeline latches (4 pairs of 8-bit read stages: l90-l104)
-	wire [7:0] l90;
-	wire [7:0] l91;
-	wire [7:0] w347;
-	wire [7:0] w348;
-	wire [7:0] l92;
-	wire [7:0] w349;
-	wire [7:0] l93;
-	wire [7:0] w350;
-	wire [7:0] l94;
-	wire [7:0] l95;
-	wire [7:0] l96;
-	wire [7:0] l97;
-	wire [7:0] w351;
+	wire dma_fill_slot_dly;
+	wire dma_fill_cond;
+	wire fifo_vram_sel;
+	wire vram_sel;
+	wire dma_fill_busy;
+	wire uds_or_dff3;
+	wire byte_sel_hi;
+	wire lds_or_dff3;
+	wire byte_sel_lo;
+	wire addr_b0_m5;
+	wire dma_cpy_hi_sel;
+	wire dma_cpy_lo_sel;
+	wire vram_wr_hi_en;
+	wire vram_wr_lo_en;
+	wire lo_byte_valid;
+	wire vram_wr_lo_gate;
+	wire vram128k_hi;
+	wire vram_wr_hi_gate;
+	wire vram_wr_active;
+	wire fifo_slot_en;
+	wire [1:0] fifo_wr_ptr;
+	wire fifo_en_s2;
+	wire fifo_en_s3;
+	wire fifo_en_s0;
+	wire fifo_en_s1;
+	wire fifo_ptr_match;
+	wire fifo_cnt_inc;
+	wire fifo_cnt_dec;
+	wire fifo_cnt_b0;
+	wire fifo_rd_b0;
+	wire fifo_rd_b1;
+	wire fifo_not_busy;
+	wire fifo_addr_wr_en;
+	wire fifo_read_slot;
+	wire fifo_uds_s3;
+	wire fifo_uds_s2;
+	wire fifo_uds_s1;
+	wire fifo_uds_s0;
+	wire fifo_lds_s3;
+	wire fifo_lds_s2;
+	wire fifo_lds_s1;
+	wire fifo_lds_s0;
+	wire fifo_cd0_s3;
+	wire fifo_cd0_s2;
+	wire fifo_cd0_s1;
+	wire fifo_cd0_s0;
+	wire fifo_cd1_s3;
+	wire fifo_cd1_s2;
+	wire fifo_cd1_s1;
+	wire fifo_cd1_s0;
+	wire fifo_cd2_s3;
+	wire fifo_cd2_s2;
+	wire fifo_cd2_s1;
+	wire fifo_cd2_s0;
+	wire fifo_cd3_s3;
+	wire fifo_cd3_s2;
+	wire fifo_cd3_s1;
+	wire fifo_cd3_s0;
+	wire fifo_out_active;
+	wire cram_wr_hi_cond;
+	wire cram_wr_lo_cond;
+	wire fifo_data_wr_en;
+	wire fifo_rd_valid;
+	wire rd_ptr_3;
+	wire rd_ptr_2;
+	wire rd_ptr_1;
+	wire rd_ptr_0;
+	wire fifo_out_cd1;
+	wire fifo_out_uds;
+	wire fifo_out_cd2;
+	wire fifo_out_lds;
+	wire fifo_out_cd3;
+	wire fifo_out_cd0;
+	wire out_cd1_sel;
+	wire out_uds_sel;
+	wire out_cd2_sel;
+	wire out_lds_sel;
+	wire out_cd3_sel;
+	wire out_cd0_sel;
+	wire out_cd0_raw;
+	wire vsram_wr_hi;
+	wire vsram_wr_lo;
+	wire vram_code_sel;
+	wire data_rd_s0;
+	wire data_rd_s2;
+	wire data_rd_s1;
+	wire data_rd_s3;
+	wire byte_swap_gate;
+	wire fifo_byte_sel;
+	wire uds_lds_diff;
+	wire hv_cnt_sel;
+	wire hv_latch_ext;
+	wire pen_dly1;
+	wire pen_dly2;
+	wire pen_fall_edge;
+	wire pen_edge_dly;
+	wire vcnt_latch_en;
+	wire hcnt_latch_en;
+	wire vram_direct;
+	wire vram_wr_hi_pipe;
+	wire addr_b0_dly1;
+	wire addr_b0_dly2;
+	wire vram_wr_lo_cond;
+	wire vram_wr_hi_cond;
+	wire addr_b0_dly3;
+	wire dma_wr_dly1;
+	wire dma_wr_dly2;
+	wire vram_wr_hi_strb;
+	wire vram_wr_lo_strb;
+	wire vram_wr_hi_sel;
+	wire vram_wr_lo_sel;
+	wire vram_wr_hi_clk;
+	wire vram_wr_lo_clk;
+	wire vram128k_rd_sel;
+	wire vram_byte_swap;
+	// VRAM data pipeline latches (4 pairs of 8-bit read stages: vcnt_latch-data_rd_pipe)
+	wire [7:0] vcnt_latch;
+	wire [7:0] hcnt_latch;
+	wire [7:0] hv_cnt_data;
+	wire [7:0] vram_rd_lo_data;
+	wire [7:0] vram_rd_lo_lat;
+	wire [7:0] vram_rd_hi_data;
+	wire [7:0] vram_rd_hi_lat;
+	wire [7:0] cpu_data_hi;
+	wire [7:0] fifo_in_hi;
+	wire [7:0] fifo_in_lo;
+	wire [7:0] fifo_hi_s1;
+	wire [7:0] fifo_lo_s1;
+	wire [7:0] fifo_out_s1;
 	wire [7:0] unk_data;
-	wire [7:0] l98;
-	wire [7:0] l99;
-	wire [7:0] w352;
-	wire [7:0] l100;
-	wire [7:0] l101;
-	wire [7:0] w353;
-	wire [7:0] l102;
-	wire [7:0] l103;
-	wire [7:0] w354;
-	wire [7:0] l104;
+	wire [7:0] fifo_hi_s2;
+	wire [7:0] fifo_lo_s2;
+	wire [7:0] fifo_out_s2;
+	wire [7:0] fifo_hi_s3;
+	wire [7:0] fifo_lo_s3;
+	wire [7:0] fifo_out_s3;
+	wire [7:0] fifo_hi_s0;
+	wire [7:0] fifo_lo_s0;
+	wire [7:0] fifo_out_s0;
+	wire [7:0] data_rd_pipe;
 	
 	// H/V counters and timing FSM (vcnt-vsync_pipe_prev, vcnt_ext-disp_active_flag)
 	wire [8:0] vcnt; // vertical counter (9-bit)
@@ -2542,14 +2542,14 @@ module ym7101
 	
 	assign addr_hi_sel = intak_clear & (&io_address[22:20]);
 	
-	assign io_address_22o = ~(edclk_gap & w247 & (bus_phase_a | ~bus_phase_b));
+	assign io_address_22o = ~(edclk_gap & dma_fill_mode & (bus_phase_a | ~bus_phase_b));
 	
 	ym7101_dff dff4(.MCLK(MCLK), .clk(hclk2), .inp(dma_req_any), .rst(dma_rst), .outp(dff4_l2));
 	ym7101_dff dff3(.MCLK(MCLK), .clk(hclk2), .inp(dff4_l2), .rst(dma_rst), .outp(dff3_l2));
 	
 	assign dma_req_any = dma_copy_req | bus_granted;
 	
-	assign dma_rst = reset_comb | l48;
+	assign dma_rst = reset_comb | dma_len_done_dly;
 	
 	ym7101_rs_trig rs2(.MCLK(MCLK), .set(dma_copy_start), .rst(dma_rst), .q(dma_copy_req));
 	ym7101_rs_trig rs3(.MCLK(MCLK), .set(arb_grant_cond), .rst(dma_rst), .q(bus_granted));
@@ -2570,7 +2570,7 @@ module ym7101
 	ym_dlatch_2 dl8(.MCLK(MCLK), .c2(clk2), .inp(bus_phase_b), .nval(bus_phase_c));
 	
 	assign edclk_13_gap = ~(edclk_pipe1 | edclk_pipe3);
-	assign bus_access_gate_n = ~(edclk_13_gap & w252);
+	assign bus_access_gate_n = ~(edclk_13_gap & fifo_wr_gate);
 	
 	assign dma_addr_hold = dma_addr_dly & dma_addr_oe;
 	
@@ -2580,7 +2580,7 @@ module ym7101
 	assign ipl1_src = vint_irq | eint_irq;
 	assign ipl2_src = hint_irq | eint_irq;
 	
-	assign dma_ext_gate = edclk_gap & w246;
+	assign dma_ext_gate = edclk_gap & dma_68k_mode;
 	
 	assign ras_z80_gate = ~bus_phase_b | (bus_phase_a & dma_ext_gate);
 	
@@ -2736,7 +2736,7 @@ module ym7101
 	
 	ym7101_rs_trig rs8(.MCLK(MCLK), .set(vint_set_cond), .rst(vint_clr), .q(vint_irq_pend));
 	
-	assign vint_set_cond = reg_m5 & l81;
+	assign vint_set_cond = reg_m5 & pen_edge_dly;
 	
 	assign eint_irq = eint_pend & reg_ie0;
 	
@@ -2775,9 +2775,9 @@ module ym7101
 	
 	assign z80_vdp_rd = ~cpu_sel & reg_test0[2] & hv_rd_any;
 
-	assign hv_byte_sel = z80_hv_sel ? w252 : cpu_pal;
+	assign hv_byte_sel = z80_hv_sel ? fifo_wr_gate : cpu_pal;
 	
-	assign hv_data_sel = z80_hv_sel ? l46 : dff3_l2;
+	assign hv_data_sel = z80_hv_sel ? dma_state : dff3_l2;
 	
 	assign tst18_sel_f = reg_test_18[11:8] == 4'hf;
 	assign tst18_sel_8 = reg_test_18[11:8] == 4'h8;
@@ -2883,13 +2883,13 @@ module ym7101
 	
 	ym7101_rs_trig rs13(.MCLK(MCLK), .set(vdp_io_any), .rst(access_rst), .q(access_strobe));
 	
-	assign dma_done_rst = l48 | reset_comb;
+	assign dma_done_rst = dma_len_done_dly | reset_comb;
 	
 	assign dma_bus_cond = bus_br_hold & fifo_ctrl_pend & dma_auto_inc;
 	
 	ym7101_rs_trig rs14(.MCLK(MCLK), .set(fifo_ctrl_set), .rst(data_rd_first), .q(fifo_ctrl_pend));
 	
-	assign fifo_ctrl_set = reset_comb | l82;
+	assign fifo_ctrl_set = reset_comb | vram_wr_hi_pipe;
 	
 	assign vdp_write_any = vdp_data_wr | z80_vdp_wr;
 	
@@ -2913,7 +2913,7 @@ module ym7101
 	
 	assign fifo_wr_rst = (fifo_wr_pend & fifo_ready) | reset_comb;
 	
-	assign dma_wr_cond = fifo_ready & data_wr_latch & w192 & reg_m5;
+	assign dma_wr_cond = fifo_ready & data_wr_latch & code_not_vram & reg_m5;
 	
 	ym7101_rs_trig rs18(.MCLK(MCLK), .set(dma_wr_cond), .rst(fifo_wr_rst), .q(dma_inc_mode), .nq(dma_inc_mode_n));
 	
@@ -2925,7 +2925,7 @@ module ym7101
 	
 	assign any_byte_sel = cpu_uds | cpu_lds;
 	
-	assign wr_fifo_ready = ~(fifo_busy | w252);
+	assign wr_fifo_ready = ~(fifo_busy | fifo_wr_gate);
 	
 	assign fifo_rd_cond = ctrl_wr_done & fifo_ready;
 	
@@ -2955,7 +2955,7 @@ module ym7101
 	
 	assign fifo_idle_rst = fifo_ready | reset_comb;
 	
-	ym7101_rs_trig rs22(.MCLK(MCLK), .set(fifo_idle_rst), .rst(l82), .q(rd_phase_pend));
+	ym7101_rs_trig rs22(.MCLK(MCLK), .set(fifo_idle_rst), .rst(vram_wr_hi_pipe), .q(rd_phase_pend));
 	
 	assign rd_gate = ~(rd_phase_pend & data_rd_even);
 	
@@ -2993,17 +2993,17 @@ module ym7101
 	
 	assign fifo_flush_rst = reset_comb | fifo_phase_b;
 	
-	assign vram_wr_sel = ~(w201 | w202);
+	assign vram_wr_sel = ~(cram_wr_sel | vsram_wr_sel);
 	
-	assign vsram_wr_normal = w202 & ~reg_test0[4];
+	assign vsram_wr_normal = vsram_wr_sel & ~reg_test0[4];
 	
-	assign vsram_wr_test = w202 & reg_test0[4];
+	assign vsram_wr_test = vsram_wr_sel & reg_test0[4];
 	
-	assign dma_or_vram_wr = w245 | w346;
+	assign dma_or_vram_wr = dma_copy_mode | vram_byte_swap;
 	
 	ym_dlatch_1 dl20(.MCLK(MCLK), .c1(clk1), .inp(dma_addr_bus), .val(dma_addr_latch));
 	
-	assign reg_data_wr_en = dma_addr_latch | ctrl_wr_dtack | dma_auto_inc | dma_data_active | w261;
+	assign reg_data_wr_en = dma_addr_latch | ctrl_wr_dtack | dma_auto_inc | dma_data_active | fifo_rd_trigger;
 	
 	assign dma_start_bit = dma_auto_inc & io_data[7];
 	
@@ -3024,418 +3024,418 @@ module ym7101
 	
 	ym7101_rs_trig rs26(.MCLK(MCLK), .set(dma_start_cond), .rst(dma_cycle_rst), .q(dma_fill_trig), .nq(dma_fill_trig_n));
 	
-	assign dma_fill_start = dma_fill_trig & l46 & slot_idle_dly;
+	assign dma_fill_start = dma_fill_trig & dma_state & slot_idle_dly;
 	
 	ym_sr_bit sr27(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_fill_start), .sr_out(dma_fill_dly));
 	
-	assign dma_copy_cycle = dma_fill_dly & w245;
+	assign dma_copy_cycle = dma_fill_dly & dma_copy_mode;
 	
-	assign dma_fill_cycle = ~w245 & dma_fill_dly;
+	assign dma_fill_cycle = ~dma_copy_mode & dma_fill_dly;
 	
 	assign dma_wr_path = dma_ext_dly | dma_fill_cycle;
 	
-	assign dma_ext_cycle = dma_ext_dly & ~w245;
+	assign dma_ext_cycle = dma_ext_dly & ~dma_copy_mode;
 	
-	assign dma_data_active = dma_ext_cycle | dma_copy_cycle | l50;
+	assign dma_data_active = dma_ext_cycle | dma_copy_cycle | dma_fill_slot_dly;
 	
-	assign w192 = reg_code[1:0] != 2'h2;
+	assign code_not_vram = reg_code[1:0] != 2'h2;
 	
-	assign w193 = ~(~w192 & fifo_idle & data_wr_latch);
+	assign cram_wr_gate = ~(~code_not_vram & fifo_idle & data_wr_latch);
 	
-	assign w194 = ~(data_rd_latch | dma_inc_latch | (data_wr_latch & ~reg_m5));
+	assign auto_rd_cond = ~(data_rd_latch | dma_inc_latch | (data_wr_latch & ~reg_m5));
 	
-	assign w195 = dma_ext_dly & w245;
+	assign dma_ext_copy = dma_ext_dly & dma_copy_mode;
 	
-	ym_sr_bit sr28(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w196), .sr_out(dma_ext_dly));
+	ym_sr_bit sr28(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_ext_cond), .sr_out(dma_ext_dly));
 	
-	assign w196 = dma_fill_trig_n & dma_start_pend & l46 & slot_idle_dly;
+	assign dma_ext_cond = dma_fill_trig_n & dma_start_pend & dma_state & slot_idle_dly;
 	
-	ym7101_rs_trig rs27(.MCLK(MCLK), .set(w198), .rst(w197), .q(dma_start_pend));
+	ym7101_rs_trig rs27(.MCLK(MCLK), .set(dma_pend_set), .rst(dma_pend_clr), .q(dma_start_pend));
 	
-	assign w197 = dma_ext_dly | dma_done_rst;
+	assign dma_pend_clr = dma_ext_dly | dma_done_rst;
 	
-	assign w198 = w199 | w200 | w203;
+	assign dma_pend_set = dma_copy_trig | dma_norm_trig | sms_rd_trig;
 	
-	assign w199 = w245 & reg_code[4];
+	assign dma_copy_trig = dma_copy_mode & reg_code[4];
 	
-	assign w200 = ~((reg_code[4] | reg_code[1] | reg_code[0]) | w194 | ~fifo_ready);
+	assign dma_norm_trig = ~((reg_code[4] | reg_code[1] | reg_code[0]) | auto_rd_cond | ~fifo_ready);
 	
-	assign w201 = dma_wr_path & reg_code[3:2] == 2'h1;
+	assign cram_wr_sel = dma_wr_path & reg_code[3:2] == 2'h1;
 	
-	assign w202 = dma_wr_path & reg_code[3:2] == 2'h2;
+	assign vsram_wr_sel = dma_wr_path & reg_code[3:2] == 2'h2;
 	
-	ym_sr_bit sr29(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_sel), .sr_out(l29));
+	ym_sr_bit sr29(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_sel), .sr_out(vram_wr_pipe1));
 	
-	ym_sr_bit sr30(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l29), .sr_out(l30));
+	ym_sr_bit sr30(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_pipe1), .sr_out(vram_wr_pipe2));
 	
-	assign w203 = fifo_ready & data_rd_latch & ~reg_m5;
+	assign sms_rd_trig = fifo_ready & data_rd_latch & ~reg_m5;
 	
-	assign w204 = reset_comb | ~reg_m5;
+	assign code_hi_rst = reset_comb | ~reg_m5;
 	
-	ym_dlatch_2 dl31(.MCLK(MCLK), .c2(hclk2), .inp(l34), .nval(l31));
+	ym_dlatch_2 dl31(.MCLK(MCLK), .c2(hclk2), .inp(cram_rd_active), .nval(reg_wr_pipe));
 	
-	ym_dlatch_2 dl32(.MCLK(MCLK), .c2(clk2), .inp(w193), .nval(l32));
+	ym_dlatch_2 dl32(.MCLK(MCLK), .c2(clk2), .inp(cram_wr_gate), .nval(cram_gate_pipe));
 	
-	ym_sr_bit sr33(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(l32), .sr_out(l33));
+	ym_sr_bit sr33(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(cram_gate_pipe), .sr_out(cram_rd_pipe2));
 	
-	ym_dlatch_2 dl34(.MCLK(MCLK), .c2(clk1), .inp(l32 | l33), .nval(l34));
+	ym_dlatch_2 dl34(.MCLK(MCLK), .c2(clk1), .inp(cram_gate_pipe | cram_rd_pipe2), .nval(cram_rd_active));
 	
-	assign w205 = l31 & hclk1;
+	assign reg_wr_strobe = reg_wr_pipe & hclk1;
 	
-	assign w206 = w205 & reg_data_l2[12:11] == 2'h0;
-	assign w207 = w205 & reg_data_l2[12:11] == 2'h1;
-	assign w208 = w205 & reg_data_l2[12:11] == 2'h2 & reg_m5;
-	assign w209 = w205 & reg_data_l2[12:11] == 2'h1 & reg_m5;
+	assign reg_sel_grp0 = reg_wr_strobe & reg_data_l2[12:11] == 2'h0;
+	assign reg_sel_grp1 = reg_wr_strobe & reg_data_l2[12:11] == 2'h1;
+	assign reg_sel_grp2 = reg_wr_strobe & reg_data_l2[12:11] == 2'h2 & reg_m5;
+	assign reg_sel_grp1m5 = reg_wr_strobe & reg_data_l2[12:11] == 2'h1 & reg_m5;
 	
-	assign w210 = (w209 & reg_data_l2[10:8] == 3'h7) | reset_comb; // 8f
-	assign w211 = (w208 & reg_data_l2[10:8] == 3'h3) | reset_comb; // 93
-	assign w212 = (w208 & reg_data_l2[10:8] == 3'h4) | reset_comb; // 94
-	assign w213 = (w209 & reg_data_l2[10:8] == 3'h3) | reset_comb; // 8b
-	assign w214 = (w208 & reg_data_l2[10:8] == 3'h6) | reset_comb; // 96
-	assign w215 = (w209 & reg_data_l2[10:8] == 3'h4) | reset_comb; // 8c
-	assign reg_wr_80 = (w206 & reg_data_l2[10:8] == 3'h0) | reset_comb; // 80
-	assign reg_wr_81 = (w206 & reg_data_l2[10:8] == 3'h1) | reset_comb; // 81
-	assign reg_wr_82 = (w206 & reg_data_l2[10:8] == 3'h2) | reset_comb; // 82
-	assign reg_wr_83 = (w206 & reg_data_l2[10:8] == 3'h3) | reset_comb; // 83
-	assign reg_wr_84 = (w206 & reg_data_l2[10:8] == 3'h4) | reset_comb; // 84
-	assign reg_wr_85 = (w206 & reg_data_l2[10:8] == 3'h7) | reset_comb; // 87
-	assign reg_wr_86 = (w208 & reg_data_l2[10:8] == 3'h2) | reset_comb; // 92
-	assign reg_wr_87 = (w208 & reg_data_l2[10:8] == 3'h1) | reset_comb; // 91
-	assign reg_wr_88 = (w208 & reg_data_l2[10:8] == 3'h0) | reset_comb; // 90
-	assign reg_wr_89 = (w206 & reg_data_l2[10:8] == 3'h6) | reset_comb; // 86
-	assign reg_wr_8A = (w206 & reg_data_l2[10:8] == 3'h5) | reset_comb; // 85
-	assign reg_wr_8B = (w208 & reg_data_l2[10:8] == 3'h7) | reset_comb; // 97
-	assign reg_wr_8C = (w208 & reg_data_l2[10:8] == 3'h5) | reset_comb; // 95
-	assign reg_wr_8D = (w207 & reg_data_l2[10:8] == 3'h2) | reset_comb; // 8a
-	assign reg_wr_hi = (w207 & reg_data_l2[10:8] == 3'h1) | reset_comb; // 89
-	assign w231 = (w207 & reg_data_l2[10:8] == 3'h0) | reset_comb; // 88
-	assign w232 = (w209 & reg_data_l2[10:8] == 3'h6) | reset_comb; // 8e
-	assign w233 = (w209 & reg_data_l2[10:8] == 3'h5) | reset_comb; // 8d
+	assign wr_en_8F = (reg_sel_grp1m5 & reg_data_l2[10:8] == 3'h7) | reset_comb; // 8f
+	assign wr_en_93 = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h3) | reset_comb; // 93
+	assign wr_en_94 = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h4) | reset_comb; // 94
+	assign wr_en_8B_scr = (reg_sel_grp1m5 & reg_data_l2[10:8] == 3'h3) | reset_comb; // 8b
+	assign wr_en_96 = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h6) | reset_comb; // 96
+	assign wr_en_8C = (reg_sel_grp1m5 & reg_data_l2[10:8] == 3'h4) | reset_comb; // 8c
+	assign reg_wr_80 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h0) | reset_comb; // 80
+	assign reg_wr_81 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h1) | reset_comb; // 81
+	assign reg_wr_82 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h2) | reset_comb; // 82
+	assign reg_wr_83 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h3) | reset_comb; // 83
+	assign reg_wr_84 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h4) | reset_comb; // 84
+	assign reg_wr_85 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h7) | reset_comb; // 87
+	assign reg_wr_86 = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h2) | reset_comb; // 92
+	assign reg_wr_87 = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h1) | reset_comb; // 91
+	assign reg_wr_88 = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h0) | reset_comb; // 90
+	assign reg_wr_89 = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h6) | reset_comb; // 86
+	assign reg_wr_8A = (reg_sel_grp0 & reg_data_l2[10:8] == 3'h5) | reset_comb; // 85
+	assign reg_wr_8B = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h7) | reset_comb; // 97
+	assign reg_wr_8C = (reg_sel_grp2 & reg_data_l2[10:8] == 3'h5) | reset_comb; // 95
+	assign reg_wr_8D = (reg_sel_grp1 & reg_data_l2[10:8] == 3'h2) | reset_comb; // 8a
+	assign reg_wr_hi = (reg_sel_grp1 & reg_data_l2[10:8] == 3'h1) | reset_comb; // 89
+	assign wr_en_88 = (reg_sel_grp1 & reg_data_l2[10:8] == 3'h0) | reset_comb; // 88
+	assign wr_en_8E = (reg_sel_grp1m5 & reg_data_l2[10:8] == 3'h6) | reset_comb; // 8e
+	assign wr_en_8D_m5 = (reg_sel_grp1m5 & reg_data_l2[10:8] == 3'h5) | reset_comb; // 8d
 	
-	assign w234 = w250 & reg_test0[1];
+	assign dma_cnt_tst = dma_wr_active & reg_test0[1];
 	
-	assign w235 = w250 & ~reg_test0[1];
+	assign dma_cnt_norm = dma_wr_active & ~reg_test0[1];
 	
-	ym_slatch #(.DATA_WIDTH(17)) sl35(.MCLK(MCLK), .en(w299), .inp(vram_address), .val(l35));
-	ym_slatch #(.DATA_WIDTH(17)) sl36(.MCLK(MCLK), .en(w294), .inp(reg_data_l2), .val(l36));
-	ym_slatch #(.DATA_WIDTH(17)) sl37(.MCLK(MCLK), .en(w293), .inp(reg_data_l2), .val(l37));
-	ym_slatch #(.DATA_WIDTH(17)) sl38(.MCLK(MCLK), .en(w292), .inp(reg_data_l2), .val(l38));
-	ym_slatch #(.DATA_WIDTH(17)) sl39(.MCLK(MCLK), .en(w291), .inp(reg_data_l2), .val(l39));
+	ym_slatch #(.DATA_WIDTH(17)) sl35(.MCLK(MCLK), .en(fifo_addr_wr_en), .inp(vram_address), .val(fifo_addr_pipe));
+	ym_slatch #(.DATA_WIDTH(17)) sl36(.MCLK(MCLK), .en(fifo_en_s1), .inp(reg_data_l2), .val(fifo_data_0));
+	ym_slatch #(.DATA_WIDTH(17)) sl37(.MCLK(MCLK), .en(fifo_en_s0), .inp(reg_data_l2), .val(fifo_data_1));
+	ym_slatch #(.DATA_WIDTH(17)) sl38(.MCLK(MCLK), .en(fifo_en_s3), .inp(reg_data_l2), .val(fifo_data_2));
+	ym_slatch #(.DATA_WIDTH(17)) sl39(.MCLK(MCLK), .en(fifo_en_s2), .inp(reg_data_l2), .val(fifo_data_3));
 	
-	assign w244 = reg_lg == 16'hfffe & w250;
+	assign dma_len_last = reg_lg == 16'hfffe & dma_wr_active;
 	
-	assign w245 = dff3_l2 & reg_dmd == 2'h3;
-	assign w246 = dff3_l2 & reg_dmd == 2'h1;
-	assign w247 = dff3_l2 & reg_dmd == 2'h0;
-	assign w248 = dff3_l2 & reg_dmd == 2'h2;
+	assign dma_copy_mode = dff3_l2 & reg_dmd == 2'h3;
+	assign dma_68k_mode = dff3_l2 & reg_dmd == 2'h1;
+	assign dma_fill_mode = dff3_l2 & reg_dmd == 2'h0;
+	assign dma_ext_mode = dff3_l2 & reg_dmd == 2'h2;
 	
-	ym_sr_bit sr40(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(dma_addr_bus), .sr_out(l40));
+	ym_sr_bit sr40(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(dma_addr_bus), .sr_out(dma_addr_pipe));
 	
-	assign w249 = l40 & dma_addr_bus;
+	assign dma_addr_edge = dma_addr_pipe & dma_addr_bus;
 	
-	ym_dlatch_2 dl41(.MCLK(MCLK), .c2(hclk2), .inp(dma_addr_bus), .val(l41));
+	ym_dlatch_2 dl41(.MCLK(MCLK), .c2(hclk2), .inp(dma_addr_bus), .val(dma_addr_latch2));
 	
-	assign w250 = dma_copy_cycle | l50 | l41;
+	assign dma_wr_active = dma_copy_cycle | dma_fill_slot_dly | dma_addr_latch2;
 	
 	wire reg_lg_of;
 	
-	assign w251 = reg_lg_of | w234;
+	assign dma_len_hi_cry = reg_lg_of | dma_cnt_tst;
 	
-	ym_sr_bit sr42(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w264), .sr_out(l42));
+	ym_sr_bit sr42(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(fifo_wr_trig), .sr_out(fifo_wr_pipe1));
 	
-	assign w252 = (~reset_comb & w295 & l43) | (~reset_comb & w295 & l42);
+	assign fifo_wr_gate = (~reset_comb & fifo_ptr_match & fifo_wr_pipe2) | (~reset_comb & fifo_ptr_match & fifo_wr_pipe1);
 	
-	ym_sr_bit sr43(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w252), .sr_out(l43));
+	ym_sr_bit sr43(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(fifo_wr_gate), .sr_out(fifo_wr_pipe2));
 	
-	ym_sr_bit sr44(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l49), .sr_out(l44));
+	ym_sr_bit sr44(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(idle_slot_dly), .sr_out(dma_slot_pipe1));
 	
-	ym_sr_bit sr45(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(l44), .sr_out(l45));
+	ym_sr_bit sr45(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(dma_slot_pipe1), .sr_out(dma_slot_pipe2));
 	
-	assign w253 = l44 & ~l45 & ~l52;
+	assign dma_slot_edge = dma_slot_pipe1 & ~dma_slot_pipe2 & ~fifo_cnt_b0;
 	
-	assign w254 = reset_comb | (l46 & w295) | (w295 & w253);
+	assign dma_state_set = reset_comb | (dma_state & fifo_ptr_match) | (fifo_ptr_match & dma_slot_edge);
 	
 	wire reg_sa_of;
 	
-	assign w255 = reg_sa_of | w234;
+	assign dma_src_hi_cry = reg_sa_of | dma_cnt_tst;
 	
-	ym_sr_bit sr46(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w254), .sr_out(l46));
+	ym_sr_bit sr46(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(dma_state_set), .sr_out(dma_state));
 	
-	assign w256 = l49 & ~l52;
+	assign fifo_empty_slot = idle_slot_dly & ~fifo_cnt_b0;
 	
-	assign w257 = w256 & l53 & ~l54;
-	assign w258 = w256 & ~l53 & ~l54;
-	assign w259 = w256 & l53 & l54;
-	assign w260 = w256 & ~l53 & l54;
+	assign fifo_rd_s2 = fifo_empty_slot & fifo_rd_b0 & ~fifo_rd_b1;
+	assign fifo_rd_s0 = fifo_empty_slot & ~fifo_rd_b0 & ~fifo_rd_b1;
+	assign fifo_rd_s3 = fifo_empty_slot & fifo_rd_b0 & fifo_rd_b1;
+	assign fifo_rd_s1 = fifo_empty_slot & ~fifo_rd_b0 & fifo_rd_b1;
 	
-	assign w261 = fifo_rd_cond | 1'h0;
+	assign fifo_rd_trigger = fifo_rd_cond | 1'h0;
 	
-	assign w262 = w248 & w300;
+	assign dma_ext_busy = dma_ext_mode & fifo_read_slot;
 	
-	assign w263 = w248 & l46;
+	assign dma_ext_state = dma_ext_mode & dma_state;
 	
-	assign w264 = w249 | fifo_busy;
+	assign fifo_wr_trig = dma_addr_edge | fifo_busy;
 	
-	assign w265 = w245 & l46;
+	assign dma_copy_active = dma_copy_mode & dma_state;
 	
-	ym_slatch sl47(.MCLK(MCLK), .en(w266), .inp(vram_address[0]), .val(l47));
+	ym_slatch sl47(.MCLK(MCLK), .en(addr_latch_en), .inp(vram_address[0]), .val(vram_addr_b0_lat));
 	
-	assign w266 = hclk1 & odd_slot;
+	assign addr_latch_en = hclk1 & odd_slot;
 	
-	assign dma_addr_oe = w247 | w246;
+	assign dma_addr_oe = dma_fill_mode | dma_68k_mode;
 	
-	ym_sr_bit sr48(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w244), .sr_out(l48));
+	ym_sr_bit sr48(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_len_last), .sr_out(dma_len_done_dly));
 	
-	assign w268 = ~w265 & odd_slot;
+	assign non_dma_slot = ~dma_copy_active & odd_slot;
 	
-	assign w269 = slot_idle_dly & ~l46;
+	assign slot_no_dma = slot_idle_dly & ~dma_state;
 	
-	ym_sr_bit sr49(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w269), .sr_out(l49));
+	ym_sr_bit sr49(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot_no_dma), .sr_out(idle_slot_dly));
 	
-	assign w270 = reset_comb | l48;
+	assign dma_active_rst = reset_comb | dma_len_done_dly;
 	
-	assign w271 = dff3_l2 & l49;
+	assign dma_active_set = dff3_l2 & idle_slot_dly;
 	
-	ym7101_rs_trig rs28(.MCLK(MCLK), .set(w271), .rst(w270), .q(dma_active_trig));
+	ym7101_rs_trig rs28(.MCLK(MCLK), .set(dma_active_set), .rst(dma_active_rst), .q(dma_active_trig));
 	
-	ym_sr_bit sr50(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w272), .sr_out(l50));
+	ym_sr_bit sr50(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_fill_cond), .sr_out(dma_fill_slot_dly));
 	
-	assign w272 = dma_active_trig & w263 & slot_idle_dly;
+	assign dma_fill_cond = dma_active_trig & dma_ext_state & slot_idle_dly;
 	
-	assign w273 = w274 & w325;
+	assign fifo_vram_sel = vram_sel & vram_code_sel;
 	
-	assign w274 = ~vram_128k & cpu_sel;
+	assign vram_sel = ~vram_128k & cpu_sel;
 	
-	assign w275 = dma_fill_cycle | w300;
+	assign dma_fill_busy = dma_fill_cycle | fifo_read_slot;
 	
-	assign w276 = dff3_l2 | uds_latch;
+	assign uds_or_dff3 = dff3_l2 | uds_latch;
 	
-	assign w277 = cpu_sel ? w276 : w280;
+	assign byte_sel_hi = cpu_sel ? uds_or_dff3 : addr_b0_m5;
 	
-	assign w278 = dff3_l2 | lds_latch;
+	assign lds_or_dff3 = dff3_l2 | lds_latch;
 	
-	assign w279 = cpu_sel ? w278 : ~w280;
+	assign byte_sel_lo = cpu_sel ? lds_or_dff3 : ~addr_b0_m5;
 	
-	assign w280 = reg_data_l2[0] & reg_m5;
+	assign addr_b0_m5 = reg_data_l2[0] & reg_m5;
 	
-	assign w281 = dma_copy_cycle & (vram_128k | vram_address[0]);
+	assign dma_cpy_hi_sel = dma_copy_cycle & (vram_128k | vram_address[0]);
 	
-	assign w282 = dma_copy_cycle & (vram_128k | ~vram_address[0]);
+	assign dma_cpy_lo_sel = dma_copy_cycle & (vram_128k | ~vram_address[0]);
 	
-	assign w283 = w281 | (w289 & w317);
+	assign vram_wr_hi_en = dma_cpy_hi_sel | (vram_wr_active & out_uds_sel);
 	
-	assign w284 = w282 | (w289 & w319);
+	assign vram_wr_lo_en = dma_cpy_lo_sel | (vram_wr_active & out_lds_sel);
 	
-	assign w285 = w319 | ~vram_128k;
+	assign lo_byte_valid = out_lds_sel | ~vram_128k;
 	
-	assign w286 = dma_copy_cycle | (w289 & w285);
+	assign vram_wr_lo_gate = dma_copy_cycle | (vram_wr_active & lo_byte_valid);
 	
-	assign w287 = vram_128k & w317;
+	assign vram128k_hi = vram_128k & out_uds_sel;
 	
-	assign w288 = dma_copy_cycle | (w287 & w289);
+	assign vram_wr_hi_gate = dma_copy_cycle | (vram128k_hi & vram_wr_active);
 	
-	assign w289 = w301 & ~w316 & ~w318 & ~w320;
+	assign vram_wr_active = fifo_out_active & ~out_cd1_sel & ~out_cd2_sel & ~out_cd3_sel;
 	
-	assign w290 = fifo_rd_cond | (w249 & clk1);
+	assign fifo_slot_en = fifo_rd_cond | (dma_addr_edge & clk1);
 	
 	ym_cnt_bit #(.DATA_WIDTH(2)) cnt2(.MCLK(MCLK), .c1(clk1), .c2(clk2),
-		.c_in(w264), .reset(reset_comb), .val(l51));
+		.c_in(fifo_wr_trig), .reset(reset_comb), .val(fifo_wr_ptr));
 	
-	assign w291 = w290 & l51 == 2'h2;
-	assign w292 = w290 & l51 == 2'h3;
-	assign w293 = w290 & l51 == 2'h0;
-	assign w294 = w290 & l51 == 2'h1;
+	assign fifo_en_s2 = fifo_slot_en & fifo_wr_ptr == 2'h2;
+	assign fifo_en_s3 = fifo_slot_en & fifo_wr_ptr == 2'h3;
+	assign fifo_en_s0 = fifo_slot_en & fifo_wr_ptr == 2'h0;
+	assign fifo_en_s1 = fifo_slot_en & fifo_wr_ptr == 2'h1;
 	
-	assign w295 = l54 == l51[1] & l53 == l51[0]; //l51 == { l54, l53 };
+	assign fifo_ptr_match = fifo_rd_b1 == fifo_wr_ptr[1] & fifo_rd_b0 == fifo_wr_ptr[0]; //fifo_wr_ptr == { fifo_rd_b1, fifo_rd_b0 };
 	
-	assign w296 = l49 & w305;
-	assign w297 = l49 & ~w305;
+	assign fifo_cnt_inc = idle_slot_dly & fifo_rd_valid;
+	assign fifo_cnt_dec = idle_slot_dly & ~fifo_rd_valid;
 	
-	wire [2:0] l52_sum = reset_comb ? 3'h0 : ({l54, l53, l52} + { 1'h0, w297, w296 });
+	wire [2:0] l52_sum = reset_comb ? 3'h0 : ({fifo_rd_b1, fifo_rd_b0, fifo_cnt_b0} + { 1'h0, fifo_cnt_dec, fifo_cnt_inc });
 	
-	ym_sr_bit sr52(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l52_sum[0]), .sr_out(l52));
-	ym_sr_bit sr53(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l52_sum[1]), .sr_out(l53));
-	ym_sr_bit sr54(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l52_sum[2]), .sr_out(l54));
+	ym_sr_bit sr52(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l52_sum[0]), .sr_out(fifo_cnt_b0));
+	ym_sr_bit sr53(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l52_sum[1]), .sr_out(fifo_rd_b0));
+	ym_sr_bit sr54(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l52_sum[2]), .sr_out(fifo_rd_b1));
 	
-	assign w298 = ~(l52 | dma_fill_cycle);
+	assign fifo_not_busy = ~(fifo_cnt_b0 | dma_fill_cycle);
 	
-	assign w299 = hclk1 & (dma_data_active | (l49 & w298));
+	assign fifo_addr_wr_en = hclk1 & (dma_data_active | (idle_slot_dly & fifo_not_busy));
 	
-	assign w300 = w273 & l49 & l52;
+	assign fifo_read_slot = fifo_vram_sel & idle_slot_dly & fifo_cnt_b0;
 	
-	ym_slatch sl55(.MCLK(MCLK), .en(w292), .inp(w277), .val(l55));
-	ym_slatch sl56(.MCLK(MCLK), .en(w291), .inp(w277), .val(l56));
-	ym_slatch sl57(.MCLK(MCLK), .en(w294), .inp(w277), .val(l57));
-	ym_slatch sl58(.MCLK(MCLK), .en(w293), .inp(w277), .val(l58));
-	ym_slatch sl59(.MCLK(MCLK), .en(w292), .inp(w279), .val(l59));
-	ym_slatch sl60(.MCLK(MCLK), .en(w291), .inp(w279), .val(l60));
-	ym_slatch sl61(.MCLK(MCLK), .en(w294), .inp(w279), .val(l61));
-	ym_slatch sl62(.MCLK(MCLK), .en(w293), .inp(w279), .val(l62));
-	ym_slatch sl63(.MCLK(MCLK), .en(w292), .inp(reg_code[0]), .val(l63));
-	ym_slatch sl64(.MCLK(MCLK), .en(w291), .inp(reg_code[0]), .val(l64));
-	ym_slatch sl65(.MCLK(MCLK), .en(w294), .inp(reg_code[0]), .val(l65));
-	ym_slatch sl66(.MCLK(MCLK), .en(w293), .inp(reg_code[0]), .val(l66));
-	ym_slatch sl67(.MCLK(MCLK), .en(w292), .inp(reg_code[1]), .val(l67));
-	ym_slatch sl68(.MCLK(MCLK), .en(w291), .inp(reg_code[1]), .val(l68));
-	ym_slatch sl69(.MCLK(MCLK), .en(w294), .inp(reg_code[1]), .val(l69));
-	ym_slatch sl70(.MCLK(MCLK), .en(w293), .inp(reg_code[1]), .val(l70));
-	ym_slatch sl71(.MCLK(MCLK), .en(w292), .inp(reg_code[2]), .val(l71));
-	ym_slatch sl72(.MCLK(MCLK), .en(w291), .inp(reg_code[2]), .val(l72));
-	ym_slatch sl73(.MCLK(MCLK), .en(w294), .inp(reg_code[2]), .val(l73));
-	ym_slatch sl74(.MCLK(MCLK), .en(w293), .inp(reg_code[2]), .val(l74));
-	ym_slatch sl75(.MCLK(MCLK), .en(w292), .inp(reg_code[3]), .val(l75));
-	ym_slatch sl76(.MCLK(MCLK), .en(w291), .inp(reg_code[3]), .val(l76));
-	ym_slatch sl77(.MCLK(MCLK), .en(w294), .inp(reg_code[3]), .val(l77));
-	ym_slatch sl78(.MCLK(MCLK), .en(w293), .inp(reg_code[3]), .val(l78));
+	ym_slatch sl55(.MCLK(MCLK), .en(fifo_en_s3), .inp(byte_sel_hi), .val(fifo_uds_s3));
+	ym_slatch sl56(.MCLK(MCLK), .en(fifo_en_s2), .inp(byte_sel_hi), .val(fifo_uds_s2));
+	ym_slatch sl57(.MCLK(MCLK), .en(fifo_en_s1), .inp(byte_sel_hi), .val(fifo_uds_s1));
+	ym_slatch sl58(.MCLK(MCLK), .en(fifo_en_s0), .inp(byte_sel_hi), .val(fifo_uds_s0));
+	ym_slatch sl59(.MCLK(MCLK), .en(fifo_en_s3), .inp(byte_sel_lo), .val(fifo_lds_s3));
+	ym_slatch sl60(.MCLK(MCLK), .en(fifo_en_s2), .inp(byte_sel_lo), .val(fifo_lds_s2));
+	ym_slatch sl61(.MCLK(MCLK), .en(fifo_en_s1), .inp(byte_sel_lo), .val(fifo_lds_s1));
+	ym_slatch sl62(.MCLK(MCLK), .en(fifo_en_s0), .inp(byte_sel_lo), .val(fifo_lds_s0));
+	ym_slatch sl63(.MCLK(MCLK), .en(fifo_en_s3), .inp(reg_code[0]), .val(fifo_cd0_s3));
+	ym_slatch sl64(.MCLK(MCLK), .en(fifo_en_s2), .inp(reg_code[0]), .val(fifo_cd0_s2));
+	ym_slatch sl65(.MCLK(MCLK), .en(fifo_en_s1), .inp(reg_code[0]), .val(fifo_cd0_s1));
+	ym_slatch sl66(.MCLK(MCLK), .en(fifo_en_s0), .inp(reg_code[0]), .val(fifo_cd0_s0));
+	ym_slatch sl67(.MCLK(MCLK), .en(fifo_en_s3), .inp(reg_code[1]), .val(fifo_cd1_s3));
+	ym_slatch sl68(.MCLK(MCLK), .en(fifo_en_s2), .inp(reg_code[1]), .val(fifo_cd1_s2));
+	ym_slatch sl69(.MCLK(MCLK), .en(fifo_en_s1), .inp(reg_code[1]), .val(fifo_cd1_s1));
+	ym_slatch sl70(.MCLK(MCLK), .en(fifo_en_s0), .inp(reg_code[1]), .val(fifo_cd1_s0));
+	ym_slatch sl71(.MCLK(MCLK), .en(fifo_en_s3), .inp(reg_code[2]), .val(fifo_cd2_s3));
+	ym_slatch sl72(.MCLK(MCLK), .en(fifo_en_s2), .inp(reg_code[2]), .val(fifo_cd2_s2));
+	ym_slatch sl73(.MCLK(MCLK), .en(fifo_en_s1), .inp(reg_code[2]), .val(fifo_cd2_s1));
+	ym_slatch sl74(.MCLK(MCLK), .en(fifo_en_s0), .inp(reg_code[2]), .val(fifo_cd2_s0));
+	ym_slatch sl75(.MCLK(MCLK), .en(fifo_en_s3), .inp(reg_code[3]), .val(fifo_cd3_s3));
+	ym_slatch sl76(.MCLK(MCLK), .en(fifo_en_s2), .inp(reg_code[3]), .val(fifo_cd3_s2));
+	ym_slatch sl77(.MCLK(MCLK), .en(fifo_en_s1), .inp(reg_code[3]), .val(fifo_cd3_s1));
+	ym_slatch sl78(.MCLK(MCLK), .en(fifo_en_s0), .inp(reg_code[3]), .val(fifo_cd3_s0));
 	
-	assign w301 = w321 & (l50 | l49);
+	assign fifo_out_active = out_cd0_sel & (dma_fill_slot_dly | idle_slot_dly);
 	
-	assign w302 = w301 & w316 & ~w320 & w317 & ~w318;
+	assign cram_wr_hi_cond = fifo_out_active & out_cd1_sel & ~out_cd3_sel & out_uds_sel & ~out_cd2_sel;
 	
-	assign w303 = w301 & w316 & ~w320 & w319 & ~w318;
+	assign cram_wr_lo_cond = fifo_out_active & out_cd1_sel & ~out_cd3_sel & out_lds_sel & ~out_cd2_sel;
 	
-	assign w304 = w249 | ctrl_port_wr;
+	assign fifo_data_wr_en = dma_addr_edge | ctrl_port_wr;
 	
-	assign w305 = ~(~w273 | w332);
+	assign fifo_rd_valid = ~(~fifo_vram_sel | uds_lds_diff);
 	
-	assign w306 = l53 & l54;
-	assign w307 = ~l53 & l54;
-	assign w308 = l53 & ~l54;
-	assign w309 = ~l53 & ~l54;
+	assign rd_ptr_3 = fifo_rd_b0 & fifo_rd_b1;
+	assign rd_ptr_2 = ~fifo_rd_b0 & fifo_rd_b1;
+	assign rd_ptr_1 = fifo_rd_b0 & ~fifo_rd_b1;
+	assign rd_ptr_0 = ~fifo_rd_b0 & ~fifo_rd_b1;
 	
-	assign w310 = (w306 & l67) | (w307 & l68) | (w308 & l69) | (w309 & l70);
+	assign fifo_out_cd1 = (rd_ptr_3 & fifo_cd1_s3) | (rd_ptr_2 & fifo_cd1_s2) | (rd_ptr_1 & fifo_cd1_s1) | (rd_ptr_0 & fifo_cd1_s0);
 	
-	assign w311 = (w306 & l55) | (w307 & l56) | (w308 & l57) | (w309 & l58);
+	assign fifo_out_uds = (rd_ptr_3 & fifo_uds_s3) | (rd_ptr_2 & fifo_uds_s2) | (rd_ptr_1 & fifo_uds_s1) | (rd_ptr_0 & fifo_uds_s0);
 	
-	assign w312 = (w306 & l71) | (w307 & l72) | (w308 & l73) | (w309 & l74);
+	assign fifo_out_cd2 = (rd_ptr_3 & fifo_cd2_s3) | (rd_ptr_2 & fifo_cd2_s2) | (rd_ptr_1 & fifo_cd2_s1) | (rd_ptr_0 & fifo_cd2_s0);
 	
-	assign w313 = (w306 & l59) | (w307 & l60) | (w308 & l61) | (w309 & l62);
+	assign fifo_out_lds = (rd_ptr_3 & fifo_lds_s3) | (rd_ptr_2 & fifo_lds_s2) | (rd_ptr_1 & fifo_lds_s1) | (rd_ptr_0 & fifo_lds_s0);
 	
-	assign w314 = (w306 & l75) | (w307 & l76) | (w308 & l77) | (w309 & l78);
+	assign fifo_out_cd3 = (rd_ptr_3 & fifo_cd3_s3) | (rd_ptr_2 & fifo_cd3_s2) | (rd_ptr_1 & fifo_cd3_s1) | (rd_ptr_0 & fifo_cd3_s0);
 	
-	assign w315 = (w306 & l63) | (w307 & l64) | (w308 & l65) | (w309 & l66);
+	assign fifo_out_cd0 = (rd_ptr_3 & fifo_cd0_s3) | (rd_ptr_2 & fifo_cd0_s2) | (rd_ptr_1 & fifo_cd0_s1) | (rd_ptr_0 & fifo_cd0_s0);
 	
-	assign w316 = l50 ? reg_code[1] : w310;
+	assign out_cd1_sel = dma_fill_slot_dly ? reg_code[1] : fifo_out_cd1;
 	
-	assign w317 = l50 ? w277 : w311;
+	assign out_uds_sel = dma_fill_slot_dly ? byte_sel_hi : fifo_out_uds;
 	
-	assign w318 = l50 ? reg_code[2] : w312;
+	assign out_cd2_sel = dma_fill_slot_dly ? reg_code[2] : fifo_out_cd2;
 	
-	assign w319 = l50 ? w279 : w313;
+	assign out_lds_sel = dma_fill_slot_dly ? byte_sel_lo : fifo_out_lds;
 	
-	assign w320 = l50 ? reg_code[3] : w314;
+	assign out_cd3_sel = dma_fill_slot_dly ? reg_code[3] : fifo_out_cd3;
 	
-	assign w321 = l50 ? reg_code[0] : w322;
+	assign out_cd0_sel = dma_fill_slot_dly ? reg_code[0] : out_cd0_raw;
 	
-	assign w322 = w315 | ~reg_m5;
+	assign out_cd0_raw = fifo_out_cd0 | ~reg_m5;
 	
-	assign w323 = w301 & w317 & ~w316 & w318 & ~w320;
+	assign vsram_wr_hi = fifo_out_active & out_uds_sel & ~out_cd1_sel & out_cd2_sel & ~out_cd3_sel;
 	
-	assign w324 = w301 & w319 & ~w316 & w318 & ~w320;
+	assign vsram_wr_lo = fifo_out_active & out_lds_sel & ~out_cd1_sel & out_cd2_sel & ~out_cd3_sel;
 	
-	assign w325 = ~w318 & ~w316;
+	assign vram_code_sel = ~out_cd2_sel & ~out_cd1_sel;
 	
-	assign w326 = w268 & ~l53 & ~l54;
-	assign w327 = w268 & ~l53 & l54;
-	assign w328 = w268 & l53 & ~l54;
-	assign w329 = w268 & l53 & l54;
+	assign data_rd_s0 = non_dma_slot & ~fifo_rd_b0 & ~fifo_rd_b1;
+	assign data_rd_s2 = non_dma_slot & ~fifo_rd_b0 & fifo_rd_b1;
+	assign data_rd_s1 = non_dma_slot & fifo_rd_b0 & ~fifo_rd_b1;
+	assign data_rd_s3 = non_dma_slot & fifo_rd_b0 & fifo_rd_b1;
 	
-	assign w330 = ~(w273 & w332);
+	assign byte_swap_gate = ~(fifo_vram_sel & uds_lds_diff);
 	
-	assign w331 = w330 ? l52 : w311;
+	assign fifo_byte_sel = byte_swap_gate ? fifo_cnt_b0 : fifo_out_uds;
 	
-	assign w332 = w311 ^ w313;
+	assign uds_lds_diff = fifo_out_uds ^ fifo_out_lds;
 	
-	assign w333 = cpu_sel | io_address[0];
+	assign hv_cnt_sel = cpu_sel | io_address[0];
 	
-	assign w334 = ~(~reg_m5 | reg_m3);
+	assign hv_latch_ext = ~(~reg_m5 | reg_m3);
 	
-	ym_sr_bit sr79(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cpu_pen), .sr_out(l79));
-	ym_sr_bit sr80(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l79), .sr_out(l80));
+	ym_sr_bit sr79(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cpu_pen), .sr_out(pen_dly1));
+	ym_sr_bit sr80(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(pen_dly1), .sr_out(pen_dly2));
 	
-	assign w335 = ~l79 & l80;
+	assign pen_fall_edge = ~pen_dly1 & pen_dly2;
 	
-	ym_sr_bit sr81(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w335), .sr_out(l81));
+	ym_sr_bit sr81(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(pen_fall_edge), .sr_out(pen_edge_dly));
 	
-	assign w336 = ~reg_m5 | w337;
+	assign vcnt_latch_en = ~reg_m5 | hcnt_latch_en;
 	
-	assign w337 = w334 | (hclk1 & l81);
+	assign hcnt_latch_en = hv_latch_ext | (hclk1 & pen_edge_dly);
 	
-	assign w338 = ~(reg_code[3] | reg_code[2]);
+	assign vram_direct = ~(reg_code[3] | reg_code[2]);
 	
-	ym_sr_bit sr82(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l88), .sr_out(l82));
-	ym_sr_bit sr83(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l47), .sr_out(l83));
-	ym_sr_bit sr84(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l83), .sr_out(l84));
+	ym_sr_bit sr82(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_hi_sel), .sr_out(vram_wr_hi_pipe));
+	ym_sr_bit sr83(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_addr_b0_lat), .sr_out(addr_b0_dly1));
+	ym_sr_bit sr84(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(addr_b0_dly1), .sr_out(addr_b0_dly2));
 	
-	assign w339 = ~(l84 & w346);
+	assign vram_wr_lo_cond = ~(addr_b0_dly2 & vram_byte_swap);
 	
-	assign w340 = ~(~l84 & w346);
+	assign vram_wr_hi_cond = ~(~addr_b0_dly2 & vram_byte_swap);
 	
-	ym_sr_bit sr85(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l84), .sr_out(l85));
-	ym_sr_bit sr86(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_wr_path), .sr_out(l86));
-	ym_sr_bit sr87(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l86), .sr_out(l87));
+	ym_sr_bit sr85(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(addr_b0_dly2), .sr_out(addr_b0_dly3));
+	ym_sr_bit sr86(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_wr_path), .sr_out(dma_wr_dly1));
+	ym_sr_bit sr87(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_wr_dly1), .sr_out(dma_wr_dly2));
 	
-	assign w341 = l87 & w340;
+	assign vram_wr_hi_strb = dma_wr_dly2 & vram_wr_hi_cond;
 	
-	assign w342 = l87 & w339;
+	assign vram_wr_lo_strb = dma_wr_dly2 & vram_wr_lo_cond;
 	
-	ym_sr_bit sr88(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w341), .sr_out(l88));
-	ym_sr_bit sr89(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w342), .sr_out(l89));
+	ym_sr_bit sr88(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_hi_strb), .sr_out(vram_wr_hi_sel));
+	ym_sr_bit sr89(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_lo_strb), .sr_out(vram_wr_lo_sel));
 	
-	assign w343 = hclk1 & l88;
+	assign vram_wr_hi_clk = hclk1 & vram_wr_hi_sel;
 	
-	assign w344 = hclk1 & l89;
+	assign vram_wr_lo_clk = hclk1 & vram_wr_lo_sel;
 	
-	assign w345 = vram_128k & ~cpu_sel & l85;
+	assign vram128k_rd_sel = vram_128k & ~cpu_sel & addr_b0_dly3;
 	
-	assign w346 = ~vram_128k & cpu_sel & w338;
+	assign vram_byte_swap = ~vram_128k & cpu_sel & vram_direct;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl90(.MCLK(MCLK), .en(w336), .inp({ vcnt_ext[7:1], vcnt_bit_sel}), .val(l90)); // v counter
+	ym_slatch #(.DATA_WIDTH(8)) sl90(.MCLK(MCLK), .en(vcnt_latch_en), .inp({ vcnt_ext[7:1], vcnt_bit_sel}), .val(vcnt_latch)); // v counter
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl91(.MCLK(MCLK), .en(w337), .inp(hcnt[8:1]), .val(l91)); // h counter
+	ym_slatch #(.DATA_WIDTH(8)) sl91(.MCLK(MCLK), .en(hcnt_latch_en), .inp(hcnt[8:1]), .val(hcnt_latch)); // h counter
 	
-	assign w347 = w333 ? l91 : l90;
+	assign hv_cnt_data = hv_cnt_sel ? hcnt_latch : vcnt_latch;
 	
-	assign w348 = w345 ? vram_data[15:8] : vram_data[7:0];
+	assign vram_rd_lo_data = vram128k_rd_sel ? vram_data[15:8] : vram_data[7:0];
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl92(.MCLK(MCLK), .en(w344), .inp(w348), .val(l92));
+	ym_slatch #(.DATA_WIDTH(8)) sl92(.MCLK(MCLK), .en(vram_wr_lo_clk), .inp(vram_rd_lo_data), .val(vram_rd_lo_lat));
 	
-	assign w349 = w346 ? vram_data[7:0] : vram_data[15:8];
+	assign vram_rd_hi_data = vram_byte_swap ? vram_data[7:0] : vram_data[15:8];
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl93(.MCLK(MCLK), .en(w343), .inp(w349), .val(l93));
+	ym_slatch #(.DATA_WIDTH(8)) sl93(.MCLK(MCLK), .en(vram_wr_hi_clk), .inp(vram_rd_hi_data), .val(vram_rd_hi_lat));
 	
-	assign w350 = cpu_sel ? io_data[15:8] : io_data[7:0];
+	assign cpu_data_hi = cpu_sel ? io_data[15:8] : io_data[7:0];
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl94(.MCLK(MCLK), .en(w304), .inp(w350), .val(l94));
-	ym_slatch #(.DATA_WIDTH(8)) sl95(.MCLK(MCLK), .en(w304), .inp(io_data[7:0]), .val(l95));
+	ym_slatch #(.DATA_WIDTH(8)) sl94(.MCLK(MCLK), .en(fifo_data_wr_en), .inp(cpu_data_hi), .val(fifo_in_hi));
+	ym_slatch #(.DATA_WIDTH(8)) sl95(.MCLK(MCLK), .en(fifo_data_wr_en), .inp(io_data[7:0]), .val(fifo_in_lo));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl96(.MCLK(MCLK), .en(w294), .inp(l94), .val(l96));
-	ym_slatch #(.DATA_WIDTH(8)) sl97(.MCLK(MCLK), .en(w294), .inp(l95), .val(l97));
+	ym_slatch #(.DATA_WIDTH(8)) sl96(.MCLK(MCLK), .en(fifo_en_s1), .inp(fifo_in_hi), .val(fifo_hi_s1));
+	ym_slatch #(.DATA_WIDTH(8)) sl97(.MCLK(MCLK), .en(fifo_en_s1), .inp(fifo_in_lo), .val(fifo_lo_s1));
 	
-	assign w351 = w331 ? l96 : l97;
+	assign fifo_out_s1 = fifo_byte_sel ? fifo_hi_s1 : fifo_lo_s1;
 	
 	assign unk_data =
-		(w328 ? l97 : 8'h0) |
-		(w327 ? l99 : 8'h0) |
-		(w329 ? l101 : 8'h0) |
-		(w326 ? l103 : 8'h0);
+		(data_rd_s1 ? fifo_lo_s1 : 8'h0) |
+		(data_rd_s2 ? fifo_lo_s2 : 8'h0) |
+		(data_rd_s3 ? fifo_lo_s3 : 8'h0) |
+		(data_rd_s0 ? fifo_lo_s0 : 8'h0);
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl98(.MCLK(MCLK), .en(w291), .inp(l94), .val(l98));
-	ym_slatch #(.DATA_WIDTH(8)) sl99(.MCLK(MCLK), .en(w291), .inp(l95), .val(l99));
+	ym_slatch #(.DATA_WIDTH(8)) sl98(.MCLK(MCLK), .en(fifo_en_s2), .inp(fifo_in_hi), .val(fifo_hi_s2));
+	ym_slatch #(.DATA_WIDTH(8)) sl99(.MCLK(MCLK), .en(fifo_en_s2), .inp(fifo_in_lo), .val(fifo_lo_s2));
 	
-	assign w352 = w331 ? l98 : l99;
+	assign fifo_out_s2 = fifo_byte_sel ? fifo_hi_s2 : fifo_lo_s2;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl100(.MCLK(MCLK), .en(w292), .inp(l94), .val(l100));
-	ym_slatch #(.DATA_WIDTH(8)) sl101(.MCLK(MCLK), .en(w292), .inp(l95), .val(l101));
+	ym_slatch #(.DATA_WIDTH(8)) sl100(.MCLK(MCLK), .en(fifo_en_s3), .inp(fifo_in_hi), .val(fifo_hi_s3));
+	ym_slatch #(.DATA_WIDTH(8)) sl101(.MCLK(MCLK), .en(fifo_en_s3), .inp(fifo_in_lo), .val(fifo_lo_s3));
 	
-	assign w353 = w331 ? l100 : l101;
+	assign fifo_out_s3 = fifo_byte_sel ? fifo_hi_s3 : fifo_lo_s3;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl102(.MCLK(MCLK), .en(w293), .inp(l94), .val(l102));
-	ym_slatch #(.DATA_WIDTH(8)) sl103(.MCLK(MCLK), .en(w293), .inp(l95), .val(l103));
+	ym_slatch #(.DATA_WIDTH(8)) sl102(.MCLK(MCLK), .en(fifo_en_s0), .inp(fifo_in_hi), .val(fifo_hi_s0));
+	ym_slatch #(.DATA_WIDTH(8)) sl103(.MCLK(MCLK), .en(fifo_en_s0), .inp(fifo_in_lo), .val(fifo_lo_s0));
 	
-	assign w354 = w331 ? l102 : l103;
+	assign fifo_out_s0 = fifo_byte_sel ? fifo_hi_s0 : fifo_lo_s0;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(8)) sr104(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(unk_data), .data_out(l104));
+	ym_sr_bit_array #(.DATA_WIDTH(8)) sr104(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(unk_data), .data_out(data_rd_pipe));
 	
 	ym_slatch_r #(.DATA_WIDTH(8)) sl_hit(.MCLK(MCLK), .en(reg_wr_8D), .rst(reset_comb), .inp(~reg_data_l2[7:0]), .val(reg_hit));
 	
@@ -3448,12 +3448,12 @@ module ym7101
 	
 	ym_slatch_r #(.DATA_WIDTH(11)) sl_test1(.MCLK(MCLK), .en(tst_fn1_wr), .rst(reset_ext), .inp(io_data[10:0]), .val(reg_test1));
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl_code_01(.MCLK(MCLK), .en(ctrl_wr_dtack), .inp(w350[7:6]), .val(reg_code[1:0]));
-	ym_slatch_r #(.DATA_WIDTH(3)) sl_code_234(.MCLK(MCLK), .en(dma_auto_inc), .rst(w204), .inp(io_data[6:4]), .val(reg_code[4:2]));
+	ym_slatch #(.DATA_WIDTH(2)) sl_code_01(.MCLK(MCLK), .en(ctrl_wr_dtack), .inp(cpu_data_hi[7:6]), .val(reg_code[1:0]));
+	ym_slatch_r #(.DATA_WIDTH(3)) sl_code_234(.MCLK(MCLK), .en(dma_auto_inc), .rst(code_hi_rst), .inp(io_data[6:4]), .val(reg_code[4:2]));
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl_addr_1(.MCLK(MCLK), .en(data_wr_first), .inp(io_data[7:0]), .val(reg_addr[7:0]));
-	ym_slatch #(.DATA_WIDTH(6)) sl_addr_2(.MCLK(MCLK), .en(ctrl_wr_dtack), .inp(w350[5:0]), .val(reg_addr[13:8]));
-	ym_slatch_r #(.DATA_WIDTH(3)) sl_addr_3(.MCLK(MCLK), .en(dma_auto_inc), .rst(w204), .inp(io_data[2:0]), .val(reg_addr[16:14]));
+	ym_slatch #(.DATA_WIDTH(6)) sl_addr_2(.MCLK(MCLK), .en(ctrl_wr_dtack), .inp(cpu_data_hi[5:0]), .val(reg_addr[13:8]));
+	ym_slatch_r #(.DATA_WIDTH(3)) sl_addr_3(.MCLK(MCLK), .en(dma_auto_inc), .rst(code_hi_rst), .inp(io_data[2:0]), .val(reg_addr[16:14]));
 	
 	wire [16:0] reg_data_sum = reg_data_l2 + { 9'h0, reg_inc } + { 16'h0, ~reg_m5 };
 	wire [16:0] reg_data_mux = reg_addr_load ? reg_addr : reg_data_sum;
@@ -3462,7 +3462,7 @@ module ym7101
 		.rst(reset_comb), .outp(reg_data_l2[13:0]));
 	
 	ym7101_dff #(.DATA_WIDTH(3)) reg_data_2(.MCLK(MCLK), .clk(~reg_data_wr_en), .inp(reg_data_mux[16:14]),
-		.rst(w204), .outp(reg_data_l2[16:14]));
+		.rst(code_hi_rst), .outp(reg_data_l2[16:14]));
 	
 	ym_slatch sl_80_b0(.MCLK(MCLK), .en(reg_wr_80), .inp(reg_data_l2[0]), .val(reg_80_b0));
 	ym_slatch sl_m3(.MCLK(MCLK), .en(reg_wr_80), .inp(reg_data_l2[1]), .val(reg_m3));
@@ -3474,14 +3474,14 @@ module ym7101
 	ym_slatch sl_80_b7(.MCLK(MCLK), .en(reg_wr_80), .inp(reg_data_l2[7]), .val(reg_80_b7));
 	
 	
-	ym_slatch sl_rs1(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[0]), .val(reg_rs1));
-	ym_slatch sl_lsm0(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[1]), .val(reg_lsm0));
-	ym_slatch sl_lsm1(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[2]), .val(reg_lsm1));
-	ym_slatch sl_ste(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[3]), .val(reg_ste));
-	ym_slatch sl_8c_b4(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[4]), .val(reg_8c_b4));
-	ym_slatch sl_8c_b5(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[5]), .val(reg_8c_b5));
-	ym_slatch sl_8c_b6(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[6]), .val(reg_8c_b6));
-	ym_slatch sl_rs0(.MCLK(MCLK), .en(w215), .inp(reg_data_l2[7]), .val(reg_rs0));
+	ym_slatch sl_rs1(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[0]), .val(reg_rs1));
+	ym_slatch sl_lsm0(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[1]), .val(reg_lsm0));
+	ym_slatch sl_lsm1(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[2]), .val(reg_lsm1));
+	ym_slatch sl_ste(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[3]), .val(reg_ste));
+	ym_slatch sl_8c_b4(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[4]), .val(reg_8c_b4));
+	ym_slatch sl_8c_b5(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[5]), .val(reg_8c_b5));
+	ym_slatch sl_8c_b6(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[6]), .val(reg_8c_b6));
+	ym_slatch sl_rs0(.MCLK(MCLK), .en(wr_en_8C), .inp(reg_data_l2[7]), .val(reg_rs0));
 	
 	ym_slatch sl_81_b0(.MCLK(MCLK), .en(reg_wr_81), .inp(reg_data_l2[0]), .val(reg_81_b0));
 	ym_slatch sl_81_b1(.MCLK(MCLK), .en(reg_wr_81), .inp(reg_data_l2[1]), .val(reg_81_b1));
@@ -3493,32 +3493,32 @@ module ym7101
 	ym_slatch sl_81_b7(.MCLK(MCLK), .en(reg_wr_81), .inp(reg_data_l2[7]), .val(reg_81_b7));
 	
 	
-	ym_slatch sl_lscr(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[0]), .val(reg_lscr));
-	ym_slatch sl_hscr(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[1]), .val(reg_hscr));
-	ym_slatch sl_vscr(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[2]), .val(reg_vscr));
-	ym_slatch sl_ie2(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[3]), .val(reg_ie2));
-	ym_slatch sl_8b_b4(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[4]), .val(reg_8b_b4));
-	ym_slatch sl_8b_b5(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[5]), .val(reg_8b_b5));
-	ym_slatch sl_8b_b6(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[6]), .val(reg_8b_b6));
-	ym_slatch sl_8b_b7(.MCLK(MCLK), .en(w213), .inp(reg_data_l2[7]), .val(reg_8b_b7));
+	ym_slatch sl_lscr(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[0]), .val(reg_lscr));
+	ym_slatch sl_hscr(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[1]), .val(reg_hscr));
+	ym_slatch sl_vscr(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[2]), .val(reg_vscr));
+	ym_slatch sl_ie2(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[3]), .val(reg_ie2));
+	ym_slatch sl_8b_b4(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[4]), .val(reg_8b_b4));
+	ym_slatch sl_8b_b5(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[5]), .val(reg_8b_b5));
+	ym_slatch sl_8b_b6(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[6]), .val(reg_8b_b6));
+	ym_slatch sl_8b_b7(.MCLK(MCLK), .en(wr_en_8B_scr), .inp(reg_data_l2[7]), .val(reg_8b_b7));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl_inc(.MCLK(MCLK), .en(w210), .inp(reg_data_l2[7:0]), .val(reg_inc));
+	ym_slatch #(.DATA_WIDTH(8)) sl_inc(.MCLK(MCLK), .en(wr_en_8F), .inp(reg_data_l2[7:0]), .val(reg_inc));
 	
 	ym_slatch #(.DATA_WIDTH(6)) sl_sa_high(.MCLK(MCLK), .en(reg_wr_8B), .inp(reg_data_l2[5:0]), .val(reg_sa_high));
 	
 	ym_slatch #(.DATA_WIDTH(2)) sl_dmd(.MCLK(MCLK), .en(reg_wr_8B), .inp(reg_data_l2[7:6]), .val(reg_dmd));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_lg_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w235), .reset(1'h0), .load(w211), .load_val(~reg_data_l2[7:0]), .c_out(reg_lg_of), .val(reg_lg[7:0]));
+		.c_in(dma_cnt_norm), .reset(1'h0), .load(wr_en_93), .load_val(~reg_data_l2[7:0]), .c_out(reg_lg_of), .val(reg_lg[7:0]));
 		
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_lg_2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w251), .reset(1'h0), .load(w212), .load_val(~reg_data_l2[7:0]), .val(reg_lg[15:8]));
+		.c_in(dma_len_hi_cry), .reset(1'h0), .load(wr_en_94), .load_val(~reg_data_l2[7:0]), .val(reg_lg[15:8]));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_sa_low_1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w235), .reset(1'h0), .load(reg_wr_8C), .load_val(reg_data_l2[7:0]), .c_out(reg_sa_of), .val(reg_sa_low[7:0]));
+		.c_in(dma_cnt_norm), .reset(1'h0), .load(reg_wr_8C), .load_val(reg_data_l2[7:0]), .c_out(reg_sa_of), .val(reg_sa_low[7:0]));
 		
 	ym_cnt_bit_load #(.DATA_WIDTH(8)) cnt_sa_low_2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w255), .reset(1'h0), .load(w214), .load_val(reg_data_l2[7:0]), .val(reg_sa_low[15:8]));
+		.c_in(dma_src_hi_cry), .reset(1'h0), .load(wr_en_96), .load_val(reg_data_l2[7:0]), .val(reg_sa_low[15:8]));
 	
 	assign IPL1_pull = ~io_ipl1;
 	assign IPL2_pull = ~io_ipl2;
@@ -4208,7 +4208,7 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(11)) sl180(.MCLK(MCLK), .en(w516), .inp(vsram_out), .val(l180));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(11)) sr181(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ l182, l104 }), .data_out(l181));
+	ym_sr_bit_array #(.DATA_WIDTH(11)) sr181(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ l182, data_rd_pipe }), .data_out(l181));
 	
 	ym_sr_bit_array #(.DATA_WIDTH(3)) sr182(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[10:8]), .data_out(l182));
 	
@@ -4271,9 +4271,9 @@ module ym7101
 	
 	assign w533 = reg_m5 ? w527[6:5] : reg_nt;
 	
-	ym_slatch sl_8e_b0(.MCLK(MCLK), .en(w232), .inp(reg_data_l2[0]), .val(reg_8e_b0));
+	ym_slatch sl_8e_b0(.MCLK(MCLK), .en(wr_en_8E), .inp(reg_data_l2[0]), .val(reg_8e_b0));
 	
-	ym_slatch sl_8e_b4(.MCLK(MCLK), .en(w232), .inp(reg_data_l2[4]), .val(reg_8e_b4));
+	ym_slatch sl_8e_b4(.MCLK(MCLK), .en(wr_en_8E), .inp(reg_data_l2[4]), .val(reg_8e_b4));
 	
 	assign w534 = hcnt[8:7] != 2'h3;
 	
@@ -4285,7 +4285,7 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(6)) sl_wd(.MCLK(MCLK), .en(reg_wr_83), .inp(reg_data_l2[6:1]), .val(reg_wd));
 	
-	ym_slatch #(.DATA_WIDTH(7)) sl_hs(.MCLK(MCLK), .en(w233), .inp(reg_data_l2[6:0]), .val(reg_hs));
+	ym_slatch #(.DATA_WIDTH(7)) sl_hs(.MCLK(MCLK), .en(wr_en_8D_m5), .inp(reg_data_l2[6:0]), .val(reg_hs));
 	
 	assign w537 = interlace_dblres ? vcnt_ext[8:1] : vcnt_ext[7:0];
 	
@@ -4325,7 +4325,7 @@ module ym7101
 	
 	assign w547 = reg_test1[7] | active_end;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK), .en(w231), .inp(reg_data_l2[7:0]), .val(reg_88));
+	ym_slatch #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK), .en(wr_en_88), .inp(reg_data_l2[7:0]), .val(reg_88));
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl191(.MCLK(MCLK), .en(w570), .inp(vram_serial), .val(l191));
 	
@@ -4403,11 +4403,11 @@ module ym7101
 	
 	assign w568 = hcnt[8] & (hcnt[7] | hcnt[6]);
 	
-	ym_sr_bit sr206(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w201), .sr_out(l206));
+	ym_sr_bit sr206(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_sel), .sr_out(l206));
 	
-	ym_sr_bit sr207(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w323), .sr_out(l207));
+	ym_sr_bit sr207(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_wr_hi), .sr_out(l207));
 	
-	ym_sr_bit sr208(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w324), .sr_out(l208));
+	ym_sr_bit sr208(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_wr_lo), .sr_out(l208));
 	
 	ym_sr_bit sr209(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l206), .sr_out(l209));
 	
@@ -5087,8 +5087,8 @@ module ym7101
 	
 	assign sat_wr_active = sat_rd_pipe_4 | sat_wr_phase_a | sat_wr_phase_b | sat_addr_pipe_0;
 	
-	assign sat_wr_trig_a = sat_wr_match & w283;
-	assign sat_wr_trig_b = sat_wr_match & w284;
+	assign sat_wr_trig_a = sat_wr_match & vram_wr_hi_en;
+	assign sat_wr_trig_b = sat_wr_match & vram_wr_lo_en;
 	
 	ym_sr_bit sr363(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_wr_trig_a), .sr_out(sat_wr_phase_a));
 	
@@ -6126,9 +6126,9 @@ module ym7101
 	
 	wire [20:0] sat_data_in;
 	
-	assign sat_data_in[6:0] = l104[6:0];
+	assign sat_data_in[6:0] = data_rd_pipe[6:0];
 	assign sat_data_in[10:7] = sat_size_serial;
-	assign sat_data_in[20:11] = { sat_size_serial[1:0], l104 };
+	assign sat_data_in[20:11] = { sat_size_serial[1:0], data_rd_pipe };
 	
 	assign sat_link = sat_out[6:0];
 	assign sat_size = sat_out[10:7];
@@ -6344,7 +6344,7 @@ module ym7101
 	
 	ym_sr_bit sr568(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_access_comb), .sr_out(vram_access_pipe));
 	
-	assign vram_access_comb = w286 | vram_access_delay;
+	assign vram_access_comb = vram_wr_lo_gate | vram_access_delay;
 	
 	assign vram_refresh_comb = vram_refresh_latch | ~vram_refresh_pipe;
 	
@@ -6352,7 +6352,7 @@ module ym7101
 	
 	ym_dlatch_1 dl570(.MCLK(MCLK), .c1(hclk1), .inp(vram_refresh_trig), .nval(vram_refresh_pipe));
 	
-	ym_sr_bit sr571(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w286), .sr_out(vram_access_delay));
+	ym_sr_bit sr571(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_lo_gate), .sr_out(vram_access_delay));
 	
 	assign vram_oe_gate = ~vram_refresh_comb & (vram_cycle_latch | ~vram_cycle_pipe);
 	
@@ -6372,7 +6372,7 @@ module ym7101
 	
 	ym_dlatch_1 dl579(.MCLK(MCLK), .c1(clk1), .inp(~vram_phase_lat_2), .nval(vram_phase_lat_3));
 	
-	assign vram_addr_gate = ~((odd_slot & ~w265 & ~w263) | (w265 & vram_wr_pipe));
+	assign vram_addr_gate = ~((odd_slot & ~dma_copy_active & ~dma_ext_state) | (dma_copy_active & vram_wr_pipe));
 	
 	ym_dlatch_1 dl580(.MCLK(MCLK), .c1(hclk1), .inp(vram_addr_gate), .nval(vram_addr_latch));
 	
@@ -6382,7 +6382,7 @@ module ym7101
 	assign vram_addr_hi_sel = vram_phase_pipe & vram_clk_pipe_3; // addr high
 	assign vram_addr_lo_sel = vram_phase_lat_2 & vram_phase_pipe; // addr low
 	
-	ym_sr_bit sr582(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w195), .sr_out(vram_wr_timing));
+	ym_sr_bit sr582(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_ext_copy), .sr_out(vram_wr_timing));
 	
 	assign vram_capture_strobe = vram_phase_lat_1 & vram_phase_lat_3;
 	
@@ -6390,9 +6390,9 @@ module ym7101
 	
 	ym_sr_bit sr584(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_we_comb), .sr_out(vram_we_pipe));
 	
-	assign vram_we_comb = w288 | vram_we_delay;
+	assign vram_we_comb = vram_wr_hi_gate | vram_we_delay;
 	
-	ym_sr_bit sr585(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w288), .sr_out(vram_we_delay));
+	ym_sr_bit sr585(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_wr_hi_gate), .sr_out(vram_we_delay));
 	
 	assign vram_refresh_trig = vram_we_delay | vram_access_delay;
 	
@@ -6412,9 +6412,9 @@ module ym7101
 	
 	assign vram_data_strobe = hclk2 & vram_addr_latch;
 	
-	assign vram_dma_comb = odd_slot & l30;
+	assign vram_dma_comb = odd_slot & vram_wr_pipe2;
 	
-	ym_sr_bit sr591(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w265), .sr_out(vram_128k_pipe));
+	ym_sr_bit sr591(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_copy_active), .sr_out(vram_128k_pipe));
 	
 	assign vram_wr_strobe = hclk1 & odd_slot;
 	
@@ -6494,11 +6494,11 @@ module ym7101
 	// palette index 14/15 control normal/shadow/highlight intensity levels.
 	// Output is a 7-bit color bus: {priority, pal[1:0], index[3:0]}.
 
-	assign cram_wr_any = w302 | vsram_wr_normal | w303;
-	
-	ym_sr_bit sr601(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w302), .sr_out(cram_wr_hi));
-	
-	ym_sr_bit sr602(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w303), .sr_out(cram_wr_lo));
+	assign cram_wr_any = cram_wr_hi | vsram_wr_normal | cram_wr_lo;
+
+	ym_sr_bit sr601(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_hi_cond), .sr_out(cram_wr_hi));
+
+	ym_sr_bit sr602(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_lo_cond), .sr_out(cram_wr_lo));
 	
 	assign pri_spr_or_a = l273 ? spr_out_pri : ~l320;
 	
@@ -6656,9 +6656,9 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(3)) sr620(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[11:9]), .data_out(cram_data_hi));
 	
-	assign cram_red_bits = reg_m5 ? l104[3:1] : l104[2:0];
+	assign cram_red_bits = reg_m5 ? data_rd_pipe[3:1] : data_rd_pipe[2:0];
 	
-	assign cram_grn_bits = reg_m5 ? l104[7:5] : l104[5:3];
+	assign cram_grn_bits = reg_m5 ? data_rd_pipe[7:5] : data_rd_pipe[5:3];
 	
 	ym_slatch #(.DATA_WIDTH(9)) sl621(.MCLK(MCLK), .en(cram_latch_en), .inp(color_ram_out), .val(cram_rd_latch));
 	
@@ -7170,33 +7170,33 @@ module ym7101
 	ym_dlatch_1 #(.DATA_WIDTH(8)) dl_vs(.MCLK(MCLK), .c1(clk1), .inp(SD), .val(vram_serial));
 	
 	wire [15:0] vram_data_val =
-		(w328 ? { l96, w351 } : 16'hffff) &
-		(w327 ? { l98, w352 } : 16'hffff) &
-		(w329 ? { l100, w353 } : 16'hffff) &
-		(w326 ? { l102, w354 } : 16'hffff) &
+		(data_rd_s1 ? { fifo_hi_s1, fifo_out_s1 } : 16'hffff) &
+		(data_rd_s2 ? { fifo_hi_s2, fifo_out_s2 } : 16'hffff) &
+		(data_rd_s3 ? { fifo_hi_s3, fifo_out_s3 } : 16'hffff) &
+		(data_rd_s0 ? { fifo_hi_s0, fifo_out_s0 } : 16'hffff) &
 		(l183 ? { 5'h1f, l180 } : 16'hffff) &
 		(sat_rd_pipe_2 ? { 5'h1f, sat_field_latch } : 16'hffff) &
 		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'hffff) &
 		(cram_wr_dly_3 ? { 4'hf, cram_rd_latch[8:6], 1'h1, cram_rd_latch[5:3], 1'h1, cram_rd_latch[2:0], 1'h1 } : 16'hffff);
 		
 	wire [15:0] vram_data_pull =
-		(w328 ? 16'hffff : 16'h0) |
-		(w327 ? 16'hffff : 16'h0) |
-		(w329 ? 16'hffff : 16'h0) |
-		(w326 ? 16'hffff : 16'h0) |
+		(data_rd_s1 ? 16'hffff : 16'h0) |
+		(data_rd_s2 ? 16'hffff : 16'h0) |
+		(data_rd_s3 ? 16'hffff : 16'h0) |
+		(data_rd_s0 ? 16'hffff : 16'h0) |
 		(l183 ? 16'h07ff : 16'h0) |
 		(sat_rd_pipe_2 ? 16'h07ff : 16'h0) |
 		(vram_dma_pipe ? 16'hffff : 16'h0) |
 		(cram_wr_dly_3 ? 16'heee : 16'h0);
 	
 	wire [16:0] vram_address_val =
-		(w195 ? { reg_sa_high[0], reg_sa_low } : 17'h1ffff) &
+		(dma_ext_copy ? { reg_sa_high[0], reg_sa_low } : 17'h1ffff) &
 		(dma_data_active ? reg_data_l2[16:0] : 17'h1ffff) &
-		(w275 ? { l35[16:1], ~l35[0] } : 17'h1ffff) &
-		(w257 ? l36 : 17'h1ffff) &
-		(w258 ? l37 : 17'h1ffff) &
-		(w259 ? l38 : 17'h1ffff) &
-		(w260 ? l39 : 17'h1ffff) &
+		(dma_fill_busy ? { fifo_addr_pipe[16:1], ~fifo_addr_pipe[0] } : 17'h1ffff) &
+		(fifo_rd_s2 ? fifo_data_0 : 17'h1ffff) &
+		(fifo_rd_s0 ? fifo_data_1 : 17'h1ffff) &
+		(fifo_rd_s3 ? fifo_data_2 : 17'h1ffff) &
+		(fifo_rd_s1 ? fifo_data_3 : 17'h1ffff) &
 		(w531 ? { w532[3:1], 14'h3fff } : 17'h1ffff) &
 		(w558 ? { 3'h7, w532[0], w533, w527[4:0], w555[4:0], 1'h0 } : 17'h1ffff) &
 		(w643 ? { reg_hs, w535, 2'h0 } : 17'h1ffff) & // hscroll
@@ -7214,13 +7214,13 @@ module ym7101
 			{ pattern_addr, spr_rd_yoff[3], spr_rd_yoff[2:0], 2'h0 } : { reg_86_b5, pattern_addr, spr_rd_yoff[2:0], 2'h0 }) : 17'h1ffff);
 	
 	wire [16:0] vram_address_pull =
-		(w195 ? 17'h1ffff : 17'h0) |
+		(dma_ext_copy ? 17'h1ffff : 17'h0) |
 		(dma_data_active ? 17'h1ffff : 17'h0) |
-		(w275 ? 17'h1ffff : 17'h0) |
-		(w257 ? 17'h1ffff : 17'h0) |
-		(w258 ? 17'h1ffff : 17'h0) |
-		(w259 ? 17'h1ffff : 17'h0) |
-		(w260 ? 17'h1ffff : 17'h0) |
+		(dma_fill_busy ? 17'h1ffff : 17'h0) |
+		(fifo_rd_s2 ? 17'h1ffff : 17'h0) |
+		(fifo_rd_s0 ? 17'h1ffff : 17'h0) |
+		(fifo_rd_s3 ? 17'h1ffff : 17'h0) |
+		(fifo_rd_s1 ? 17'h1ffff : 17'h0) |
 		(w531 ? 17'h1c000 : 17'h0) |
 		(w558 ? 17'h03fff : 17'h0) |
 		(w643 ? 17'h1ffff : 17'h0) |
@@ -7237,23 +7237,23 @@ module ym7101
 		(m5_fetch_pipe ? 17'h1ffff : 17'h0);
 	
 	/*assign vram_data =
-		(w328 ? { l96, w351 } : 16'h0) |
-		(w327 ? { l98, w352 } : 16'h0) |
-		(w329 ? { l100, w353 } : 16'h0) |
-		(w326 ? { l102, w354 } : 16'h0) |
+		(data_rd_s1 ? { fifo_hi_s1, fifo_out_s1 } : 16'h0) |
+		(data_rd_s2 ? { fifo_hi_s2, fifo_out_s2 } : 16'h0) |
+		(data_rd_s3 ? { fifo_hi_s3, fifo_out_s3 } : 16'h0) |
+		(data_rd_s0 ? { fifo_hi_s0, fifo_out_s0 } : 16'h0) |
 		(l183 ? { 5'h0, l180 } : 16'h0) |
 		(sat_rd_pipe_2 ? { 5'h0, sat_field_latch } : 16'h0) |
 		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'h0) |
 		(cram_wr_dly_3 ? { 4'h0, cram_rd_latch[8:6], 1'h0, cram_rd_latch[5:3], 1'h0, cram_rd_latch[2:0], 1'h0 } : 16'h0);*/
 		
 	/*assign vram_address =
-		(w195 ? { reg_sa_high[0], reg_sa_low } : 17'h0) |
+		(dma_ext_copy ? { reg_sa_high[0], reg_sa_low } : 17'h0) |
 		(dma_data_active ? reg_data_l2[16:0] : 17'h0) |
-		(w275 ? { l35[16:1], ~l35[0] } : 17'h0) |
-		(w257 ? l36 : 17'h0) |
-		(w258 ? l37 : 17'h0) |
-		(w259 ? l38 : 17'h0) |
-		(w260 ? l39 : 17'h0) |
+		(dma_fill_busy ? { fifo_addr_pipe[16:1], ~fifo_addr_pipe[0] } : 17'h0) |
+		(fifo_rd_s2 ? fifo_data_0 : 17'h0) |
+		(fifo_rd_s0 ? fifo_data_1 : 17'h0) |
+		(fifo_rd_s3 ? fifo_data_2 : 17'h0) |
+		(fifo_rd_s1 ? fifo_data_3 : 17'h0) |
 		(w531 ? { w532[3:1], 14'h0 } : 17'h0) |
 		(w558 ? { 3'h0, w532[0], w533, w527[4:0], w555[4:0], 1'h0 } : 17'h0) |
 		(w643 ? { reg_hs, w535, 2'h0 } : 17'h0) | // hscroll
@@ -7307,10 +7307,10 @@ module ym7101
 		(vdp_data_dir ? CD_i : 16'hffff) &
 		(tst_fn7_rd ? { 2'h3, spr_rd_yoff[5:3], sprdata_test_mux } : 16'hffff) &
 		(z80_vdp_rd ? { 5'h1f, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'hff} : 16'hffff) &
-		(vdp_data_rd_odd ? { 6'h3f, l46, w252, eint_pend, spr_overflow, spr_collision, field_bit, active_disp_gate, vint_delayed, hv_data_sel, hv_byte_sel } : 16'hffff) &
-		(hv_cnt_rd ? { l90[7:0], 8'hff } : 16'hffff) &
-		(hv_rd_any ? { 8'hff, w347[7:0] } : 16'hffff) &
-		(data_rd_even ? { l93[7:0], l92[7:0] } : 16'hffff) &
+		(vdp_data_rd_odd ? { 6'h3f, dma_state, fifo_wr_gate, eint_pend, spr_overflow, spr_collision, field_bit, active_disp_gate, vint_delayed, hv_data_sel, hv_byte_sel } : 16'hffff) &
+		(hv_cnt_rd ? { vcnt_latch[7:0], 8'hff } : 16'hffff) &
+		(hv_rd_any ? { 8'hff, hv_cnt_data[7:0] } : 16'hffff) &
+		(data_rd_even ? { vram_rd_hi_lat[7:0], vram_rd_lo_lat[7:0] } : 16'hffff) &
 		(z80_int_ack ? { 8'hff, 5'h0, ipl2_src, ipl1_src, 1'h0 } : 16'hffff) &
 		(tst_fn2_rd ? { 8'hff, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'hffff) &
 		(tst_fn3_rd ? { 2'h3, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'hffff) &
@@ -7341,10 +7341,10 @@ module ym7101
 		(vdp_data_dir ? CD_i : 16'h0) |
 		(tst_fn7_rd ? { 2'h0, spr_rd_yoff[5:3], sprdata_test_mux } : 16'h0) |
 		(z80_vdp_rd ? { 5'h0, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'h0} : 16'h0) |
-		(vdp_data_rd_odd ? { 6'h0, l46, w252, eint_pend, spr_overflow, spr_collision, field_bit, active_disp_gate, vint_delayed, hv_data_sel, hv_byte_sel } : 16'h0) |
-		(hv_cnt_rd ? { l90[7:0], 8'h0 } : 16'h0) |
-		(hv_rd_any ? { 8'h0, w347[7:0] } : 16'h0) |
-		(data_rd_even ? { l93[7:0], l92[7:0] } : 16'h0) |
+		(vdp_data_rd_odd ? { 6'h0, dma_state, fifo_wr_gate, eint_pend, spr_overflow, spr_collision, field_bit, active_disp_gate, vint_delayed, hv_data_sel, hv_byte_sel } : 16'h0) |
+		(hv_cnt_rd ? { vcnt_latch[7:0], 8'h0 } : 16'h0) |
+		(hv_rd_any ? { 8'h0, hv_cnt_data[7:0] } : 16'h0) |
+		(data_rd_even ? { vram_rd_hi_lat[7:0], vram_rd_lo_lat[7:0] } : 16'h0) |
 		(z80_int_ack ? { 8'h0, 5'h0, ipl2_src, ipl1_src, 1'h0 } : 16'h0) |
 		(tst_fn2_rd ? { 8'h0, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'h0) |
 		(tst_fn3_rd ? { 2'h0, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'h0) |
