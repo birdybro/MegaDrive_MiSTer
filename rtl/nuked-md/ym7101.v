@@ -786,201 +786,201 @@ module ym7101
 	wire [7:0] w354;
 	wire [7:0] l104;
 	
-	// H/V counters and timing FSM (vcnt-l176, w355-w466)
+	// H/V counters and timing FSM (vcnt-vsync_pipe_prev, vcnt_ext-disp_active_flag)
 	wire [8:0] vcnt; // vertical counter (9-bit)
-	wire [9:0] w355; // extended vcnt (interlace: {vcnt, field}, normal: {0, vcnt})
+	wire [9:0] vcnt_ext; // extended vcnt (interlace: {vcnt, field}, normal: {0, vcnt})
 	wire [8:0] hcnt; // horizontal counter (9-bit)
-	wire l107;
-	wire l108;
-	wire l109;
-	wire l110;
-	wire w356;
-	wire w357;
-	wire w358;
-	wire w359;
-	wire w360;
-	wire l111;
-	wire l112;
+	wire field_trig_dly8;
+	wire edclk_dly;
+	wire slot_idle_dly;
+	wire line_zero_dly;
+	wire slot3_active;
+	wire tst_mode_1;
+	wire no_slot_123e;
+	wire slot_idle;
+	wire disp_start;
+	wire hint_time_dly;
+	wire spr_end_dly;
 	wire hcnt_load_en; // hcnt load enable
-	wire w362;
+	wire hcnt_inc_gate;
 	wire hcnt_inc_en; // hcnt increment enable
-	wire [8:0] w364; // hcnt load value
-	wire w365;
-	wire w366;
-	wire w367;
-	wire w368;
-	wire w369;
-	wire w370;
-	wire l113;
-	wire l114;
-	wire l115;
-	wire l116;
-	wire w371;
-	wire w372;
-	wire l117;
-	wire l118;
-	wire l119;
-	wire w373;
-	wire w374;
-	wire l120;
-	wire w375;
-	wire w376;
-	wire w377;
-	wire l121;
-	wire l122;
-	wire l123;
-	wire w378;
-	wire w379;
-	wire w380;
-	wire w381;
-	wire w382;
-	wire w383;
-	wire w384;
-	wire w385;
-	wire w386;
-	wire l124;
-	wire l125;
-	wire l126;
-	wire w387;
-	wire l127;
-	wire w388;
-	wire l128;
-	wire w389;
-	wire l129;
-	wire w390;
-	wire w391;
-	wire l130;
-	wire w392;
+	wire [8:0] hcnt_load_val; // hcnt load value
+	wire hcnt_rld_b0;
+	wire hcnt_rld_b1;
+	wire hcnt_rld_b2;
+	wire hcnt_rld_b3;
+	wire hcnt_rld_b3_aux;
+	wire hcnt_m5_reload;
+	wire line_run_prev;
+	wire spr_mid_dly;
+	wire active_end;
+	wire odd_slot;
+	wire tst_mode_2;
+	wire slot2_active;
+	wire not_disp_start_dly;
+	wire slot3_dly;
+	wire slot2_dly;
+	wire field_inv;
+	wire csync_src;
+	wire csync_dly;
+	wire csync_combined;
+	wire line_run_next;
+	wire line_not_reset;
+	wire line_running;
+	wire adj_point_dly;
+	wire render_start_dly;
+	wire vscr_or_disp;
+	wire vscr_active;
+	wire tst_normal;
+	wire tst_mode_5;
+	wire tst_mode_3;
+	wire tst_mode_4;
+	wire odd_slot_gate;
+	wire slot1_active;
+	wire no_slot0_odd_ext;
+	wire px8_bound_dly;
+	wire slot1_dly;
+	wire slot0_dly;
+	wire csync_m5_mux;
+	wire csync_xor_dly8;
+	wire hv_disp_active;
+	wire csync_out_dly;
+	wire full_disp_en;
+	wire vint_latch_dly;
+	wire m5_vblank_or_vsync;
+	wire m5_field_hblank;
+	wire sync_area_dly;
+	wire hdisp_rst;
 	wire hdisp_en_trig; // horizontal display enable trigger
-	wire l131;
-	wire w393;
-	wire l132;
-	wire w394;
-	wire w395;
-	wire l133;
-	wire l134;
-	wire w396;
-	wire l135;
-	wire l136;
-	wire w397;
-	wire w398;
-	wire w399;
-	wire w400;
-	wire t30;
-	wire w401;
-	wire l137;
-	wire l138;
-	wire w402;
-	wire l139;
-	wire w403;
-	wire l140;
-	wire l141;
-	wire l142;
-	wire w404;
-	wire w405;
-	wire w406;
-	wire t31;
-	wire w407;
-	wire w408;
-	wire w409;
-	wire l143;
-	wire l144;
-	wire w410;
-	wire l145;
-	wire l146;
-	wire l147;
-	wire l148;
-	wire w411;
-	wire l149;
-	wire l150;
-	wire w412;
-	wire w413;
-	wire l151;
-	wire t32;
-	wire w414;
-	wire l152;
-	wire l153;
-	wire w415;
-	wire w416;
-	wire w417;
-	wire w418;
-	wire w419;
-	wire l154;
-	wire l155;
-	wire l156;
-	wire w420;
-	wire w421;
-	wire l157;
-	wire w422;
-	wire l158;
+	wire hblank_end_dly;
+	wire cell_m4_active;
+	wire reload_pulse_dly;
+	wire slot0_active;
+	wire no_disp_main;
+	wire cell_m4_dly;
+	wire access_ext_dly;
+	wire csync_ext_mux;
+	wire csync_sel_dly7;
+	wire hsync_out_dly;
+	wire csync_pull_gate;
+	wire no_m5_vert_event;
+	wire vert_fetch_gate;
+	wire vblank_vsync_fetch;
+	wire vint_pending;
+	wire vint_set;
+	wire scroll_end_dly;
+	wire access_win_dly;
+	wire cell_bound_active;
+	wire reload_edge_dly;
+	wire hcnt_reload_pulse;
+	wire cell_bound_dly;
+	wire access_main_dly;
+	wire m4_border_dly;
+	wire hsync_pull_gate;
+	wire hsync_no_vert_a;
+	wire hsync_no_vert_b;
+	wire hblank_state;
+	wire hblank_set;
+	wire hblank_rst;
+	wire hblank_end_comb;
+	wire scroll_start_dly;
+	wire fetch_point_dly;
+	wire hcnt_reload_edge;
+	wire vram_slot_dly;
+	wire m4_border2_dly;
+	wire fetch_all_dly;
+	wire blank_start_dly;
+	wire hsync_ext_in;
+	wire hsync_in_dly;
+	wire csync_comb_a_dly;
+	wire csync_comb_a;
+	wire csync_comb_b;
+	wire csync_comb_b_dly;
+	wire between_fetches;
+	wire fetch_phase_rst;
+	wire line_first_dly;
+	wire hint_pos_dly;
+	wire pre_wrap_active;
+	wire h40_mode;
+	wire m4_or_vram_slot;
+	wire vram_or_ext_slot;
+	wire blank_slot_active;
+	wire pre_wrap_dly;
+	wire ext_access_dly;
+	wire m4_window_dly;
+	wire csync_xor_field;
+	wire csync_div_sel;
+	wire csync_comb_a_dly2;
+	wire vint_delayed;
+	wire vint_pend_dly8;
 	wire hsync_trig; // horizontal sync trigger
-	wire w423;
-	wire w424;
-	wire w425;
-	wire l159;
-	wire l160;
-	wire w426;
-	wire l161;
-	wire w427;
+	wire hsync_trig_set;
+	wire sub_slot_active;
+	wire h40_no_ext_latch;
+	wire sub_slot_dly;
+	wire csync_div_bit;
+	wire csync_div_inc;
+	wire csync_xor_prev;
+	wire csync_prog_mode;
 	wire [8:0] vcnt_load_val; // vcnt load value (mode/region-dependent)
-	wire w429;
-	wire w430;
-	wire w431;
-	wire w432;
-	wire w433;
-	wire w434;
-	wire w435;
+	wire vcnt_rld_b5;
+	wire ntsc_v28;
+	wire pal_m4;
+	wire pal_v28;
+	wire vcnt_rld_b3;
+	wire pal_even_field;
+	wire field_xor_region;
 	wire vcnt_inc_en; // vcnt increment enable
 	wire vcnt_load_en; // vcnt load enable
-	wire w438;
-	wire l162; // display active region flag
-	wire active_disp_gate; // active display gating (~(reg_disp & (l162 | vdisp_en_trig)))
-	wire l163;
-	wire w440;
-	wire t34;
-	wire w441;
-	wire l164;
-	wire w442;
+	wire vcnt_wrap_cond;
+	wire vcnt_at_max; // display active region flag
+	wire active_disp_gate; // active display gating (~(reg_disp & (vcnt_at_max | vdisp_en_trig)))
+	wire frame_end_dly;
+	wire vblank_hi_rst;
+	wire vblank_hi_latch;
+	wire m5_vblank_hi;
+	wire vblank_hi_dly;
+	wire frame_end_gated;
 	wire field_bit_trig; // field bit trigger
-	wire w443;
-	wire l165;
-	wire w444;
-	wire w445;
-	wire t36;
+	wire m5_field_active;
+	wire vblank_lo_dly;
+	wire vblank_hi_gated;
+	wire field_trig_rst;
+	wire vsync_latch;
 	wire field_bit; // interlace field bit (even/odd frame)
-	wire l167;
-	wire w447;
-	wire w448;
-	wire w449;
-	wire l168;
-	wire w450;
-	wire w451;
-	wire l169;
-	wire w452;
-	wire w453;
-	wire t37;
-	wire w454;
-	wire w455;
-	wire w456;
-	wire l170;
-	wire w457;
-	wire w458;
-	wire w459;
+	wire vsync_area_dly;
+	wire vblank_lo_gated;
+	wire vsync_latch_rst;
+	wire hint_or_even;
+	wire field_set_dly;
+	wire m5_vsync;
+	wire field_bit_rst;
+	wire field_toggle_dly;
+	wire field_toggle_gated;
+	wire vsync_gate_set;
+	wire vsync_gate;
+	wire field_adj_h40;
+	wire field_adj_h32;
+	wire field_set_cond;
+	wire vdisp_active_dly;
+	wire vdisp_ended;
+	wire vdisp_en_rst;
+	wire vdisp_end_at_zero;
 	wire vdisp_en_trig; // vertical display enable trigger
-	wire l171;
-	wire l172;
-	wire t39;
-	wire w460;
-	wire w461;
-	wire l173;
-	wire l174;
-	wire w462;
-	wire w463;
-	wire w464;
-	wire l175;
-	wire l176;
-	wire w465;
-	wire w466;
+	wire spr_mid_dly2;
+	wire vcnt_at_zero;
+	wire field_adj_en;
+	wire vcnt_adj_reload;
+	wire field_adj_rst;
+	wire adj_point_dly2;
+	wire vcnt_eq_dly;
+	wire not_vsync_rst;
+	wire csync_adj_comb;
+	wire vsync_pipe_next;
+	wire vsync_pipe;
+	wire vsync_pipe_prev;
+	wire field_adj_set;
+	wire disp_active_flag;
 	// H/V counter PLAs — timing event comparators for mode variants
 	wire [47:0] pla_vcnt;  // 48 vertical timing events
 	wire [62:0] pla_hcnt1; // 63 horizontal timing events (group 1)
@@ -2560,12 +2560,12 @@ module ym7101
 	assign io_ipl1 = ~(w11 & cpu_sel);
 	assign io_ipl2 = ~(w12 & cpu_sel);
 	
-	ym_sr_bit sr1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l108), .sr_out(l1));
+	ym_sr_bit sr1(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(edclk_dly), .sr_out(l1));
 	ym_sr_bit sr2(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l1), .sr_out(l2));
 	ym_sr_bit sr3(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l2), .sr_out(l3));
-	ym_sr_bit sr4(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~(l108 | l1 | l2 | l3)), .sr_out(l4));
+	ym_sr_bit sr4(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~(edclk_dly | l1 | l2 | l3)), .sr_out(l4));
 	ym_sr_bit sr5(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(dma_addr_oe), .sr_out(l5));
-	ym_dlatch_1 dl6(.MCLK(MCLK), .c1(hclk1), .inp(~(w7 & w8 & l116)), .nval(l6));
+	ym_dlatch_1 dl6(.MCLK(MCLK), .c1(hclk1), .inp(~(w7 & w8 & odd_slot)), .nval(l6));
 	ym_dlatch_1 dl7(.MCLK(MCLK), .c1(clk1), .inp(l6), .nval(l7));
 	ym_dlatch_2 dl8(.MCLK(MCLK), .c2(clk2), .inp(l7), .nval(l8));
 	
@@ -2758,9 +2758,9 @@ module ym7101
 	
 	ym7101_rs_trig rs11(.MCLK(MCLK), .set(spr_collision_pipe), .rst(l14), .q(t11));
 	
-	assign w67 = l115 | reg_test0[3];
+	assign w67 = active_end | reg_test0[3];
 	
-	assign w68 = ~(vdisp_en_trig | l162 | reg_test0[3]);
+	assign w68 = ~(vdisp_en_trig | vcnt_at_max | reg_test0[3]);
 	
 	wire cnt1_of;
 	
@@ -2845,17 +2845,17 @@ module ym7101
 	
 	ym_slatch sl17(.MCLK(MCLK), .en(cpu_clk0), .inp(cpu_rd), .val(l17));
 	
-	assign w119 = cpu_sel ? l110 : l115;
+	assign w119 = cpu_sel ? line_zero_dly : active_end;
 	
-	assign w120 = w119 & w457;
+	assign w120 = w119 & vdisp_ended;
 	
-	assign w121 = reset_comb | w360;
+	assign w121 = reset_comb | disp_start;
 	
 	ym7101_rs_trig rs12(.MCLK(MCLK), .set(w120), .rst(w121), .q(t12));
 	
 	assign int_pull_ctl = ~(cpu_sel ? t12 : w9); // z80 int
 	
-	assign w123 = reg_lsm0_latch ? w355[8] : w355[0];
+	assign w123 = reg_lsm0_latch ? vcnt_ext[8] : vcnt_ext[0];
 	
 	assign w124 = w70 & cpu_as & w158;
 	
@@ -3024,7 +3024,7 @@ module ym7101
 	
 	ym7101_rs_trig rs26(.MCLK(MCLK), .set(w157), .rst(w156), .q(t26), .nq(t26_n));
 	
-	assign w186 = t26 & l46 & l109;
+	assign w186 = t26 & l46 & slot_idle_dly;
 	
 	ym_sr_bit sr27(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w186), .sr_out(l27));
 	
@@ -3048,7 +3048,7 @@ module ym7101
 	
 	ym_sr_bit sr28(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w196), .sr_out(l28));
 	
-	assign w196 = t26_n & t27 & l46 & l109;
+	assign w196 = t26_n & t27 & l46 & slot_idle_dly;
 	
 	ym7101_rs_trig rs27(.MCLK(MCLK), .set(w198), .rst(w197), .q(t27));
 	
@@ -3180,15 +3180,15 @@ module ym7101
 	
 	ym_slatch sl47(.MCLK(MCLK), .en(w266), .inp(vram_address[0]), .val(l47));
 	
-	assign w266 = hclk1 & l116;
+	assign w266 = hclk1 & odd_slot;
 	
 	assign dma_addr_oe = w247 | w246;
 	
 	ym_sr_bit sr48(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w244), .sr_out(l48));
 	
-	assign w268 = ~w265 & l116;
+	assign w268 = ~w265 & odd_slot;
 	
-	assign w269 = l109 & ~l46;
+	assign w269 = slot_idle_dly & ~l46;
 	
 	ym_sr_bit sr49(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w269), .sr_out(l49));
 	
@@ -3200,7 +3200,7 @@ module ym7101
 	
 	ym_sr_bit sr50(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w272), .sr_out(l50));
 	
-	assign w272 = dma_active_trig & w263 & l109;
+	assign w272 = dma_active_trig & w263 & slot_idle_dly;
 	
 	assign w273 = w274 & w325;
 	
@@ -3390,7 +3390,7 @@ module ym7101
 	
 	assign w346 = ~w109 & cpu_sel & w338;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl90(.MCLK(MCLK), .en(w336), .inp({ w355[7:1], w123}), .val(l90)); // v counter
+	ym_slatch #(.DATA_WIDTH(8)) sl90(.MCLK(MCLK), .en(w336), .inp({ vcnt_ext[7:1], w123}), .val(l90)); // v counter
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl91(.MCLK(MCLK), .en(w337), .inp(hcnt[8:1]), .val(l91)); // h counter
 	
@@ -3439,8 +3439,8 @@ module ym7101
 	
 	ym_slatch_r #(.DATA_WIDTH(8)) sl_hit(.MCLK(MCLK), .en(reg_wr_8D), .rst(reset_comb), .inp(~reg_data_l2[7:0]), .val(reg_hit));
 	
-	ym_slatch sl_lsm0_latch(.MCLK(MCLK), .en(w457), .inp(reg_lsm0), .val(reg_lsm0_latch));
-	ym_slatch sl_lsm1_latch(.MCLK(MCLK), .en(w457), .inp(reg_lsm1), .val(reg_lsm1_latch));
+	ym_slatch sl_lsm0_latch(.MCLK(MCLK), .en(vdisp_ended), .inp(reg_lsm0), .val(reg_lsm0_latch));
+	ym_slatch sl_lsm1_latch(.MCLK(MCLK), .en(vdisp_ended), .inp(reg_lsm1), .val(reg_lsm1_latch));
 	
 	ym_slatch_r #(.DATA_WIDTH(12)) sl_test_18(.MCLK(MCLK), .en(w128), .rst(reset_ext), .inp(io_data[11:0]), .val(reg_test_18));
 	
@@ -3544,401 +3544,401 @@ module ym7101
 	ym_cnt_bit_load #(.DATA_WIDTH(9)) cnt105(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
 		.c_in(vcnt_inc_en), .reset(1'h0), .load(vcnt_load_en), .load_val(vcnt_load_val), .val(vcnt));
 	
-	assign w355 = interlace_dblres ? { vcnt, field_bit } : { 1'h0, vcnt };
+	assign vcnt_ext = interlace_dblres ? { vcnt, field_bit } : { 1'h0, vcnt };
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(9)) cnt106(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(hcnt_inc_en), .reset(1'h0), .load(hcnt_load_en), .load_val(w364), .val(hcnt));
+		.c_in(hcnt_inc_en), .reset(1'h0), .load(hcnt_load_en), .load_val(hcnt_load_val), .val(hcnt));
 	
-	ym_sr_bit #(.SR_LENGTH(8)) sr107(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(field_trig_pipe), .sr_out(l107));
+	ym_sr_bit #(.SR_LENGTH(8)) sr107(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(field_trig_pipe), .sr_out(field_trig_dly8));
 	
-	ym_sr_bit sr108(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_edclk), .sr_out(l108));
+	ym_sr_bit sr108(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_edclk), .sr_out(edclk_dly));
 	
-	ym_sr_bit sr109(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w359), .sr_out(l109));
+	ym_sr_bit sr109(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot_idle), .sr_out(slot_idle_dly));
 	
-	ym_sr_bit sr110(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_line_zero), .sr_out(l110));
+	ym_sr_bit sr110(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_line_zero), .sr_out(line_zero_dly));
 	
-	assign w356 = w357 | (l118 & w380);
+	assign slot3_active = tst_mode_1 | (slot3_dly & tst_normal);
 	
-	assign w357 = reg_test1[6:4] == 3'h1;
+	assign tst_mode_1 = reg_test1[6:4] == 3'h1;
 	
-	assign w358 = ~(hcnt_edclk | hcnt_slot3 | hcnt_slot2 | hcnt_slot1);
+	assign no_slot_123e = ~(hcnt_edclk | hcnt_slot3 | hcnt_slot2 | hcnt_slot1);
 	
-	assign w359 = w358 & w386 & w395;
+	assign slot_idle = no_slot_123e & no_slot0_odd_ext & no_disp_main;
 	
-	assign w360 = ~l117;
+	assign disp_start = ~not_disp_start_dly;
 	
-	ym_sr_bit sr111(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_hint_time), .sr_out(l111));
+	ym_sr_bit sr111(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_hint_time), .sr_out(hint_time_dly));
 	
-	ym_sr_bit sr112(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_spr_end), .sr_out(l112));
+	ym_sr_bit sr112(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_spr_end), .sr_out(spr_end_dly));
 	
-	assign hcnt_load_en = l112 | w88 | reset_comb | w370;
+	assign hcnt_load_en = spr_end_dly | w88 | reset_comb | hcnt_m5_reload;
 	
-	assign w362 = ~(hcnt_load_en | reg_test1[3]);
+	assign hcnt_inc_gate = ~(hcnt_load_en | reg_test1[3]);
 	
-	assign hcnt_inc_en = w362 | (reg_test1[3] & ~cpu_intak);
+	assign hcnt_inc_en = hcnt_inc_gate | (reg_test1[3] & ~cpu_intak);
 	
-	assign w364 = w88 ? io_data[8:0] : { 4'he, ~w365, w368, w367, w366, w365 };
+	assign hcnt_load_val = w88 ? io_data[8:0] : { 4'he, ~hcnt_rld_b0, hcnt_rld_b3, hcnt_rld_b2, hcnt_rld_b1, hcnt_rld_b0 };
 	
-	assign w365 = ~reg_80_b0 & reg_rs1 & reg_m5;
+	assign hcnt_rld_b0 = ~reg_80_b0 & reg_rs1 & reg_m5;
 
-	assign w366 = ~reg_80_b0 & ~reg_rs1;
+	assign hcnt_rld_b1 = ~reg_80_b0 & ~reg_rs1;
 	
-	assign w367 = reg_80_b0 & ~reg_rs1;
+	assign hcnt_rld_b2 = reg_80_b0 & ~reg_rs1;
 	
-	assign w368 = w365 | w369;
+	assign hcnt_rld_b3 = hcnt_rld_b0 | hcnt_rld_b3_aux;
 	
-	assign w369 = ~reg_rs1 & reg_80_b0 & reg_m5;
+	assign hcnt_rld_b3_aux = ~reg_rs1 & reg_80_b0 & reg_m5;
 	// h40: 457
 	// h32: 466
 	// m4: 466
 	
-	assign w370 = ~l113 & l121 & reg_80_b0;
+	assign hcnt_m5_reload = ~line_run_prev & line_running & reg_80_b0;
 	
-	ym_sr_bit sr113(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l121), .sr_out(l113));
+	ym_sr_bit sr113(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(line_running), .sr_out(line_run_prev));
 	
-	ym_sr_bit sr114(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_spr_mid), .sr_out(l114));
+	ym_sr_bit sr114(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_spr_mid), .sr_out(spr_mid_dly));
 	
-	wire l115_t;
-	assign l115 = ~l115_t;
-	ym_sr_bit sr115(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_not_active_end), .sr_out(l115_t));
+	wire active_end_t;
+	assign active_end = ~active_end_t;
+	ym_sr_bit sr115(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_not_active_end), .sr_out(active_end_t));
 	
-	wire l116_t;
-	assign l116 = ~l116_t;
-	ym_sr_bit sr116(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w384), .sr_out(l116_t));
+	wire odd_slot_t;
+	assign odd_slot = ~odd_slot_t;
+	ym_sr_bit sr116(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(odd_slot_gate), .sr_out(odd_slot_t));
 	
-	assign w371 = reg_test1[6:4] == 3'h2;
+	assign tst_mode_2 = reg_test1[6:4] == 3'h2;
 	
-	assign w372 = w371 | (l119 & w380);
+	assign slot2_active = tst_mode_2 | (slot2_dly & tst_normal);
 	
-	ym_sr_bit sr117(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_not_disp_start), .sr_out(l117));
+	ym_sr_bit sr117(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_not_disp_start), .sr_out(not_disp_start_dly));
 	
-	ym_sr_bit sr118(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot3), .sr_out(l118));
+	ym_sr_bit sr118(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot3), .sr_out(slot3_dly));
 	
-	ym_sr_bit sr119(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot2), .sr_out(l119));
+	ym_sr_bit sr119(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot2), .sr_out(slot2_dly));
 	
-	assign w373 = ~(reg_m5 ? l107 : field_trig_pipe);
+	assign field_inv = ~(reg_m5 ? field_trig_dly8 : field_trig_pipe);
 	
-	assign w374 = reg_8c_b6 ? hclk2 : w373;
+	assign csync_src = reg_8c_b6 ? hclk2 : field_inv;
 	
-	ym_sr_bit sr120(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(i_csync), .sr_out(l120));
+	ym_sr_bit sr120(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(i_csync), .sr_out(csync_dly));
 	
-	assign w375 = l120 | w411;
+	assign csync_combined = csync_dly | hsync_ext_in;
 	
-	assign w376 = w377 & (l121 | w375);
+	assign line_run_next = line_not_reset & (line_running | csync_combined);
 	
-	assign w377 = ~(l114 | reset_comb);
+	assign line_not_reset = ~(spr_mid_dly | reset_comb);
 	
-	ym_sr_bit sr121(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w376), .sr_out(l121));
+	ym_sr_bit sr121(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(line_run_next), .sr_out(line_running));
 	
-	ym_sr_bit sr122(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_adj_point), .sr_out(l122));
+	ym_sr_bit sr122(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_adj_point), .sr_out(adj_point_dly));
 	
-	ym_sr_bit sr123(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_render_start), .sr_out(l123));
+	ym_sr_bit sr123(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_render_start), .sr_out(render_start_dly));
 	
-	assign w378 = reg_vscr ? l124 : ~l117;
+	assign vscr_or_disp = reg_vscr ? px8_bound_dly : ~not_disp_start_dly;
 	
-	assign w379 = w378 & w380;
+	assign vscr_active = vscr_or_disp & tst_normal;
 	
-	assign w380 = reg_test1[6:4] == 3'h0;
+	assign tst_normal = reg_test1[6:4] == 3'h0;
 	
-	assign w381 = reg_test1[6:4] == 3'h5;
+	assign tst_mode_5 = reg_test1[6:4] == 3'h5;
 	
-	assign w382 = reg_test1[6:4] == 3'h3;
+	assign tst_mode_3 = reg_test1[6:4] == 3'h3;
 	
-	assign w383 = reg_test1[6:4] == 3'h4;
+	assign tst_mode_4 = reg_test1[6:4] == 3'h4;
 	
-	assign w384 = ~(hcnt_odd & ~l132);
+	assign odd_slot_gate = ~(hcnt_odd & ~reload_pulse_dly);
 	
-	assign w385 = w382 | (w380 & l125);
+	assign slot1_active = tst_mode_3 | (tst_normal & slot1_dly);
 	
-	assign w386 = ~(hcnt_slot0 | hcnt_odd | hcnt_access_ext);
+	assign no_slot0_odd_ext = ~(hcnt_slot0 | hcnt_odd | hcnt_access_ext);
 	
-	ym_sr_bit sr124(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_8px_bound), .sr_out(l124));
+	ym_sr_bit sr124(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_8px_bound), .sr_out(px8_bound_dly));
 	
-	ym_sr_bit sr125(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot1), .sr_out(l125));
+	ym_sr_bit sr125(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot1), .sr_out(slot1_dly));
 	
-	ym_sr_bit sr126(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot0), .sr_out(l126));
+	ym_sr_bit sr126(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_slot0), .sr_out(slot0_dly));
 	
-	assign w387 = reg_m5 ? l127 : w420;
+	assign csync_m5_mux = reg_m5 ? csync_xor_dly8 : csync_xor_field;
 	
-	ym_sr_bit #(.SR_LENGTH(8)) sr127(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w420), .sr_out(l127));
+	ym_sr_bit #(.SR_LENGTH(8)) sr127(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_xor_field), .sr_out(csync_xor_dly8));
 	
-	assign w388 = hdisp_en_trig & ~active_disp_gate;
+	assign hv_disp_active = hdisp_en_trig & ~active_disp_gate;
 	
-	ym_sr_bit sr128(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w397), .sr_out(l128));
+	ym_sr_bit sr128(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_pull_gate), .sr_out(csync_out_dly));
 	
-	assign w389 = reg_disp & hdisp_en_trig & vdisp_en_trig;
+	assign full_disp_en = reg_disp & hdisp_en_trig & vdisp_en_trig;
 	
-	ym_sr_bit sr129(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(t30), .sr_out(l129));
+	ym_sr_bit sr129(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vint_pending), .sr_out(vint_latch_dly));
 	
-	assign w390 = w441 | w450;
+	assign m5_vblank_or_vsync = m5_vblank_hi | m5_vsync;
 	
-	assign w391 = t31 & w443;
+	assign m5_field_hblank = hblank_state & m5_field_active;
 	
-	ym_sr_bit sr130(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_sync_area), .sr_out(l130));
+	ym_sr_bit sr130(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_sync_area), .sr_out(sync_area_dly));
 	
-	assign w392 = reset_comb | l137;
+	assign hdisp_rst = reset_comb | scroll_end_dly;
 	
-	ym7101_rs_trig rs29(.MCLK(MCLK), .set(l130), .rst(w392), .q(hdisp_en_trig));
+	ym7101_rs_trig rs29(.MCLK(MCLK), .set(sync_area_dly), .rst(hdisp_rst), .q(hdisp_en_trig));
 	
-	ym_sr_bit sr131(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_hblank_end), .sr_out(l131));
+	ym_sr_bit sr131(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_hblank_end), .sr_out(hblank_end_dly));
 	
-	assign w393 = l133 & w380;
+	assign cell_m4_active = cell_m4_dly & tst_normal;
 	
-	ym_sr_bit sr132(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w403), .sr_out(l132));
+	ym_sr_bit sr132(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_reload_pulse), .sr_out(reload_pulse_dly));
 	
-	assign w394 = w383 | (w380 & l126);
+	assign slot0_active = tst_mode_4 | (tst_normal & slot0_dly);
 	
-	assign w395 = ~(hcnt_disp_active | hcnt_m4_border | hcnt_access_main | hcnt_blank_start);
+	assign no_disp_main = ~(hcnt_disp_active | hcnt_m4_border | hcnt_access_main | hcnt_blank_start);
 	
-	ym_sr_bit sr133(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_cell_m4), .sr_out(l133));
+	ym_sr_bit sr133(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_cell_m4), .sr_out(cell_m4_dly));
 	
-	ym_sr_bit sr134(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_access_ext), .sr_out(l134));
+	ym_sr_bit sr134(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_access_ext), .sr_out(access_ext_dly));
 	
-	assign w396 = reg_m5 ? l135 : w421;
+	assign csync_ext_mux = reg_m5 ? csync_sel_dly7 : csync_div_sel;
 	
-	ym_sr_bit #(.SR_LENGTH(7)) sr135(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w421), .sr_out(l135));
+	ym_sr_bit #(.SR_LENGTH(7)) sr135(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_div_sel), .sr_out(csync_sel_dly7));
 	
-	ym_sr_bit sr136(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w404), .sr_out(l136));
+	ym_sr_bit sr136(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hsync_pull_gate), .sr_out(hsync_out_dly));
 	
-	assign w397 = ~(~reg_80_b0 & w387);
+	assign csync_pull_gate = ~(~reg_80_b0 & csync_m5_mux);
 	
-	assign w398 = ~(w441 | w443 | w450);
+	assign no_m5_vert_event = ~(m5_vblank_hi | m5_field_active | m5_vsync);
 	
-	assign w399 = ~w398 & t32;
+	assign vert_fetch_gate = ~no_m5_vert_event & between_fetches;
 	
-	assign w400 = w390 & t32;
+	assign vblank_vsync_fetch = m5_vblank_or_vsync & between_fetches;
 	
-	ym7101_rs_trig rs30(.MCLK(MCLK), .set(w401), .rst(l152), .q(t30));
+	ym7101_rs_trig rs30(.MCLK(MCLK), .set(vint_set), .rst(line_first_dly), .q(vint_pending));
 	
-	assign w401 = reset_comb | l143;
+	assign vint_set = reset_comb | scroll_start_dly;
 	
-	ym_sr_bit sr137(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_scroll_end), .sr_out(l137));
+	ym_sr_bit sr137(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_scroll_end), .sr_out(scroll_end_dly));
 	
-	ym_sr_bit sr138(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_access_win), .sr_out(l138));
+	ym_sr_bit sr138(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_access_win), .sr_out(access_win_dly));
 	
-	assign w402 = w380 & l140;
+	assign cell_bound_active = tst_normal & cell_bound_dly;
 	
-	ym_sr_bit sr139(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w410), .sr_out(l139));
+	ym_sr_bit sr139(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_reload_edge), .sr_out(reload_edge_dly));
 	
-	assign w403 = l139 | w410;
+	assign hcnt_reload_pulse = reload_edge_dly | hcnt_reload_edge;
 	
-	ym_sr_bit sr140(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_cell_bound), .sr_out(l140));
+	ym_sr_bit sr140(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_cell_bound), .sr_out(cell_bound_dly));
 	
-	ym_sr_bit sr141(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_access_main), .sr_out(l141));
+	ym_sr_bit sr141(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_access_main), .sr_out(access_main_dly));
 	
-	ym_sr_bit sr142(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_m4_border), .sr_out(l142));
+	ym_sr_bit sr142(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_m4_border), .sr_out(m4_border_dly));
 	
-	assign w404 = ~(w396 & ~reg_8c_b5);
+	assign hsync_pull_gate = ~(csync_ext_mux & ~reg_8c_b5);
 	
-	assign w405 = w398 & hsync_trig;
+	assign hsync_no_vert_a = no_m5_vert_event & hsync_trig;
 	
-	assign w406 = w398 & hsync_trig;
+	assign hsync_no_vert_b = no_m5_vert_event & hsync_trig;
 	
-	ym7101_rs_trig rs31(.MCLK(MCLK), .set(w407), .rst(w408), .q(t31));
+	ym7101_rs_trig rs31(.MCLK(MCLK), .set(hblank_set), .rst(hblank_rst), .q(hblank_state));
 	
-	assign w407 = l137 | l153;
+	assign hblank_set = scroll_end_dly | hint_pos_dly;
 	
-	assign w408 = reset_comb | w409;
+	assign hblank_rst = reset_comb | hblank_end_comb;
 	
-	assign w409 = l131 | l144;
+	assign hblank_end_comb = hblank_end_dly | fetch_point_dly;
 	
-	ym_sr_bit sr143(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_scroll_start), .sr_out(l143));
+	ym_sr_bit sr143(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_scroll_start), .sr_out(scroll_start_dly));
 	
-	ym_sr_bit sr144(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_fetch_point), .sr_out(l144));
+	ym_sr_bit sr144(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_fetch_point), .sr_out(fetch_point_dly));
 	
-	assign w410 = hcnt_load_en & w416;
+	assign hcnt_reload_edge = hcnt_load_en & h40_mode;
 	
-	ym_sr_bit sr145(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_vram_slot), .sr_out(l145));
+	ym_sr_bit sr145(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_vram_slot), .sr_out(vram_slot_dly));
 	
-	ym_sr_bit sr146(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_m4_border), .sr_out(l146));
+	ym_sr_bit sr146(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_m4_border), .sr_out(m4_border2_dly));
 	
-	ym_sr_bit sr147(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_fetch_all), .sr_out(l147));
+	ym_sr_bit sr147(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_fetch_all), .sr_out(fetch_all_dly));
 	
-	ym_sr_bit sr148(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_blank_start), .sr_out(l148));
+	ym_sr_bit sr148(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_blank_start), .sr_out(blank_start_dly));
 	
-	assign w411 = reg_8c_b5 & l149;
+	assign hsync_ext_in = reg_8c_b5 & hsync_in_dly;
 	
-	ym_sr_bit sr149(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(i_hsync), .sr_out(l149));
+	ym_sr_bit sr149(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(i_hsync), .sr_out(hsync_in_dly));
 	
-	ym_sr_bit sr150(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w412), .sr_out(l150));
+	ym_sr_bit sr150(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_comb_a), .sr_out(csync_comb_a_dly));
 	
-	assign w412 = w405 | w399;
+	assign csync_comb_a = hsync_no_vert_a | vert_fetch_gate;
 	
-	assign w413 = w406 | w400 | w391;
+	assign csync_comb_b = hsync_no_vert_b | vblank_vsync_fetch | m5_field_hblank;
 	
-	ym_sr_bit sr151(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w413), .sr_out(l151));
+	ym_sr_bit sr151(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_comb_b), .sr_out(csync_comb_b_dly));
 	
-	ym7101_rs_trig rs32(.MCLK(MCLK), .set(w414), .rst(l138), .q(t32));
+	ym7101_rs_trig rs32(.MCLK(MCLK), .set(fetch_phase_rst), .rst(access_win_dly), .q(between_fetches));
 	
-	assign w414 = w409 | reset_comb;
+	assign fetch_phase_rst = hblank_end_comb | reset_comb;
 	
-	ym_sr_bit sr152(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_line_first), .sr_out(l152));
+	ym_sr_bit sr152(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_line_first), .sr_out(line_first_dly));
 	
-	ym_sr_bit sr153(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_hint_pos), .sr_out(l153));
+	ym_sr_bit sr153(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_hint_pos), .sr_out(hint_pos_dly));
 	
-	assign w415 = w380 & l154;
+	assign pre_wrap_active = tst_normal & pre_wrap_dly;
 	
-	assign w416 = ~reg_8c_b4 & reg_80_b0;
+	assign h40_mode = ~reg_8c_b4 & reg_80_b0;
 	
-	assign w417 = l146 | l145;
+	assign m4_or_vram_slot = m4_border2_dly | vram_slot_dly;
 	
-	assign w418 = l145 | l155;
+	assign vram_or_ext_slot = vram_slot_dly | ext_access_dly;
 	
-	assign w419 = w381 | (w380 & l148);
+	assign blank_slot_active = tst_mode_5 | (tst_normal & blank_start_dly);
 	
-	ym_sr_bit sr154(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_pre_wrap), .sr_out(l154));
+	ym_sr_bit sr154(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_pre_wrap), .sr_out(pre_wrap_dly));
 	
-	ym_sr_bit sr155(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_ext_access), .sr_out(l155));
+	ym_sr_bit sr155(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_ext_access), .sr_out(ext_access_dly));
 	
-	ym_sr_bit sr156(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_m4_window), .sr_out(l156));
+	ym_sr_bit sr156(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt_m4_window), .sr_out(m4_window_dly));
 	
-	assign w420 = l151 ^ field_trig_pipe;
+	assign csync_xor_field = csync_comb_b_dly ^ field_trig_pipe;
 	
-	assign w421 = w427 ? l160 : l157;
+	assign csync_div_sel = csync_prog_mode ? csync_div_bit : csync_comb_a_dly2;
 	
-	ym_sr_bit sr157(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l150), .sr_out(l157));
+	ym_sr_bit sr157(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_comb_a_dly), .sr_out(csync_comb_a_dly2));
 	
-	assign w422 = reg_m5 ? l158 : l129;
+	assign vint_delayed = reg_m5 ? vint_pend_dly8 : vint_latch_dly;
 	
-	ym_sr_bit #(.SR_LENGTH(8)) sr158(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l129), .sr_out(l158));
+	ym_sr_bit #(.SR_LENGTH(8)) sr158(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vint_latch_dly), .sr_out(vint_pend_dly8));
 	
-	ym7101_rs_trig rs33(.MCLK(MCLK), .set(w423), .rst(l123), .q(hsync_trig));
+	ym7101_rs_trig rs33(.MCLK(MCLK), .set(hsync_trig_set), .rst(render_start_dly), .q(hsync_trig));
 	
-	assign w423 = reset_comb | l131;
+	assign hsync_trig_set = reset_comb | hblank_end_dly;
 	
-	assign w424 = l159 & w380;
+	assign sub_slot_active = sub_slot_dly & tst_normal;
 	
-	assign w425 = w416 & ~reg_81_b0;
+	assign h40_no_ext_latch = h40_mode & ~reg_81_b0;
 	
-	ym_sr_bit sr159(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_sub_slot), .sr_out(l159));
+	ym_sr_bit sr159(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt2_sub_slot), .sr_out(sub_slot_dly));
 	
 	ym_cnt_bit cnt160(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w426), .reset(reset_comb), .val(l160));
+		.c_in(csync_div_inc), .reset(reset_comb), .val(csync_div_bit));
 	
-	assign w426 = w420 & ~l161;
+	assign csync_div_inc = csync_xor_field & ~csync_xor_prev;
 	
-	ym_sr_bit sr161(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w420), .sr_out(l161));
+	ym_sr_bit sr161(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(csync_xor_field), .sr_out(csync_xor_prev));
 	
-	assign w427 = reg_m5 & reg_80_b3;
+	assign csync_prog_mode = reg_m5 & reg_80_b3;
 	
 	assign vcnt_load_val = w86 ? io_data[8:0] :
-		{ 2'h3, ~w431, w429, ~v28_mode, w433, ~cpu_pal, w434, w435 };
+		{ 2'h3, ~pal_m4, vcnt_rld_b5, ~v28_mode, vcnt_rld_b3, ~cpu_pal, pal_even_field, field_xor_region };
 	
-	assign w429 = w430 | w431;
+	assign vcnt_rld_b5 = ntsc_v28 | pal_m4;
 	
-	assign w430 = ~cpu_pal & v28_mode;
+	assign ntsc_v28 = ~cpu_pal & v28_mode;
 	
-	assign w431 = cpu_pal & ~reg_m5;
+	assign pal_m4 = cpu_pal & ~reg_m5;
 	
-	assign w432 = cpu_pal & v28_mode;
+	assign pal_v28 = cpu_pal & v28_mode;
 	
-	assign w433 = w432 | w431;
+	assign vcnt_rld_b3 = pal_v28 | pal_m4;
 	
-	assign w434 = cpu_pal & ~field_bit;
+	assign pal_even_field = cpu_pal & ~field_bit;
 	
-	assign w435 = (~cpu_pal) ^ field_bit;
+	assign field_xor_region = (~cpu_pal) ^ field_bit;
 	
-	assign vcnt_inc_en = (~reg_test1[2] & l115 & ~vcnt_load_en) | (reg_test1[2] & ~cpu_bg);
+	assign vcnt_inc_en = (~reg_test1[2] & active_end & ~vcnt_load_en) | (reg_test1[2] & ~cpu_bg);
 	
-	assign vcnt_load_en = w438 | reset_comb | w86 | w460;
+	assign vcnt_load_en = vcnt_wrap_cond | reset_comb | w86 | vcnt_adj_reload;
 	
-	assign w438 = l115 & l174;
+	assign vcnt_wrap_cond = active_end & vcnt_eq_dly;
 	
-	ym_sr_bit sr162(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~vcnt_not_max), .sr_out(l162));
+	ym_sr_bit sr162(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~vcnt_not_max), .sr_out(vcnt_at_max));
 	
-	assign active_disp_gate = ~(reg_disp & (l162 | vdisp_en_trig));
+	assign active_disp_gate = ~(reg_disp & (vcnt_at_max | vdisp_en_trig));
 	
-	ym_sr_bit sr163(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_frame_end), .sr_out(l163));
+	ym_sr_bit sr163(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_frame_end), .sr_out(frame_end_dly));
 	
-	assign w440 = reset_comb | w442;
+	assign vblank_hi_rst = reset_comb | frame_end_gated;
 	
-	ym7101_rs_trig rs34(.MCLK(MCLK), .set(w444), .rst(w440), .q(t34));
+	ym7101_rs_trig rs34(.MCLK(MCLK), .set(vblank_hi_gated), .rst(vblank_hi_rst), .q(vblank_hi_latch));
 	
-	assign w441 = t34 & reg_m5;
+	assign m5_vblank_hi = vblank_hi_latch & reg_m5;
 	
-	ym_sr_bit sr164(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vblank_hi), .sr_out(l164));
+	ym_sr_bit sr164(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vblank_hi), .sr_out(vblank_hi_dly));
 	
-	assign w442 = l163 & w449;
+	assign frame_end_gated = frame_end_dly & hint_or_even;
 	
-	ym7101_rs_trig rs35(.MCLK(MCLK), .set(w445), .rst(w444), .q(field_bit_trig));
+	ym7101_rs_trig rs35(.MCLK(MCLK), .set(field_trig_rst), .rst(vblank_hi_gated), .q(field_bit_trig));
 	
-	assign w443 = field_bit_trig & reg_m5;
+	assign m5_field_active = field_bit_trig & reg_m5;
 	
-	ym_sr_bit sr165(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vblank_lo), .sr_out(l165));
+	ym_sr_bit sr165(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vblank_lo), .sr_out(vblank_lo_dly));
 	
-	assign w444 = l164 & w449;
+	assign vblank_hi_gated = vblank_hi_dly & hint_or_even;
 	
-	assign w445 = reset_comb | w447;
+	assign field_trig_rst = reset_comb | vblank_lo_gated;
 	
-	ym7101_rs_trig rs36(.MCLK(MCLK), .set(w452), .rst(w448), .q(t36));
+	ym7101_rs_trig rs36(.MCLK(MCLK), .set(field_toggle_gated), .rst(vsync_latch_rst), .q(vsync_latch));
 	
-	ym_cnt_bit_rs cnt166(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .c_in(w455), .reset(w451), .set(l168), .val(field_bit));
+	ym_cnt_bit_rs cnt166(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .c_in(field_adj_h32), .reset(field_bit_rst), .set(field_set_dly), .val(field_bit));
 	
-	ym_sr_bit sr167(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vsync_area), .sr_out(l167));
+	ym_sr_bit sr167(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vsync_area), .sr_out(vsync_area_dly));
 	
-	assign w447 = l165 & w449;
+	assign vblank_lo_gated = vblank_lo_dly & hint_or_even;
 	
-	assign w448 = reset_comb | w447;
+	assign vsync_latch_rst = reset_comb | vblank_lo_gated;
 	
-	assign w449 = l111 | ~field_bit;
+	assign hint_or_even = hint_time_dly | ~field_bit;
 	
-	ym_sr_bit sr168(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w456), .sr_out(l168));
+	ym_sr_bit sr168(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(field_set_cond), .sr_out(field_set_dly));
 	
-	assign w450 = reg_m5 & t36;
+	assign m5_vsync = reg_m5 & vsync_latch;
 	
-	assign w451 = reset_comb | ~reg_lsm0 | (w454 & ~t39);
+	assign field_bit_rst = reset_comb | ~reg_lsm0 | (field_adj_h40 & ~field_adj_en);
 	
-	ym_sr_bit sr169(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_field_toggle), .sr_out(l169));
+	ym_sr_bit sr169(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_field_toggle), .sr_out(field_toggle_dly));
 	
-	assign w452 = l169 & w449;
+	assign field_toggle_gated = field_toggle_dly & hint_or_even;
 	
-	assign w453 = w452 | reset_comb;
+	assign vsync_gate_set = field_toggle_gated | reset_comb;
 	
-	ym7101_rs_trig rs37(.MCLK(MCLK), .set(w453), .rst(l167), .q(t37));
+	ym7101_rs_trig rs37(.MCLK(MCLK), .set(vsync_gate_set), .rst(vsync_area_dly), .q(vsync_gate));
 	
-	assign w454 = reg_80_b0 & w459;
+	assign field_adj_h40 = reg_80_b0 & vdisp_end_at_zero;
 	
-	assign w455 = ~reg_80_b0 & w459;
+	assign field_adj_h32 = ~reg_80_b0 & vdisp_end_at_zero;
 	
-	assign w456 = w454 & t39;
+	assign field_set_cond = field_adj_h40 & field_adj_en;
 	
-	ym_sr_bit sr170(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vdisp_active), .sr_out(l170));
+	ym_sr_bit sr170(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_vdisp_active), .sr_out(vdisp_active_dly));
 	
-	assign w457 = ~l170;
+	assign vdisp_ended = ~vdisp_active_dly;
 	
-	assign w458 = reset_comb | w457;
+	assign vdisp_en_rst = reset_comb | vdisp_ended;
 	
-	assign w459 = ~l170 & l110;
+	assign vdisp_end_at_zero = ~vdisp_active_dly & line_zero_dly;
 	
-	ym7101_rs_trig rs38(.MCLK(MCLK), .set(l172), .rst(w458), .q(vdisp_en_trig));
+	ym7101_rs_trig rs38(.MCLK(MCLK), .set(vcnt_at_zero), .rst(vdisp_en_rst), .q(vdisp_en_trig));
 	
-	ym_sr_bit sr171(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l114), .sr_out(l171));
+	ym_sr_bit sr171(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_mid_dly), .sr_out(spr_mid_dly2));
 	
-	ym_sr_bit sr172(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~vcnt_not_zero), .sr_out(l172));
+	ym_sr_bit sr172(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~vcnt_not_zero), .sr_out(vcnt_at_zero));
 	
-	ym7101_rs_trig rs39(.MCLK(MCLK), .set(w465), .rst(w461), .q(t39));
+	ym7101_rs_trig rs39(.MCLK(MCLK), .set(field_adj_set), .rst(field_adj_rst), .q(field_adj_en));
 	
-	assign w460 = reg_80_b0 & ~l176 & l175;
+	assign vcnt_adj_reload = reg_80_b0 & ~vsync_pipe_prev & vsync_pipe;
 	
-	assign w461 = reset_comb | (w460 & l171);
+	assign field_adj_rst = reset_comb | (vcnt_adj_reload & spr_mid_dly2);
 	
-	ym_sr_bit sr173(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l122), .sr_out(l173));
+	ym_sr_bit sr173(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(adj_point_dly), .sr_out(adj_point_dly2));
 	
-	ym_sr_bit sr174(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_eq_pulse), .sr_out(l174));
+	ym_sr_bit sr174(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vcnt_eq_pulse), .sr_out(vcnt_eq_dly));
 	
-	assign w462 = ~(l167 | reset_comb);
+	assign not_vsync_rst = ~(vsync_area_dly | reset_comb);
 	
-	assign w463 = l120 & (l122 | l114);
+	assign csync_adj_comb = csync_dly & (adj_point_dly | spr_mid_dly);
 	
-	assign w464 = w462 & (l175 | w463);
+	assign vsync_pipe_next = not_vsync_rst & (vsync_pipe | csync_adj_comb);
 	
-	ym_sr_bit sr175(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w464), .sr_out(l175));
+	ym_sr_bit sr175(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsync_pipe_next), .sr_out(vsync_pipe));
 	
-	ym_sr_bit sr176(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l175), .sr_out(l176));
+	ym_sr_bit sr176(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsync_pipe), .sr_out(vsync_pipe_prev));
 	
-	assign w465 = w460 & l173;
+	assign field_adj_set = vcnt_adj_reload & adj_point_dly2;
 	
-	assign w466 = ~active_disp_gate;
+	assign disp_active_flag = ~active_disp_gate;
 
 	// -------------------------------------------------------------------------
 	// H/V counter PLAs
@@ -4000,69 +4000,69 @@ module ym7101
 	assign pla_vcnt[46] = ~cpu_pal & v28_mode & vcnt == 9'd234;
 	assign pla_vcnt[47] = ~cpu_pal & ~reg_m5 & vcnt == 9'd218;
 	
-	assign pla_hcnt1[0] = w466 & ~reg_m5 & hcnt == 9'd488;
-	assign pla_hcnt1[1] = w466 & ~reg_m5 & hcnt == 9'd484;
-	assign pla_hcnt1[2] = w466 & ~reg_m5 & (hcnt & 9'd507) == 9'd472;
-	assign pla_hcnt1[3] = w466 & ~reg_m5 & (hcnt & 9'd503) == 9'd272;
-	assign pla_hcnt1[4] = w466 & ~reg_m5 & (hcnt & 9'd495) == 9'd268;
-	assign pla_hcnt1[5] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd463) == 9'd266;
-	assign pla_hcnt1[6] = w466 & reg_m5 & (hcnt & 9'd271) == 9'd10;
-	assign pla_hcnt1[7] = w466 & reg_m5 & reg_rs1 & hcnt == 9'd484;
-	assign pla_hcnt1[8] = w466 & reg_m5 & reg_rs1 & hcnt == 9'd460;
-	assign pla_hcnt1[9] = w466 & reg_m5 & reg_rs1 & hcnt == 9'd458;
-	assign pla_hcnt1[10] = w466 & ~w425 & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd344;
-	assign pla_hcnt1[11] = w466 & ~w416 & reg_m5 & reg_rs1 & hcnt == 9'd364;
-	assign pla_hcnt1[12] = w466 & ~w416 & reg_m5 & reg_rs1 & (hcnt & 9'd509) == 9'd360;
-	assign pla_hcnt1[13] = w466 & ~w416 & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd352;
-	assign pla_hcnt1[14] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd336;
-	assign pla_hcnt1[15] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd328;
-	assign pla_hcnt1[16] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd509) == 9'd324;
-	assign pla_hcnt1[17] = w466 & ~w416 & reg_m5 & ~reg_rs1 & hcnt == 9'd290;
-	assign pla_hcnt1[18] = w466 & ~w416 & reg_m5 & ~reg_rs1 & (hcnt & 9'd509) == 9'd292;
-	assign pla_hcnt1[19] = w466 & ~w425 & reg_m5 & ~reg_rs1 & (hcnt & 9'd505) == 9'd280;
-	assign pla_hcnt1[20] = w466 & reg_m5 & ~reg_rs1 & (hcnt & 9'd505) == 9'd264;
-	assign pla_hcnt1[21] = w466 & reg_m5 & ~reg_rs1 & (hcnt & 9'd509) == 9'd260;
-	assign pla_hcnt1[22] = w466 & reg_m5 & ~reg_rs1 & (hcnt & 9'd505) == 9'd272;
-	assign pla_hcnt1[23] = w466 & reg_m5 & hcnt == 9'd486;
-	assign pla_hcnt1[24] = w466 & reg_m5 & (hcnt & 9'd503) == 9'd498;
-	assign pla_hcnt1[25] = w466 & reg_m5 & (hcnt & 9'd505) == 9'd488;
-	assign pla_hcnt1[26] = w466 & reg_m5 & (hcnt & 9'd509) == 9'd480;
-	assign pla_hcnt1[27] = w466 & reg_m5 & (hcnt & 9'd497) == 9'd464;
-	assign pla_hcnt1[28] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd488;
-	assign pla_hcnt1[29] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd476;
-	assign pla_hcnt1[30] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd284;
-	assign pla_hcnt1[31] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd272;
-	assign pla_hcnt1[32] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd484;
-	assign pla_hcnt1[33] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd472;
-	assign pla_hcnt1[34] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd280;
-	assign pla_hcnt1[35] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd268;
-	assign pla_hcnt1[36] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd480;
-	assign pla_hcnt1[37] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd468;
-	assign pla_hcnt1[38] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd276;
-	assign pla_hcnt1[39] = w466 & ~reg_m5 & (hcnt & 9'd509) == 9'd264;
-	assign pla_hcnt1[40] = w466 & ~reg_m5 & (hcnt & 9'd279) == 9'd18;
-	assign pla_hcnt1[41] = w466 & ~reg_m5 & (hcnt & 9'd287) == 9'd10;
-	assign pla_hcnt1[42] = w466 & ~reg_m5 & (hcnt & 9'd497) == 9'd496;
-	assign pla_hcnt1[43] = ~w466 & (hcnt & 9'd259) == 9'd0;
+	assign pla_hcnt1[0] = disp_active_flag & ~reg_m5 & hcnt == 9'd488;
+	assign pla_hcnt1[1] = disp_active_flag & ~reg_m5 & hcnt == 9'd484;
+	assign pla_hcnt1[2] = disp_active_flag & ~reg_m5 & (hcnt & 9'd507) == 9'd472;
+	assign pla_hcnt1[3] = disp_active_flag & ~reg_m5 & (hcnt & 9'd503) == 9'd272;
+	assign pla_hcnt1[4] = disp_active_flag & ~reg_m5 & (hcnt & 9'd495) == 9'd268;
+	assign pla_hcnt1[5] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd463) == 9'd266;
+	assign pla_hcnt1[6] = disp_active_flag & reg_m5 & (hcnt & 9'd271) == 9'd10;
+	assign pla_hcnt1[7] = disp_active_flag & reg_m5 & reg_rs1 & hcnt == 9'd484;
+	assign pla_hcnt1[8] = disp_active_flag & reg_m5 & reg_rs1 & hcnt == 9'd460;
+	assign pla_hcnt1[9] = disp_active_flag & reg_m5 & reg_rs1 & hcnt == 9'd458;
+	assign pla_hcnt1[10] = disp_active_flag & ~h40_no_ext_latch & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd344;
+	assign pla_hcnt1[11] = disp_active_flag & ~h40_mode & reg_m5 & reg_rs1 & hcnt == 9'd364;
+	assign pla_hcnt1[12] = disp_active_flag & ~h40_mode & reg_m5 & reg_rs1 & (hcnt & 9'd509) == 9'd360;
+	assign pla_hcnt1[13] = disp_active_flag & ~h40_mode & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd352;
+	assign pla_hcnt1[14] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd336;
+	assign pla_hcnt1[15] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd505) == 9'd328;
+	assign pla_hcnt1[16] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd509) == 9'd324;
+	assign pla_hcnt1[17] = disp_active_flag & ~h40_mode & reg_m5 & ~reg_rs1 & hcnt == 9'd290;
+	assign pla_hcnt1[18] = disp_active_flag & ~h40_mode & reg_m5 & ~reg_rs1 & (hcnt & 9'd509) == 9'd292;
+	assign pla_hcnt1[19] = disp_active_flag & ~h40_no_ext_latch & reg_m5 & ~reg_rs1 & (hcnt & 9'd505) == 9'd280;
+	assign pla_hcnt1[20] = disp_active_flag & reg_m5 & ~reg_rs1 & (hcnt & 9'd505) == 9'd264;
+	assign pla_hcnt1[21] = disp_active_flag & reg_m5 & ~reg_rs1 & (hcnt & 9'd509) == 9'd260;
+	assign pla_hcnt1[22] = disp_active_flag & reg_m5 & ~reg_rs1 & (hcnt & 9'd505) == 9'd272;
+	assign pla_hcnt1[23] = disp_active_flag & reg_m5 & hcnt == 9'd486;
+	assign pla_hcnt1[24] = disp_active_flag & reg_m5 & (hcnt & 9'd503) == 9'd498;
+	assign pla_hcnt1[25] = disp_active_flag & reg_m5 & (hcnt & 9'd505) == 9'd488;
+	assign pla_hcnt1[26] = disp_active_flag & reg_m5 & (hcnt & 9'd509) == 9'd480;
+	assign pla_hcnt1[27] = disp_active_flag & reg_m5 & (hcnt & 9'd497) == 9'd464;
+	assign pla_hcnt1[28] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd488;
+	assign pla_hcnt1[29] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd476;
+	assign pla_hcnt1[30] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd284;
+	assign pla_hcnt1[31] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd272;
+	assign pla_hcnt1[32] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd484;
+	assign pla_hcnt1[33] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd472;
+	assign pla_hcnt1[34] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd280;
+	assign pla_hcnt1[35] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd268;
+	assign pla_hcnt1[36] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd480;
+	assign pla_hcnt1[37] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd468;
+	assign pla_hcnt1[38] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd276;
+	assign pla_hcnt1[39] = disp_active_flag & ~reg_m5 & (hcnt & 9'd509) == 9'd264;
+	assign pla_hcnt1[40] = disp_active_flag & ~reg_m5 & (hcnt & 9'd279) == 9'd18;
+	assign pla_hcnt1[41] = disp_active_flag & ~reg_m5 & (hcnt & 9'd287) == 9'd10;
+	assign pla_hcnt1[42] = disp_active_flag & ~reg_m5 & (hcnt & 9'd497) == 9'd496;
+	assign pla_hcnt1[43] = ~disp_active_flag & (hcnt & 9'd259) == 9'd0;
 	assign pla_hcnt1[44] = (hcnt & 9'd1) == 9'd1;
-	assign pla_hcnt1[45] = w466 & reg_m5 & hcnt == 9'd510;
-	assign pla_hcnt1[46] = w466 & reg_m5 & hcnt == 9'd502;
-	assign pla_hcnt1[47] = w466 & reg_m5 & hcnt == 9'd508;
-	assign pla_hcnt1[48] = w466 & reg_m5 & hcnt == 9'd500;
-	assign pla_hcnt1[49] = w466 & reg_m5 & hcnt == 9'd504;
-	assign pla_hcnt1[50] = w466 & reg_m5 & hcnt == 9'd496;
-	assign pla_hcnt1[51] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd455) == 9'd262;
-	assign pla_hcnt1[52] = w466 & (hcnt & 9'd263) == 9'd6;
-	assign pla_hcnt1[53] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd455) == 9'd260;
-	assign pla_hcnt1[54] = w466 & (hcnt & 9'd263) == 9'd4;
-	assign pla_hcnt1[55] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd463) == 9'd264;
-	assign pla_hcnt1[56] = w466 & (hcnt & 9'd271) == 9'd8;
-	assign pla_hcnt1[57] = w466 & ~reg_m5 & (hcnt & 9'd271) == 9'd8;
-	assign pla_hcnt1[58] = w466 & reg_m5 & reg_rs1 & (hcnt & 9'd463) == 9'd256;
-	assign pla_hcnt1[59] = w466 & (hcnt & 9'd271) == 9'd0;
-	assign pla_hcnt1[60] = ~w466 & (hcnt & 9'd63) == 9'd50;
-	assign pla_hcnt1[61] = w466 & reg_m5 & reg_rs1 & hcnt == 9'd306;
-	assign pla_hcnt1[62] = w466 & reg_m5 & (hcnt & 9'd319) == 9'd50;
+	assign pla_hcnt1[45] = disp_active_flag & reg_m5 & hcnt == 9'd510;
+	assign pla_hcnt1[46] = disp_active_flag & reg_m5 & hcnt == 9'd502;
+	assign pla_hcnt1[47] = disp_active_flag & reg_m5 & hcnt == 9'd508;
+	assign pla_hcnt1[48] = disp_active_flag & reg_m5 & hcnt == 9'd500;
+	assign pla_hcnt1[49] = disp_active_flag & reg_m5 & hcnt == 9'd504;
+	assign pla_hcnt1[50] = disp_active_flag & reg_m5 & hcnt == 9'd496;
+	assign pla_hcnt1[51] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd455) == 9'd262;
+	assign pla_hcnt1[52] = disp_active_flag & (hcnt & 9'd263) == 9'd6;
+	assign pla_hcnt1[53] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd455) == 9'd260;
+	assign pla_hcnt1[54] = disp_active_flag & (hcnt & 9'd263) == 9'd4;
+	assign pla_hcnt1[55] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd463) == 9'd264;
+	assign pla_hcnt1[56] = disp_active_flag & (hcnt & 9'd271) == 9'd8;
+	assign pla_hcnt1[57] = disp_active_flag & ~reg_m5 & (hcnt & 9'd271) == 9'd8;
+	assign pla_hcnt1[58] = disp_active_flag & reg_m5 & reg_rs1 & (hcnt & 9'd463) == 9'd256;
+	assign pla_hcnt1[59] = disp_active_flag & (hcnt & 9'd271) == 9'd0;
+	assign pla_hcnt1[60] = ~disp_active_flag & (hcnt & 9'd63) == 9'd50;
+	assign pla_hcnt1[61] = disp_active_flag & reg_m5 & reg_rs1 & hcnt == 9'd306;
+	assign pla_hcnt1[62] = disp_active_flag & reg_m5 & (hcnt & 9'd319) == 9'd50;
 	
 	assign pla_hcnt2[0] = (hcnt & 9'd15) == 9'd3;
 	assign pla_hcnt2[1] = hcnt == 9'd507;
@@ -4144,7 +4144,7 @@ module ym7101
 	assign hcnt_m4_window = pla_hcnt1[0] | pla_hcnt1[1] | pla_hcnt1[2] | pla_hcnt1[3] | pla_hcnt1[4];
 	assign hcnt_ext_access = pla_hcnt1[36] | pla_hcnt1[37] | pla_hcnt1[38] | pla_hcnt1[39]
 		| pla_hcnt1[43];
-	assign hcnt_disp_active = w403 | pla_hcnt1[40] | pla_hcnt1[41] | pla_hcnt1[42];
+	assign hcnt_disp_active = hcnt_reload_pulse | pla_hcnt1[40] | pla_hcnt1[41] | pla_hcnt1[42];
 	assign hcnt_fetch_all = pla_hcnt1[7] | pla_hcnt1[8] | pla_hcnt1[9] | pla_hcnt1[10]
 		| pla_hcnt1[11] | pla_hcnt1[12] | pla_hcnt1[13] | pla_hcnt1[14]
 		| pla_hcnt1[17] | pla_hcnt1[18] | pla_hcnt1[19] | pla_hcnt1[22] | pla_hcnt1[23]
@@ -4181,9 +4181,9 @@ module ym7101
 	
 	ym_sr_bit sr663(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(field_bit_trig), .sr_out(field_trig_pipe));
 	
-	assign VSYNC = w374;
-	assign CSYNC_pull = ~l128;
-	assign HSYNC_pull = ~l136;
+	assign VSYNC = csync_src;
+	assign CSYNC_pull = ~csync_out_dly;
+	assign HSYNC_pull = ~hsync_out_dly;
 
 	// -------------------------------------------------------------------------
 	// Scroll plane rendering
@@ -4196,11 +4196,11 @@ module ym7101
 	//   5. Pixel shift registers → 4-bit color index output per pixel
 	// Also handles the window plane (overrides plane A in a rectangular region).
 
-	assign w513 = (hclk1 & w379) | reg_test1[7];
+	assign w513 = (hclk1 & vscr_active) | reg_test1[7];
 	
 	ym_sr_bit sr178(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt[3]), .sr_out(l178));
 	
-	assign w514 = hclk1 & l115 & (reg_m5 | l162);
+	assign w514 = hclk1 & active_end & (reg_m5 | vcnt_at_max);
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl179(.MCLK(MCLK), .en(reg_wr_hi), .inp(reg_data_l2[7:0]), .val(l179));
 	
@@ -4232,7 +4232,7 @@ module ym7101
 	
 	assign w521 = w520 ? l185 : w518;
 	
-	assign w522 = w521 + { 2'h0, w355[8:0] };
+	assign w522 = w521 + { 2'h0, vcnt_ext[8:0] };
 	
 	ym_slatch #(.DATA_WIDTH(2)) sl_hsz(.MCLK(MCLK), .en(reg_wr_88), .inp(reg_data_l2[1:0]), .val(reg_hsz));
 	
@@ -4287,7 +4287,7 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(7)) sl_hs(.MCLK(MCLK), .en(w233), .inp(reg_data_l2[6:0]), .val(reg_hs));
 	
-	assign w537 = interlace_dblres ? w355[8:1] : w355[7:0];
+	assign w537 = interlace_dblres ? vcnt_ext[8:1] : vcnt_ext[7:0];
 	
 	assign w538 = w546 ^ ~l187;
 	
@@ -4305,9 +4305,9 @@ module ym7101
 	
 	ym_slatch sl_down(.MCLK(MCLK), .en(reg_wr_86), .inp(reg_data_l2[7]), .val(reg_down));
 	
-	assign w542 = reg_test1[7] | l115;
+	assign w542 = reg_test1[7] | active_end;
 	
-	assign w543 = l115 & (reg_m5 | l162);
+	assign w543 = active_end & (reg_m5 | vcnt_at_max);
 	
 	assign w544 = w543 | reg_test1[7];
 	
@@ -4323,7 +4323,7 @@ module ym7101
 	
 	assign w546 = l188 <= hcnt[8:4];
 	
-	assign w547 = reg_test1[7] | l115;
+	assign w547 = reg_test1[7] | active_end;
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK), .en(w231), .inp(reg_data_l2[7:0]), .val(reg_88));
 	
@@ -4331,15 +4331,15 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl192(.MCLK(MCLK), .en(w572), .inp(vram_serial), .val(l192));
 	
-	assign w548 = w394 | w385;
+	assign w548 = slot0_active | slot1_active;
 	
-	assign w549 = w372 | (reg_test1[8] & cpu_pen);
+	assign w549 = slot2_active | (reg_test1[8] & cpu_pen);
 	
-	assign w550 = w394 & ~reg_m5;
+	assign w550 = slot0_active & ~reg_m5;
 	
-	assign w551 = w550 | w385;
+	assign w551 = w550 | slot1_active;
 	
-	assign w552 = ~(~reg_80_b6 | w355[5] | w355[6] | w355[4] | w355[7]);
+	assign w552 = ~(~reg_80_b6 | vcnt_ext[5] | vcnt_ext[6] | vcnt_ext[4] | vcnt_ext[7]);
 	
 	assign w553 = w552 | reg_m5;
 	
@@ -4369,17 +4369,17 @@ module ym7101
 	
 	ym_sr_bit sr200(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w556), .sr_out(l200));
 	
-	assign w557 = ~w541 & w356;
+	assign w557 = ~w541 & slot3_active;
 	
 	ym_sr_bit sr201(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w557), .sr_out(l201));
 	
 	assign w558 = l200 | l201;
 	
-	assign w559 = w356 & w541;
+	assign w559 = slot3_active & w541;
 	
 	ym_sr_bit sr202(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w559), .sr_out(l202));
 	
-	assign w560 = w356 | w549;
+	assign w560 = slot3_active | w549;
 	
 	ym_sr_bit sr203(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w560), .sr_out(l203));
 	
@@ -4439,7 +4439,7 @@ module ym7101
 	
 	assign w575 = ~w541 & reg_m5 & hcnt[3];
 	
-	assign w576 = l217 ? w355[3:0] : w522[3:0];
+	assign w576 = l217 ? vcnt_ext[3:0] : w522[3:0];
 	
 	assign w577 = w583 ? ~w576 : w576;
 	
@@ -4453,7 +4453,7 @@ module ym7101
 	
 	ym_sr_bit sr217(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w541), .sr_out(l217));
 	
-	assign w582 = w394 & reg_m5;
+	assign w582 = slot0_active & reg_m5;
 	
 	ym_sr_bit sr218(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w582), .sr_out(l218));
 	
@@ -4656,7 +4656,7 @@ module ym7101
 	
 	assign w611 = hclk2 & l266;
 	
-	assign w612 = w393 | (reg_test1[9] & cpu_pen);
+	assign w612 = cell_m4_active | (reg_test1[9] & cpu_pen);
 	
 	ym_sr_bit sr267(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w612), .sr_out(l267));
 	
@@ -4676,7 +4676,7 @@ module ym7101
 	
 	ym_sr_bit sr274(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l273), .sr_out(l274));
 	
-	assign w614 = w424 | w90;
+	assign w614 = sub_slot_active | w90;
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl275(.MCLK(MCLK), .en(w622), .inp(vram_serial), .val(l275));
 	
@@ -4793,7 +4793,7 @@ module ym7101
 	assign w636 = l311[3] ? l292[4] : l292[5];
 	assign w637 = l311[3] ? l292[6] : l292[7];
 	
-	assign w638 = w402 | (reg_test1[10] & cpu_pen);
+	assign w638 = cell_bound_active | (reg_test1[10] & cpu_pen);
 	
 	ym_sr_bit sr312(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w638), .sr_out(l312));
 	
@@ -4805,7 +4805,7 @@ module ym7101
 	
 	assign w641 = { w632[2], ~w632[1], w632[0] };
 	
-	assign w642 = w419 | (reg_test1[7] & cpu_pen);
+	assign w642 = blank_slot_active | (reg_test1[7] & cpu_pen);
 	
 	ym_sr_bit sr314(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w642), .sr_out(l314));
 	
@@ -4872,7 +4872,7 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(2)) sr323(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l322), .data_out(l323));
 	
-	assign w649 = w92 | w415;
+	assign w649 = w92 | pre_wrap_active;
 	
 	// -------------------------------------------------------------------------
 	// VSRAM (Vertical Scroll RAM)
@@ -4939,7 +4939,7 @@ module ym7101
 	
 	ym_sr_bit sr330(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_rd_pipe_1), .sr_out(sat_rd_pipe_2));
 	
-	ym_sr_bit sr331(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l134), .sr_out(sat_rd_pipe_3));
+	ym_sr_bit sr331(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(access_ext_dly), .sr_out(sat_rd_pipe_3));
 	
 	ym_slatch #(.DATA_WIDTH(11)) sl332(.MCLK(MCLK), .en(sat_attr_latch_en), .inp(sat_attr_hold), .val(sat_attr_latch));
 	
@@ -4947,7 +4947,7 @@ module ym7101
 	
 	assign sat_attr_latch_en = hclk2 & clk2 & sat_active_n;
 	
-	assign spr_y_adjusted = w355 + { 1'h0, interlace_dblres, m5_single_res, 5'h0, interlace_dblres, m5_single_res };
+	assign spr_y_adjusted = vcnt_ext + { 1'h0, interlace_dblres, m5_single_res, 5'h0, interlace_dblres, m5_single_res };
 	
 	assign m5_single_res = ~interlace_dblres & reg_m5;
 	
@@ -5052,17 +5052,17 @@ module ym7101
 	
 	assign link_cnt_inc = ~reg_m5 & link_timing;
 	
-	ym_sr_bit sr353(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l147), .sr_out(link_timing));
+	ym_sr_bit sr353(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_all_dly), .sr_out(link_timing));
 	
 	ym_sr_bit sr354(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(link_rst_comb), .sr_out(link_cnt_rst));
 	
-	assign link_rst_comb = reset_comb | l115 | (~link_rst_edge_0 & link_rst_edge_1);
+	assign link_rst_comb = reset_comb | active_end | (~link_rst_edge_0 & link_rst_edge_1);
 	
 	ym_sr_bit sr355(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(link_rst_edge_1), .sr_out(link_rst_edge_0));
 	
 	ym_sr_bit sr356(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w162), .sr_out(link_rst_edge_1));
 	
-	assign sat_start_trig = l147 & (vdisp_en_trig | l162);
+	assign sat_start_trig = fetch_all_dly & (vdisp_en_trig | vcnt_at_max);
 	
 	ym_sr_bit sr357(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_start_trig), .sr_out(sat_start_latch));
 	
@@ -5096,7 +5096,7 @@ module ym7101
 	
 	assign sat_index_mux = sat_wr_active ? { sat_addr_pipe_1, sat_addr_mid } : sat_link_cnt;
 	
-	assign sat_link_idx = reg_m5 ? sat_link_cnt : { 1'h1, sat_link_delay, l116 };
+	assign sat_link_idx = reg_m5 ? sat_link_cnt : { 1'h1, sat_link_delay, odd_slot };
 	
 	ym_sr_bit_array #(.DATA_WIDTH(5), .SR_LENGTH(2)) sr365(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_link_cnt[4:0]), .data_out(sat_link_delay));
 	
@@ -5120,9 +5120,9 @@ module ym7101
 	
 	ym_cnt_bit_rev #(.DATA_WIDTH(5)) cnt371(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .c_in(tile_cnt_inc), .dec(tile_cnt_dec), .reset(tile_cnt_rst), .val(tile_offset_cnt));
 	
-	ym_sr_bit sr372(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w360), .sr_out(hblank_pipe));
+	ym_sr_bit sr372(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(disp_start), .sr_out(hblank_pipe));
 	
-	assign tile_cnt_rst_comb = w360 | l110;
+	assign tile_cnt_rst_comb = disp_start | line_zero_dly;
 	
 	ym_sr_bit sr373(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(tile_cnt_rst_comb), .sr_out(tile_cnt_rst));
 	
@@ -5178,7 +5178,7 @@ module ym7101
 	
 	assign spr_stop_or_ovfl = sat_stop_pipe | spr_overflow_pipe;
 	
-	ym_sr_bit sr381(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l115), .sr_out(line_start_pipe));
+	ym_sr_bit sr381(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(active_end), .sr_out(line_start_pipe));
 	
 	ym7101_rs_trig rs40(.MCLK(MCLK), .set(spr_stop_or_ovfl), .rst(line_start_pipe), .q(spr_found_trig));
 	
@@ -5194,7 +5194,7 @@ module ym7101
 	
 	assign yoff_add_hi = yoff_size_hi + {1'h0, yoff_carry_1};
 	
-	ym_sr_bit sr382(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w418), .sr_out(render_active_pipe));
+	ym_sr_bit sr382(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_or_ext_slot), .sr_out(render_active_pipe));
 	
 	ym_sr_bit sr383(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(sat_avail_n), .sr_out(sat_avail_pipe));
 	
@@ -5275,7 +5275,7 @@ module ym7101
 	
 	assign vram_gate_0 = ~(fetch_active_pipe & hclk1);
 	
-	assign vram_gate_1 = ~(w417 & hclk1);
+	assign vram_gate_1 = ~(m4_or_vram_slot & hclk1);
 	
 	ym_dlatch_1 dl395(.MCLK(MCLK), .c1(clk1), .inp(vram_gate_1), .nval(vram_strobe_lat_1));
 	
@@ -5283,9 +5283,9 @@ module ym7101
 	
 	ym_sr_bit sr396(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_active_sel), .sr_out(fetch_active_pipe));
 	
-	ym_sr_bit sr397(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w417), .sr_out(fetch_delay_pipe));
+	ym_sr_bit sr397(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(m4_or_vram_slot), .sr_out(fetch_delay_pipe));
 	
-	assign fetch_active_sel = reg_m5 ? w417 : fetch_delay_pipe;
+	assign fetch_active_sel = reg_m5 ? m4_or_vram_slot : fetch_delay_pipe;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(7)) sr398(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(sat_link_idx), .data_out(sat_idx_pipe_0));
 	
@@ -5295,9 +5295,9 @@ module ym7101
 	
 	assign attr_phase_any = attr_phase_1 | attr_phase_0;
 	
-	ym_sr_bit sr401(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l141), .sr_out(attr_phase_0));
+	ym_sr_bit sr401(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(access_main_dly), .sr_out(attr_phase_0));
 	
-	ym_sr_bit sr402(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l142), .sr_out(attr_phase_1));
+	ym_sr_bit sr402(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(m4_border_dly), .sr_out(attr_phase_1));
 	
 	assign spridx_data_mux = w94 ? io_data[10:4] : sat_idx_pipe_2;
 	
@@ -5319,9 +5319,9 @@ module ym7101
 	
 	ym_sr_bit_en #(.SR_LENGTH(20)) sr410(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .en1(spr_cnt_shift_en), .en2(~spr_cnt_shift_en), .data_in(spridx_ovfl_mux), .data_out(spridx_sr_active));
 	
-	ym_sr_bit sr411(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l147), .sr_out(fetch_timing_0));
+	ym_sr_bit sr411(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_all_dly), .sr_out(fetch_timing_0));
 	
-	ym_sr_bit sr412(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l134), .sr_out(fetch_timing_1));
+	ym_sr_bit sr412(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(access_ext_dly), .sr_out(fetch_timing_1));
 	
 	assign m4_fetch_active = ~reg_m5 & (fetch_timing_0 | fetch_timing_1);
 	
@@ -5365,14 +5365,14 @@ module ym7101
 	ym_sr_bit sr419(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_phase), .sr_out(tile_fetch_pipe));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(2)) cnt420(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(l141), .reset(hblank_pipe), .load(xtile_done), .load_val(~sprdata_xs_o), .val(xtile_cnt));
+		.c_in(access_main_dly), .reset(hblank_pipe), .load(xtile_done), .load_val(~sprdata_xs_o), .val(xtile_cnt));
 	
 	assign xtile_cnt_zero = xtile_cnt == 2'h0;
 	
-	assign xtile_done = xtile_cnt_zero & l141;
+	assign xtile_done = xtile_cnt_zero & access_main_dly;
 	
 	ym_cnt_bit cnt421(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(tile_fetch_pipe), .reset(w360), .val(spr_line_cnt));
+		.c_in(tile_fetch_pipe), .reset(disp_start), .val(spr_line_cnt));
 	
 	ym_sr_bit sr422(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(spr_line_cnt), .sr_out(spr_line_cnt_pipe));
 	
@@ -5410,7 +5410,7 @@ module ym7101
 	
 	ym_sr_bit sr428(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(m5_fetch_comb), .sr_out(m5_fetch_pipe));
 	
-	assign m5_fetch_comb = l141 & reg_m5;
+	assign m5_fetch_comb = access_main_dly & reg_m5;
 	
 	assign spr_hpos_nonzero = spr_rd_hpos != 9'h0;
 	
@@ -5420,7 +5420,7 @@ module ym7101
 	
 	assign yoff_rst_comb = hblank_pipe | xtile_done;
 	
-	ym_sr_bit sr431(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l141), .sr_out(fetch_pipe_0));
+	ym_sr_bit sr431(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(access_main_dly), .sr_out(fetch_pipe_0));
 	
 	assign tile_row_done = fetch_pipe_0 & xtile_cnt_zero;
 	
@@ -5524,7 +5524,7 @@ module ym7101
 	assign xsize_init_lo = ~(reg_m5 & xs_delay[0]);
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(2)) cnt457(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(tile_strobe_pipe_1), .reset(w360), .load(tile_group_done), .load_val( { xsize_init_hi, xsize_init_lo } ), .val(tile_group_cnt));
+		.c_in(tile_strobe_pipe_1), .reset(disp_start), .load(tile_group_done), .load_val( { xsize_init_hi, xsize_init_lo } ), .val(tile_group_cnt));
 	
 	assign xsize_init_hi = ~(reg_m5 & xs_delay[1]);
 	
@@ -5579,11 +5579,11 @@ module ym7101
 	
 	ym_sr_bit sr469(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(disp_x_offset[0]), .sr_out(disp_x_bit_0));
 	
-	assign disp_active = ~(reg_m5 ? disp_active_pipe : w388);
+	assign disp_active = ~(reg_m5 ? disp_active_pipe : hv_disp_active);
 	
 	ym_sr_bit sr470(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(disp_active_latch), .sr_out(disp_active_pipe));
 	
-	ym_sr_bit sr471(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w388), .sr_out(disp_active_latch));
+	ym_sr_bit sr471(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hv_disp_active), .sr_out(disp_active_latch));
 	
 	ym_sr_bit_array #(.DATA_WIDTH(3)) sr472(.MCLK(MCLK), .c1(clk1), .c2(clk2), .data_in(pixel_col_latch), .data_out(pixel_col_pipe));
 	
@@ -5717,7 +5717,7 @@ module ym7101
 	
 	assign pixel_nibble_swap = pixel_col_bit0_pipe ^ hflip_serial_pipe;
 	
-	assign fetch_start_comb = l156 | (reg_m5 & l141);
+	assign fetch_start_comb = m4_window_dly | (reg_m5 & access_main_dly);
 	
 	ym_sr_bit sr507(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_start_comb), .sr_out(fetch_pipe_1));
 	
@@ -5731,7 +5731,7 @@ module ym7101
 	
 	ym_sr_bit sr511(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_phase_sel), .sr_out(fetch_phase));
 	
-	ym_dlatch_1 dl512(.MCLK(MCLK), .c1(hclk1), .inp(w388), .nval(disp_gate_latch));
+	ym_dlatch_1 dl512(.MCLK(MCLK), .c1(hclk1), .inp(hv_disp_active), .nval(disp_gate_latch));
 	
 	ym_sr_bit sr513(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(disp_gate_latch), .sr_out(disp_gate_pipe));
 	
@@ -6113,7 +6113,7 @@ module ym7101
 	
 	assign spr_collision_any = lb_collide_0 | lb_collide_1 | lb_collide_2 | lb_collide_3 | lb_collide_4 | lb_collide_5 | lb_collide_6 | lb_collide_7;
 	
-	assign spr_overflow_flag = spr_overflow_trig & l115;
+	assign spr_overflow_flag = spr_overflow_trig & active_end;
 	
 	// -------------------------------------------------------------------------
 	// SAT cache (Sprite Attribute Table)
@@ -6320,7 +6320,7 @@ module ym7101
 	// timing, captures serial data from the SD bus, and manages DRAM refresh
 	// cycles. The VRAM address and data buses use a wired-AND val/pull pattern.
 
-	ym_dlatch_1 dl564(.MCLK(MCLK), .c1(hclk1), .inp(l116), .nval(vram_clk_latch));
+	ym_dlatch_1 dl564(.MCLK(MCLK), .c1(hclk1), .inp(odd_slot), .nval(vram_clk_latch));
 	
 	ym_sr_bit sr565(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(vram_clk_latch), .sr_out(vram_clk_pipe));
 	
@@ -6360,7 +6360,7 @@ module ym7101
 	
 	ym_dlatch_1 dl573(.MCLK(MCLK), .c1(hclk1), .inp(vram_req_pipe_1), .nval(vram_cycle_pipe));
 	
-	ym_sr_bit sr574(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l109), .sr_out(vram_req_pipe));
+	ym_sr_bit sr574(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot_idle_dly), .sr_out(vram_req_pipe));
 	
 	ym_dlatch_1 dl575(.MCLK(MCLK), .c1(hclk1), .inp(vram_active_comb), .nval(vram_active_latch));
 	
@@ -6372,7 +6372,7 @@ module ym7101
 	
 	ym_dlatch_1 dl579(.MCLK(MCLK), .c1(clk1), .inp(~vram_phase_lat_2), .nval(vram_phase_lat_3));
 	
-	assign vram_addr_gate = ~((l116 & ~w265 & ~w263) | (w265 & vram_wr_pipe));
+	assign vram_addr_gate = ~((odd_slot & ~w265 & ~w263) | (w265 & vram_wr_pipe));
 	
 	ym_dlatch_1 dl580(.MCLK(MCLK), .c1(hclk1), .inp(vram_addr_gate), .nval(vram_addr_latch));
 	
@@ -6400,7 +6400,7 @@ module ym7101
 	
 	ym_sr_bit sr587(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_timing_any), .sr_out(vram_cas_sel));
 	
-	ym_sr_bit sr588(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l108), .sr_out(vram_timing_0));
+	ym_sr_bit sr588(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(edclk_dly), .sr_out(vram_timing_0));
 	
 	ym_sr_bit sr589(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vram_timing_0), .sr_out(vram_timing_1));
 	
@@ -6408,15 +6408,15 @@ module ym7101
 	
 	assign vram_active_comb = vram_req_pipe | vram_req_pipe_1 | vram_timing_any;
 	
-	assign vram_addr_strobe = l116 & hclk1;
+	assign vram_addr_strobe = odd_slot & hclk1;
 	
 	assign vram_data_strobe = hclk2 & vram_addr_latch;
 	
-	assign vram_dma_comb = l116 & l30;
+	assign vram_dma_comb = odd_slot & l30;
 	
 	ym_sr_bit sr591(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w265), .sr_out(vram_128k_pipe));
 	
-	assign vram_wr_strobe = hclk1 & l116;
+	assign vram_wr_strobe = hclk1 & odd_slot;
 	
 	assign vram_sc_comb = clk1 & (~w109 | hclk2);
 	
@@ -6637,9 +6637,9 @@ module ym7101
 	
 	assign blank_out_comb = ~(force_bg_zero | (spa_in_pipe & ~reg_8c_b4));
 	
-	ym_sr_bit #(.SR_LENGTH(8)) sr616(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w389), .sr_out(active_delay_8));
+	ym_sr_bit #(.SR_LENGTH(8)) sr616(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(full_disp_en), .sr_out(active_delay_8));
 	
-	assign active_mux_m5 = reg_m5 ? active_delay_8 : w389;
+	assign active_mux_m5 = reg_m5 ? active_delay_8 : full_disp_en;
 	
 	assign color_bus_mux =
 		(~cram_wr_any ? { color_pal, color_index } : 6'h0) |
@@ -6672,7 +6672,7 @@ module ym7101
 	
 	assign cram_latch_en = cram_wr_dly_1 & hclk1;
 	
-	assign disp_unblanked = ~(w422 | t37);
+	assign disp_unblanked = ~(vint_delayed | vsync_gate);
 	
 	ym_sr_bit sr624(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(disp_unblanked), .sr_out(disp_unblank_pipe));
 	
@@ -7306,14 +7306,14 @@ module ym7101
 	wire [15:0] io_data_val =
 		(vdp_data_dir ? CD_i : 16'hffff) &
 		(w97 ? { 2'h3, spr_rd_yoff[5:3], sprdata_test_mux } : 16'hffff) &
-		(w71 ? { 5'h1f, ~w355[9], ~w355[8], ~hcnt[0], 8'hff} : 16'hffff) &
-		(w114 ? { 6'h3f, l46, w252, t9, t10, t11, field_bit, active_disp_gate, w422, w73, w72 } : 16'hffff) &
+		(w71 ? { 5'h1f, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'hff} : 16'hffff) &
+		(w114 ? { 6'h3f, l46, w252, t9, t10, t11, field_bit, active_disp_gate, vint_delayed, w73, w72 } : 16'hffff) &
 		(w134 ? { l90[7:0], 8'hff } : 16'hffff) &
 		(w142 ? { 8'hff, w347[7:0] } : 16'hffff) &
 		(w160 ? { l93[7:0], l92[7:0] } : 16'hffff) &
 		(w47 ? { 8'hff, 5'h0, w12, w11, 1'h0 } : 16'hffff) &
-		(w87 ? { 8'hff, ~l110, ~w360, ~w379, ~w393, ~w402, ~w417, ~w415, ~w424 } : 16'hffff) &
-		(w89 ? { 2'h3, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'hffff) &
+		(w87 ? { 8'hff, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'hffff) &
+		(w89 ? { 2'h3, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'hffff) &
 		(w95 ? { 4'hf, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'hffff) &
 		(w99 ? { 1'h1, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h1, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'hffff) &
 		(w91 ? { 5'h1f, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'hffff) &
@@ -7340,14 +7340,14 @@ module ym7101
 	/*assign io_data =
 		(vdp_data_dir ? CD_i : 16'h0) |
 		(w97 ? { 2'h0, spr_rd_yoff[5:3], sprdata_test_mux } : 16'h0) |
-		(w71 ? { 5'h0, ~w355[9], ~w355[8], ~hcnt[0], 8'h0} : 16'h0) |
-		(w114 ? { 6'h0, l46, w252, t9, t10, t11, field_bit, active_disp_gate, w422, w73, w72 } : 16'h0) |
+		(w71 ? { 5'h0, ~vcnt_ext[9], ~vcnt_ext[8], ~hcnt[0], 8'h0} : 16'h0) |
+		(w114 ? { 6'h0, l46, w252, t9, t10, t11, field_bit, active_disp_gate, vint_delayed, w73, w72 } : 16'h0) |
 		(w134 ? { l90[7:0], 8'h0 } : 16'h0) |
 		(w142 ? { 8'h0, w347[7:0] } : 16'h0) |
 		(w160 ? { l93[7:0], l92[7:0] } : 16'h0) |
 		(w47 ? { 8'h0, 5'h0, w12, w11, 1'h0 } : 16'h0) |
-		(w87 ? { 8'h0, ~l110, ~w360, ~w379, ~w393, ~w402, ~w417, ~w415, ~w424 } : 16'h0) |
-		(w89 ? { 2'h0, ~l156, ~w418, ~w419, ~l147, ~l142, ~l141, ~l134, ~l116, ~w394, ~w385, ~w372, ~w356, ~l108, ~l109 } : 16'h0) |
+		(w87 ? { 8'h0, ~line_zero_dly, ~disp_start, ~vscr_active, ~cell_m4_active, ~cell_bound_active, ~m4_or_vram_slot, ~pre_wrap_active, ~sub_slot_active } : 16'h0) |
+		(w89 ? { 2'h0, ~m4_window_dly, ~vram_or_ext_slot, ~blank_slot_active, ~fetch_all_dly, ~m4_border_dly, ~access_main_dly, ~access_ext_dly, ~odd_slot, ~slot0_active, ~slot1_active, ~slot2_active, ~slot3_active, ~edclk_dly, ~slot_idle_dly } : 16'h0) |
 		(w95 ? { 4'h0, spridx_sr_active[19], spridx_sr_6[19], spridx_sr_5[19], spridx_sr_4[19], spridx_sr_3[19], spridx_sr_2[19], spridx_sr_1[19], spridx_sr_0[19], spr_cnt_sr_3[9], spr_cnt_sr_2[9], spr_cnt_sr_1[9], spr_cnt_sr_0[9] } : 16'h0) |
 		(w99 ? { 1'h0, ~test_rd_idx3_odd, ~test_rd_idx2_odd, ~test_rd_idx1_odd, ~test_rd_idx0_odd, ~test_rd_pri_odd, ~test_rd_pal1_odd, ~test_rd_pal0_odd, 1'h0, ~test_rd_idx3_even, ~test_rd_idx2_even, ~test_rd_idx1_even, ~test_rd_idx0_even, ~test_rd_pri_even, ~test_rd_pal1_even, ~test_rd_pal0_even } : 16'h0) |
 		(w91 ? { 5'h0, ~dac_b_bit1, ~dac_b_bit0, ~dac_b_bit2, ~dac_g_bit1, ~dac_g_bit0, ~dac_g_bit2, ~dac_r_bit1, ~dac_r_bit0, ~dac_r_bit2, ~sh_shadow_pipe_3, ~sh_highlight_pipe_3 } : 16'h0) |
