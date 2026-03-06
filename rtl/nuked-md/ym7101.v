@@ -1140,202 +1140,202 @@ module ym7101
 	wire cram_wr_dly2;
 	wire vsram_hi_wr_dly2;
 	wire vsram_lo_wr_dly2;
-	wire w569;
+	wire vsram_cram_wr_any;
 	wire [5:0] vsram_idx_pipe; // 6 bits
-	wire l213;
-	wire w570;
-	wire l214;
-	wire w571;
-	wire l215;
-	wire w572;
-	wire l216;
-	wire w573;
-	wire w574;
-	wire w575;
-	wire [3:0] w576;
-	wire [3:0] w577;
-	wire [8:0] w578;
-	wire [2:0] w579;
-	wire [11:0] w580;
-	wire w581;
-	wire l217;
-	wire w582;
-	wire l218;
-	wire w583;
+	wire ser_a_phase0;
+	wire ser_a_en0;
+	wire ser_a_phase1;
+	wire ser_a_en1;
+	wire ser_a_phase2;
+	wire ser_a_en2;
+	wire ser_a_phase3;
+	wire ser_a_en3;
+	wire non_win_lo_half;
+	wire non_win_hi_half;
+	wire [3:0] tile_row_raw;
+	wire [3:0] tile_row_flip;
+	wire [8:0] pattern_row_lo;
+	wire [2:0] pattern_row_hi;
+	wire [11:0] pattern_base;
+	wire pattern_gen_base;
+	wire win_active_pipe;
+	wire slot0_m5;
+	wire slot0_m5_pipe;
+	wire tile_vflip;
 	// Plane A tile pixel shift registers (4 × 8-bit bitplanes)
-	wire [7:0] l219;
-	wire [7:0] l220;
-	wire [7:0] l221;
-	wire [7:0] l222;
-	wire w584;
-	wire w585;
-	wire [1:0] w586;
-	wire w587;
+	wire [7:0] nt_attr_byte0;
+	wire [7:0] nt_attr_byte1;
+	wire [7:0] tile_pat_byte2;
+	wire [7:0] tile_pat_byte3;
+	wire tile_hflip_raw;
+	wire tile_vflip_raw;
+	wire [1:0] tile_pal_bits;
+	wire tile_pri_bit;
 	// Plane A tile attribute pipeline (4 × 8-bit)
-	wire [7:0] l223;
-	wire [7:0] l224;
-	wire [7:0] l225;
-	wire [7:0] l226;
-	wire l227;
-	wire l228;
-	wire l229;
-	wire l230;
-	wire l231;
-	wire w588;
-	wire w589;
-	wire w590;
-	wire w591;
-	wire [7:0] l232;
-	wire [7:0] l233;
-	wire [7:0] l234;
-	wire [7:0] l235;
-	wire w592;
-	wire [3:0] l236;
-	wire w593;
-	wire [7:0] l237;
-	wire [7:0] l238;
-	wire [7:0] l239;
-	wire [7:0] l240;
-	wire [3:0] l241;
-	wire l242;
-	wire [7:0] l243;
-	wire [7:0] l244;
-	wire [7:0] l245;
-	wire [7:0] l246;
-	wire l247;
-	wire l248;
-	wire l249;
-	wire l250;
-	wire w594;
-	wire w595;
-	wire w596;
-	wire w597;
-	wire l251;
-	wire l252;
-	wire l253;
-	wire l254;
-	wire [7:0] l255;
-	wire [7:0] l256;
-	wire [7:0] l257;
-	wire [7:0] l258;
-	wire [7:0] l259;
-	wire [7:0] l260;
-	wire [7:0] l261;
-	wire [7:0] l262;
-	wire [7:0] l263;
-	wire [7:0] l264;
-	wire [7:0] l265;
-	wire w598;
-	wire w599;
-	wire w600;
-	wire w601;
-	wire w602;
-	wire w603;
-	wire w604;
-	wire w605;
-	wire [2:0] w606;
-	wire [3:0] w607;
-	wire w608;
-	wire w609;
-	wire w610;
-	wire l266;
-	wire w611;
-	wire w612;
-	wire l267;
-	wire l268;
-	wire w613;
-	wire [3:0] l269;
-	wire [3:0] l270;
-	wire [1:0] l271;
-	wire [1:0] l272;
-	wire l273;
-	wire l274;
-	wire w614;
+	wire [7:0] tile_a_bp0;
+	wire [7:0] tile_a_bp1;
+	wire [7:0] tile_a_bp2;
+	wire [7:0] tile_a_bp3;
+	wire tile_a_ser0;
+	wire tile_a_ser1;
+	wire tile_a_ser2;
+	wire tile_a_ser3;
+	wire tile_a_ser4;
+	wire ser_tile_en0;
+	wire ser_tile_en1;
+	wire ser_tile_en2;
+	wire ser_tile_en3;
+	wire [7:0] tile_a_bp0_lat;
+	wire [7:0] tile_a_bp1_lat;
+	wire [7:0] tile_a_bp2_lat;
+	wire [7:0] tile_a_bp3_lat;
+	wire tile_load_en;
+	wire [3:0] hscr_fine_cnt;
+	wire hscr_fine_wrap;
+	wire [7:0] sr_a_bp0;
+	wire [7:0] sr_a_bp1;
+	wire [7:0] sr_a_bp2;
+	wire [7:0] sr_a_bp3;
+	wire [3:0] pixel_cnt;
+	wire hscr_load_pipe;
+	wire [7:0] tile_b_bp0;
+	wire [7:0] tile_b_bp1;
+	wire [7:0] tile_b_bp2;
+	wire [7:0] tile_b_bp3;
+	wire tile_b_ser0;
+	wire tile_b_ser1;
+	wire tile_b_ser2;
+	wire tile_b_ser3;
+	wire ser_tileb_en0;
+	wire ser_tileb_en1;
+	wire ser_tileb_en2;
+	wire ser_tileb_en3;
+	wire nt_b_ser0;
+	wire nt_b_ser1;
+	wire nt_b_ser2;
+	wire nt_b_ser3;
+	wire [7:0] tile_b_bp0_lat;
+	wire [7:0] tile_b_bp1_lat;
+	wire [7:0] tile_b_bp2_lat;
+	wire [7:0] tile_b_bp3_lat;
+	wire [7:0] nt_attr_packed;
+	wire [7:0] nt_attr_packed_lat;
+	wire [7:0] sr_a_ext0;
+	wire [7:0] sr_a_ext1;
+	wire [7:0] sr_a_ext2;
+	wire [7:0] sr_a_ext3;
+	wire [7:0] attr_pipe;
+	wire ser_load_sel;
+	wire px_nibble_sel;
+	wire tileb_start_n;
+	wire px_bit_flip;
+	wire attr_flip_b0;
+	wire attr_pal_b0;
+	wire attr_pal_b1;
+	wire attr_pri;
+	wire [2:0] px_col_idx;
+	wire [3:0] planeA_pixel;
+	wire planeA_full;
+	wire planeA_wrap;
+	wire planeA_not_done;
+	wire planeA_gate;
+	wire planeA_sr_load;
+	wire scroll_fetch_trig;
+	wire scroll_fetch_pipe1;
+	wire scroll_fetch_pipe2;
+	wire scroll_fetch_n;
+	wire [3:0] pxA_pipe1;
+	wire [3:0] pxA_pipe2;
+	wire [1:0] palA_pipe1;
+	wire [1:0] palA_pipe2;
+	wire priA_pipe1;
+	wire priA_pipe2;
+	wire scroll_cell_load;
 	// Plane B tile pixel shift registers + attribute pipeline (8 × 8-bit)
-	wire [7:0] l275;
-	wire [7:0] l276;
-	wire [7:0] l277;
-	wire [7:0] l278;
-	wire [7:0] l279;
-	wire [7:0] l280;
-	wire [7:0] l281;
-	wire [7:0] l282;
-	wire w615;
-	wire w616;
-	wire w617;
-	wire w618;
-	wire l283;
-	wire l284;
-	wire l285;
-	wire l286;
-	wire w619;
-	wire w620;
-	wire w621;
-	wire w622;
-	wire [7:0] l287;
-	wire [7:0] l288;
-	wire [7:0] l289;
-	wire [7:0] l290;
-	wire [7:0] l291;
-	wire [7:0] l292;
-	wire w623;
-	wire [5:0] l293;
-	wire w624;
-	wire [4:0] w625;
-	wire [5:0] w626;
-	wire [7:0] l294;
-	wire [7:0] l295;
-	wire [7:0] l296;
-	wire [7:0] l297;
-	wire l298;
-	wire l299;
-	wire l300;
-	wire l301;
-	wire l302;
-	wire w627;
-	wire w628;
-	wire w629;
-	wire w630;
-	wire w631;
-	wire [7:0] l303;
-	wire [7:0] l304;
-	wire [7:0] l305;
-	wire [7:0] l306;
-	wire [7:0] l307;
-	wire [7:0] l308;
-	wire [7:0] l309;
-	wire [7:0] l310;
-	wire [3:0] l311;
-	wire [2:0] w632;
-	wire w633;
-	wire w634;
-	wire w635;
-	wire w636;
-	wire w637;
-	wire w638;
-	wire l312;
-	wire l313;
-	wire w639;
-	wire w640;
-	wire [2:0] w641;
-	wire w642;
-	wire l314;
-	wire l315;
-	wire l316;
-	wire w643;
-	wire w644;
-	wire l317;
-	wire w645;
-	wire w646;
-	wire [3:0] w647;
-	wire [3:0] l318;
-	wire [3:0] l319;
-	wire w648;
-	wire l320;
-	wire l321;
-	wire [1:0] l322;
-	wire [1:0] l323;
-	wire w649;
+	wire [7:0] tile_b2_bp0;
+	wire [7:0] tile_b2_bp1;
+	wire [7:0] tile_b2_bp2;
+	wire [7:0] tile_b2_bp3;
+	wire [7:0] tile_b2_bp0_lat;
+	wire [7:0] tile_b2_bp1_lat;
+	wire [7:0] tile_b2_bp2_lat;
+	wire [7:0] tile_b2_bp3_lat;
+	wire ser_nt_en0;
+	wire ser_nt_en1;
+	wire ser_nt_en2;
+	wire ser_nt_en3;
+	wire ser_b2_phase0;
+	wire ser_b2_phase1;
+	wire ser_b2_phase2;
+	wire ser_b2_phase3;
+	wire ser_tileb2_en0;
+	wire ser_tileb2_en1;
+	wire ser_tileb2_en2;
+	wire ser_tileb2_en3;
+	wire [7:0] sr_b_bp0;
+	wire [7:0] sr_b_bp1;
+	wire [7:0] sr_b_bp2;
+	wire [7:0] sr_b_bp3;
+	wire [7:0] nt_attr_packed_b;
+	wire [7:0] attr_pipe_b;
+	wire vscr_col_inv;
+	wire [5:0] vsram_addr_prev;
+	wire vsram_col_adj;
+	wire [4:0] vsram_col_hcnt;
+	wire [5:0] vsram_addr_mux;
+	wire [7:0] tile_b3_bp0;
+	wire [7:0] tile_b3_bp1;
+	wire [7:0] tile_b3_bp2;
+	wire [7:0] tile_b3_bp3;
+	wire ser_b3_phase0;
+	wire ser_b3_phase1;
+	wire ser_b3_phase2;
+	wire ser_b3_phase3;
+	wire ser_b3_phase4;
+	wire ser_b_stg2_en0;
+	wire ser_b_stg2_en1;
+	wire ser_b_stg2_en2;
+	wire ser_b_stg2_en3;
+	wire tileb_load_en;
+	wire [7:0] tile_b3_bp0_lat;
+	wire [7:0] tile_b3_bp1_lat;
+	wire [7:0] tile_b3_bp2_lat;
+	wire [7:0] tile_b3_bp3_lat;
+	wire [7:0] sr_b_ext0;
+	wire [7:0] sr_b_ext1;
+	wire [7:0] sr_b_ext2;
+	wire [7:0] sr_b_ext3;
+	wire [3:0] pixel_cnt_b;
+	wire [2:0] px_col_idx_b;
+	wire fetch_stage3_n;
+	wire attr_flip_b0_b;
+	wire attr_pal_b0_b;
+	wire attr_pal_b1_b;
+	wire attr_pri_b;
+	wire cell_fetch_trig;
+	wire cell_fetch_pipe1;
+	wire cell_fetch_pipe2;
+	wire cell_fetch_n;
+	wire cell_fetch_start_n;
+	wire [2:0] px_col_adj_b;
+	wire blank_fetch_trig;
+	wire blank_fetch_pipe1;
+	wire blank_fetch_pipe2;
+	wire blank_fetch_pipe3;
+	wire hscr_fetch_pipe;
+	wire planeB_not_done;
+	wire planeB_gate;
+	wire planeB_sr_load;
+	wire planeA_nonzero;
+	wire [3:0] planeB_pixel;
+	wire [3:0] pxB_pipe1;
+	wire [3:0] pxB_pipe2;
+	wire planeB_nonzero;
+	wire priB_pipe1;
+	wire priB_pipe2;
+	wire [1:0] palB_pipe1;
+	wire [1:0] palB_pipe2;
+	wire planeB_cell_load;
 
 	wire [10:0] sat_read_mux;
 	wire [10:0] sat_field_latch;
@@ -2110,9 +2110,6 @@ module ym7101
 	wire dac_g_bit1;
 	wire dac_b_bit0;
 	wire dac_b_bit1;
-	wire w1095;
-	wire w1096;
-	wire w1097;
 	wire dac_b_bit2;
 	wire dac_g_bit2;
 	wire dac_r_bit2;
@@ -2124,7 +2121,7 @@ module ym7101
 	wire highlight_flag; // highlight mode flag
 	wire normal_intensity; // normal intensity select
 	wire shadow_level;
-	wire [16:0] w1103[0:2]; // 17-level non-linear DAC thermometer code (R/G/B)
+	wire [16:0] dac_thermo[0:2]; // 17-level non-linear DAC thermometer code (R/G/B)
 	
 	// PSG (SN76489) signals
 	wire psg_clk1;
@@ -4327,9 +4324,9 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK), .en(wr_en_88), .inp(reg_data_l2[7:0]), .val(reg_88));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl191(.MCLK(MCLK), .en(w570), .inp(vram_serial), .val(hscr_ser_byte0));
+	ym_slatch #(.DATA_WIDTH(8)) sl191(.MCLK(MCLK), .en(ser_a_en0), .inp(vram_serial), .val(hscr_ser_byte0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl192(.MCLK(MCLK), .en(w572), .inp(vram_serial), .val(hscr_ser_byte1));
+	ym_slatch #(.DATA_WIDTH(8)) sl192(.MCLK(MCLK), .en(ser_a_en2), .inp(vram_serial), .val(hscr_ser_byte1));
 	
 	assign slot01_any = slot0_active | slot1_active;
 	
@@ -4347,13 +4344,13 @@ module ym7101
 	
 	assign hscroll_neg = ~(
 		(~scroll_enabled ? { 2'h0, sms_hscr_lat } : 10'h0) |
-		(w574 ? { hscr_hi_byte0, hscr_ser_byte0 } : 10'h0) |
-		(w575 ? { hscr_hi_byte1, hscr_ser_byte1 } : 10'h0)
+		(non_win_lo_half ? { hscr_hi_byte0, hscr_ser_byte0 } : 10'h0) |
+		(non_win_hi_half ? { hscr_hi_byte1, hscr_ser_byte1 } : 10'h0)
 		);
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl194(.MCLK(MCLK), .en(w571), .inp(vram_serial[1:0]), .val(hscr_hi_byte0));
+	ym_slatch #(.DATA_WIDTH(2)) sl194(.MCLK(MCLK), .en(ser_a_en1), .inp(vram_serial[1:0]), .val(hscr_hi_byte0));
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl195(.MCLK(MCLK), .en(w573), .inp(vram_serial[1:0]), .val(hscr_hi_byte1));
+	ym_slatch #(.DATA_WIDTH(2)) sl195(.MCLK(MCLK), .en(ser_a_en3), .inp(vram_serial[1:0]), .val(hscr_hi_byte1));
 	
 	assign pixel_col_pos = { hscroll_neg[9:4], hscr_lo_bit } + { col_sz_bits, col_addr_hi, sms_col_adj } + 7'h1;
 	
@@ -4415,464 +4412,464 @@ module ym7101
 	
 	ym_sr_bit sr211(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_lo_wr_dly1), .sr_out(vsram_lo_wr_dly2));
 	
-	assign w569 = cram_wr_dly1 | vsram_hi_wr_dly1 | vsram_lo_wr_dly1;
+	assign vsram_cram_wr_any = cram_wr_dly1 | vsram_hi_wr_dly1 | vsram_lo_wr_dly1;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(6)) sr212(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w626), .data_out(vsram_idx_pipe));
+	ym_sr_bit_array #(.DATA_WIDTH(6)) sr212(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vsram_addr_mux), .data_out(vsram_idx_pipe));
 	
-	ym_dlatch_1 dl213(.MCLK(MCLK), .c1(clk1), .inp(~(hclk1 & l316)), .nval(l213));
+	ym_dlatch_1 dl213(.MCLK(MCLK), .c1(clk1), .inp(~(hclk1 & blank_fetch_pipe3)), .nval(ser_a_phase0));
 	
-	assign w570 = l213 & clk2;
+	assign ser_a_en0 = ser_a_phase0 & clk2;
 	
-	ym_sr_bit sr214(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l213), .sr_out(l214));
+	ym_sr_bit sr214(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_a_phase0), .sr_out(ser_a_phase1));
 	
-	assign w571 = l214 & clk2;
+	assign ser_a_en1 = ser_a_phase1 & clk2;
 	
-	ym_sr_bit sr215(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l214), .sr_out(l215));
+	ym_sr_bit sr215(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_a_phase1), .sr_out(ser_a_phase2));
 	
-	assign w572 = l215 & clk2;
+	assign ser_a_en2 = ser_a_phase2 & clk2;
 	
-	ym_sr_bit sr216(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l215), .sr_out(l216));
+	ym_sr_bit sr216(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_a_phase2), .sr_out(ser_a_phase3));
 	
-	assign w573 = l216 & clk2;
+	assign ser_a_en3 = ser_a_phase3 & clk2;
 	
-	assign w574 = ~win_zone_active & reg_m5 & ~hcnt[3];
+	assign non_win_lo_half = ~win_zone_active & reg_m5 & ~hcnt[3];
 	
-	assign w575 = ~win_zone_active & reg_m5 & hcnt[3];
+	assign non_win_hi_half = ~win_zone_active & reg_m5 & hcnt[3];
 	
-	assign w576 = l217 ? vcnt_ext[3:0] : vscroll_sum[3:0];
+	assign tile_row_raw = win_active_pipe ? vcnt_ext[3:0] : vscroll_sum[3:0];
 	
-	assign w577 = w583 ? ~w576 : w576;
+	assign tile_row_flip = tile_vflip ? ~tile_row_raw : tile_row_raw;
 	
-	assign w578 = interlace_dblres ? { l219, w577[3] } : { l220[0], l219 };
+	assign pattern_row_lo = interlace_dblres ? { nt_attr_byte0, tile_row_flip[3] } : { nt_attr_byte1[0], nt_attr_byte0 };
 	
-	assign w579 = interlace_dblres ? l220[2:0] : { w581, l220[2:1] };
+	assign pattern_row_hi = interlace_dblres ? nt_attr_byte1[2:0] : { pattern_gen_base, nt_attr_byte1[2:1] };
 	
-	assign w580 = interlace_dblres ? { l222[2:0], l221, w577[3] } : { w581, l222[2:0], l221 };
+	assign pattern_base = interlace_dblres ? { tile_pat_byte3[2:0], tile_pat_byte2, tile_row_flip[3] } : { pattern_gen_base, tile_pat_byte3[2:0], tile_pat_byte2 };
 	
-	assign w581 = hcnt3_pipe2 ? reg_8e_b4 : reg_8e_b0;
+	assign pattern_gen_base = hcnt3_pipe2 ? reg_8e_b4 : reg_8e_b0;
 	
-	ym_sr_bit sr217(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(win_zone_active), .sr_out(l217));
+	ym_sr_bit sr217(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(win_zone_active), .sr_out(win_active_pipe));
 	
-	assign w582 = slot0_active & reg_m5;
+	assign slot0_m5 = slot0_active & reg_m5;
 	
-	ym_sr_bit sr218(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w582), .sr_out(l218));
+	ym_sr_bit sr218(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot0_m5), .sr_out(slot0_m5_pipe));
 	
-	assign w583 = l218 ? l222[4] : w585;
+	assign tile_vflip = slot0_m5_pipe ? tile_pat_byte3[4] : tile_vflip_raw;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl219(.MCLK(MCLK), .en(w615), .inp(vram_serial), .val(l219));
+	ym_slatch #(.DATA_WIDTH(8)) sl219(.MCLK(MCLK), .en(ser_nt_en0), .inp(vram_serial), .val(nt_attr_byte0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl220(.MCLK(MCLK), .en(w616), .inp(vram_serial), .val(l220));
+	ym_slatch #(.DATA_WIDTH(8)) sl220(.MCLK(MCLK), .en(ser_nt_en1), .inp(vram_serial), .val(nt_attr_byte1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl221(.MCLK(MCLK), .en(w617), .inp(vram_serial), .val(l221));
+	ym_slatch #(.DATA_WIDTH(8)) sl221(.MCLK(MCLK), .en(ser_nt_en2), .inp(vram_serial), .val(tile_pat_byte2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl222(.MCLK(MCLK), .en(w618), .inp(vram_serial), .val(l222));
+	ym_slatch #(.DATA_WIDTH(8)) sl222(.MCLK(MCLK), .en(ser_nt_en3), .inp(vram_serial), .val(tile_pat_byte3));
 	
-	assign w584 = reg_m5 ? l220[3] : l220[1];
-	assign w585 = reg_m5 ? l220[4] : l220[2];
-	assign w586 = reg_m5 ? l220[6:5] : { 1'h0, l220[3] };
-	assign w587 = reg_m5 ? l220[7] : l220[4];
+	assign tile_hflip_raw = reg_m5 ? nt_attr_byte1[3] : nt_attr_byte1[1];
+	assign tile_vflip_raw = reg_m5 ? nt_attr_byte1[4] : nt_attr_byte1[2];
+	assign tile_pal_bits = reg_m5 ? nt_attr_byte1[6:5] : { 1'h0, nt_attr_byte1[3] };
+	assign tile_pri_bit = reg_m5 ? nt_attr_byte1[7] : nt_attr_byte1[4];
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl223(.MCLK(MCLK), .en(w591), .inp(vram_serial), .val(l223));
+	ym_slatch #(.DATA_WIDTH(8)) sl223(.MCLK(MCLK), .en(ser_tile_en3), .inp(vram_serial), .val(tile_a_bp0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl224(.MCLK(MCLK), .en(w590), .inp(vram_serial), .val(l224));
+	ym_slatch #(.DATA_WIDTH(8)) sl224(.MCLK(MCLK), .en(ser_tile_en2), .inp(vram_serial), .val(tile_a_bp1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl225(.MCLK(MCLK), .en(w589), .inp(vram_serial), .val(l225));
+	ym_slatch #(.DATA_WIDTH(8)) sl225(.MCLK(MCLK), .en(ser_tile_en1), .inp(vram_serial), .val(tile_a_bp2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl226(.MCLK(MCLK), .en(w588), .inp(vram_serial), .val(l226));
+	ym_slatch #(.DATA_WIDTH(8)) sl226(.MCLK(MCLK), .en(ser_tile_en0), .inp(vram_serial), .val(tile_a_bp3));
 	
-	ym_dlatch_1 dl227(.MCLK(MCLK), .c1(clk1), .inp(w613), .nval(l227));
+	ym_dlatch_1 dl227(.MCLK(MCLK), .c1(clk1), .inp(scroll_fetch_n), .nval(tile_a_ser0));
 	
-	ym_sr_bit sr228(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l227), .sr_out(l228));
+	ym_sr_bit sr228(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_a_ser0), .sr_out(tile_a_ser1));
 	
-	ym_sr_bit sr229(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l228), .sr_out(l229));
+	ym_sr_bit sr229(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_a_ser1), .sr_out(tile_a_ser2));
 	
-	ym_sr_bit sr230(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l229), .sr_out(l230));
+	ym_sr_bit sr230(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_a_ser2), .sr_out(tile_a_ser3));
 	
-	ym_sr_bit sr231(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l230), .sr_out(l231));
+	ym_sr_bit sr231(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_a_ser3), .sr_out(tile_a_ser4));
 	
-	assign w588 = l227 & clk2;
+	assign ser_tile_en0 = tile_a_ser0 & clk2;
 	
-	assign w589 = l228 & clk2;
+	assign ser_tile_en1 = tile_a_ser1 & clk2;
 	
-	assign w590 = l229 & clk2;
+	assign ser_tile_en2 = tile_a_ser2 & clk2;
 	
-	assign w591 = l230 & clk2;
+	assign ser_tile_en3 = tile_a_ser3 & clk2;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl232(.MCLK(MCLK), .en(w592), .inp(l223), .val(l232));
+	ym_slatch #(.DATA_WIDTH(8)) sl232(.MCLK(MCLK), .en(tile_load_en), .inp(tile_a_bp0), .val(tile_a_bp0_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl233(.MCLK(MCLK), .en(w592), .inp(l224), .val(l233));
+	ym_slatch #(.DATA_WIDTH(8)) sl233(.MCLK(MCLK), .en(tile_load_en), .inp(tile_a_bp1), .val(tile_a_bp1_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl234(.MCLK(MCLK), .en(w592), .inp(l225), .val(l234));
+	ym_slatch #(.DATA_WIDTH(8)) sl234(.MCLK(MCLK), .en(tile_load_en), .inp(tile_a_bp2), .val(tile_a_bp2_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl235(.MCLK(MCLK), .en(w592), .inp(l226), .val(l235));
+	ym_slatch #(.DATA_WIDTH(8)) sl235(.MCLK(MCLK), .en(tile_load_en), .inp(tile_a_bp3), .val(tile_a_bp3_lat));
 	
-	assign w592 = w598 & clk2;
+	assign tile_load_en = ser_load_sel & clk2;
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl236(.MCLK(MCLK), .en(l242), .inp(hscroll_neg[3:0]), .val(l236));
+	ym_slatch #(.DATA_WIDTH(4)) sl236(.MCLK(MCLK), .en(hscr_load_pipe), .inp(hscroll_neg[3:0]), .val(hscr_fine_cnt));
 	
-	assign w593 = w614 & l236 == 4'hf;
+	assign hscr_fine_wrap = scroll_cell_load & hscr_fine_cnt == 4'hf;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl237(.MCLK(MCLK), .en(w611), .inp(l232), .val(l237));
+	ym_slatch #(.DATA_WIDTH(8)) sl237(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_a_bp0_lat), .val(sr_a_bp0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl238(.MCLK(MCLK), .en(w611), .inp(l233), .val(l238));
+	ym_slatch #(.DATA_WIDTH(8)) sl238(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_a_bp1_lat), .val(sr_a_bp1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl239(.MCLK(MCLK), .en(w611), .inp(l234), .val(l239));
+	ym_slatch #(.DATA_WIDTH(8)) sl239(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_a_bp2_lat), .val(sr_a_bp2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl240(.MCLK(MCLK), .en(w611), .inp(l235), .val(l240));
+	ym_slatch #(.DATA_WIDTH(8)) sl240(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_a_bp3_lat), .val(sr_a_bp3));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(4)) cnt241(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(1'h1), .reset(1'h0), .load(w614), .load_val(l236), .val(l241));
+		.c_in(1'h1), .reset(1'h0), .load(scroll_cell_load), .load_val(hscr_fine_cnt), .val(pixel_cnt));
 	
-	ym_sr_bit sr242(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w614), .sr_out(l242));
+	ym_sr_bit sr242(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(scroll_cell_load), .sr_out(hscr_load_pipe));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl243(.MCLK(MCLK), .en(w597), .inp(vram_serial), .val(l243));
+	ym_slatch #(.DATA_WIDTH(8)) sl243(.MCLK(MCLK), .en(ser_tileb_en3), .inp(vram_serial), .val(tile_b_bp0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl244(.MCLK(MCLK), .en(w596), .inp(vram_serial), .val(l244));
+	ym_slatch #(.DATA_WIDTH(8)) sl244(.MCLK(MCLK), .en(ser_tileb_en2), .inp(vram_serial), .val(tile_b_bp1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl245(.MCLK(MCLK), .en(w595), .inp(vram_serial), .val(l245));
+	ym_slatch #(.DATA_WIDTH(8)) sl245(.MCLK(MCLK), .en(ser_tileb_en1), .inp(vram_serial), .val(tile_b_bp2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl246(.MCLK(MCLK), .en(w594), .inp(vram_serial), .val(l246));
+	ym_slatch #(.DATA_WIDTH(8)) sl246(.MCLK(MCLK), .en(ser_tileb_en0), .inp(vram_serial), .val(tile_b_bp3));
 	
-	ym_dlatch_1 dl247(.MCLK(MCLK), .c1(clk1), .inp(w600), .nval(l247));
+	ym_dlatch_1 dl247(.MCLK(MCLK), .c1(clk1), .inp(tileb_start_n), .nval(tile_b_ser0));
 	
-	ym_sr_bit sr248(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l247), .sr_out(l248));
+	ym_sr_bit sr248(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_b_ser0), .sr_out(tile_b_ser1));
 	
-	ym_sr_bit sr249(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l248), .sr_out(l249));
+	ym_sr_bit sr249(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_b_ser1), .sr_out(tile_b_ser2));
 	
-	ym_sr_bit sr250(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l249), .sr_out(l250));
+	ym_sr_bit sr250(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(tile_b_ser2), .sr_out(tile_b_ser3));
 	
-	assign w594 = l247 & clk2;
+	assign ser_tileb_en0 = tile_b_ser0 & clk2;
 	
-	assign w595 = l248 & clk2;
+	assign ser_tileb_en1 = tile_b_ser1 & clk2;
 	
-	assign w596 = l249 & clk2;
+	assign ser_tileb_en2 = tile_b_ser2 & clk2;
 	
-	assign w597 = l250 & clk2;
+	assign ser_tileb_en3 = tile_b_ser3 & clk2;
 	
-	ym_dlatch_1 dl251(.MCLK(MCLK), .c1(clk1), .inp(w633), .nval(l251));
+	ym_dlatch_1 dl251(.MCLK(MCLK), .c1(clk1), .inp(fetch_stage3_n), .nval(nt_b_ser0));
 	
-	ym_sr_bit sr252(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l251), .sr_out(l252));
+	ym_sr_bit sr252(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(nt_b_ser0), .sr_out(nt_b_ser1));
 	
-	ym_sr_bit sr253(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l252), .sr_out(l253));
+	ym_sr_bit sr253(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(nt_b_ser1), .sr_out(nt_b_ser2));
 	
-	ym_sr_bit sr254(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l253), .sr_out(l254));
+	ym_sr_bit sr254(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(nt_b_ser2), .sr_out(nt_b_ser3));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl255(.MCLK(MCLK), .en(w592), .inp(l243), .val(l255));
+	ym_slatch #(.DATA_WIDTH(8)) sl255(.MCLK(MCLK), .en(tile_load_en), .inp(tile_b_bp0), .val(tile_b_bp0_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl256(.MCLK(MCLK), .en(w592), .inp(l244), .val(l256));
+	ym_slatch #(.DATA_WIDTH(8)) sl256(.MCLK(MCLK), .en(tile_load_en), .inp(tile_b_bp1), .val(tile_b_bp1_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl257(.MCLK(MCLK), .en(w592), .inp(l245), .val(l257));
+	ym_slatch #(.DATA_WIDTH(8)) sl257(.MCLK(MCLK), .en(tile_load_en), .inp(tile_b_bp2), .val(tile_b_bp2_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl258(.MCLK(MCLK), .en(w592), .inp(l246), .val(l258));
+	ym_slatch #(.DATA_WIDTH(8)) sl258(.MCLK(MCLK), .en(tile_load_en), .inp(tile_b_bp3), .val(tile_b_bp3_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl259(.MCLK(MCLK), .en(w591),
-		.inp({ w587, l222[7], w586[1], l222[6], w586[0], l222[5], w584, l222[3] }), .val(l259));
+	ym_slatch #(.DATA_WIDTH(8)) sl259(.MCLK(MCLK), .en(ser_tile_en3),
+		.inp({ tile_pri_bit, tile_pat_byte3[7], tile_pal_bits[1], tile_pat_byte3[6], tile_pal_bits[0], tile_pat_byte3[5], tile_hflip_raw, tile_pat_byte3[3] }), .val(nt_attr_packed));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl260(.MCLK(MCLK), .en(w592), .inp(l259), .val(l260));
+	ym_slatch #(.DATA_WIDTH(8)) sl260(.MCLK(MCLK), .en(tile_load_en), .inp(nt_attr_packed), .val(nt_attr_packed_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl261(.MCLK(MCLK), .en(w611), .inp(l255), .val(l261));
+	ym_slatch #(.DATA_WIDTH(8)) sl261(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_b_bp0_lat), .val(sr_a_ext0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl262(.MCLK(MCLK), .en(w611), .inp(l256), .val(l262));
+	ym_slatch #(.DATA_WIDTH(8)) sl262(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_b_bp1_lat), .val(sr_a_ext1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl263(.MCLK(MCLK), .en(w611), .inp(l257), .val(l263));
+	ym_slatch #(.DATA_WIDTH(8)) sl263(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_b_bp2_lat), .val(sr_a_ext2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl264(.MCLK(MCLK), .en(w611), .inp(l258), .val(l264));
+	ym_slatch #(.DATA_WIDTH(8)) sl264(.MCLK(MCLK), .en(planeA_sr_load), .inp(tile_b_bp3_lat), .val(sr_a_ext3));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl265(.MCLK(MCLK), .en(w611), .inp(l260), .val(l265));
+	ym_slatch #(.DATA_WIDTH(8)) sl265(.MCLK(MCLK), .en(planeA_sr_load), .inp(nt_attr_packed_lat), .val(attr_pipe));
 	
-	assign w598 = reg_m5 ? l302 : l231;
+	assign ser_load_sel = reg_m5 ? ser_b3_phase4 : tile_a_ser4;
 	
-	assign w599 = reg_m5 & l241[3];
+	assign px_nibble_sel = reg_m5 & pixel_cnt[3];
 	
-	assign w600 = ~(hclk1 & w612);
+	assign tileb_start_n = ~(hclk1 & scroll_fetch_trig);
 	
-	assign w601 = reg_m5 ^ l241[1];
+	assign px_bit_flip = reg_m5 ^ pixel_cnt[1];
 	
-	assign w602 = w599 ? l265[0] : l265[1];
+	assign attr_flip_b0 = px_nibble_sel ? attr_pipe[0] : attr_pipe[1];
 	
-	assign w603 = w599 ? l265[2] : l265[3];
+	assign attr_pal_b0 = px_nibble_sel ? attr_pipe[2] : attr_pipe[3];
 	
-	assign w604 = w599 ? l265[4] : l265[5];
+	assign attr_pal_b1 = px_nibble_sel ? attr_pipe[4] : attr_pipe[5];
 	
-	assign w605 = w599 ? l265[6] : l265[7];
+	assign attr_pri = px_nibble_sel ? attr_pipe[6] : attr_pipe[7];
 	
-	wire[2:0] w606_t = { l241[2], w601, l241[0] };
+	wire[2:0] w606_t = { pixel_cnt[2], px_bit_flip, pixel_cnt[0] };
 	
-	assign w606 = w602 ? ~w606_t : w606_t;
+	assign px_col_idx = attr_flip_b0 ? ~w606_t : w606_t;
 	
 	wire [7:0] w606_sel;
 	
-	assign w606_sel[0] = w606 == 3'h0;
-	assign w606_sel[1] = w606 == 3'h1;
-	assign w606_sel[2] = w606 == 3'h2;
-	assign w606_sel[3] = w606 == 3'h3;
-	assign w606_sel[4] = w606 == 3'h4;
-	assign w606_sel[5] = w606 == 3'h5;
-	assign w606_sel[6] = w606 == 3'h6;
-	assign w606_sel[7] = w606 == 3'h7;
+	assign w606_sel[0] = px_col_idx == 3'h0;
+	assign w606_sel[1] = px_col_idx == 3'h1;
+	assign w606_sel[2] = px_col_idx == 3'h2;
+	assign w606_sel[3] = px_col_idx == 3'h3;
+	assign w606_sel[4] = px_col_idx == 3'h4;
+	assign w606_sel[5] = px_col_idx == 3'h5;
+	assign w606_sel[6] = px_col_idx == 3'h6;
+	assign w606_sel[7] = px_col_idx == 3'h7;
 	
 	wire [3:0] w607_m4 =
-		(w606_sel[0] ? { l239[7], l240[7], l263[7], l264[7] } : 4'h0 ) |
-		(w606_sel[1] ? { l239[6], l240[6], l263[6], l264[6] } : 4'h0 ) |
-		(w606_sel[2] ? { l239[5], l240[5], l263[5], l264[5] } : 4'h0 ) |
-		(w606_sel[3] ? { l239[4], l240[4], l263[4], l264[4] } : 4'h0 ) |
-		(w606_sel[4] ? { l239[3], l240[3], l263[3], l264[3] } : 4'h0 ) |
-		(w606_sel[5] ? { l239[2], l240[2], l263[2], l264[2] } : 4'h0 ) |
-		(w606_sel[6] ? { l239[1], l240[1], l263[1], l264[1] } : 4'h0 ) |
-		(w606_sel[7] ? { l239[0], l240[0], l263[0], l264[0] } : 4'h0 );
+		(w606_sel[0] ? { sr_a_bp2[7], sr_a_bp3[7], sr_a_ext2[7], sr_a_ext3[7] } : 4'h0 ) |
+		(w606_sel[1] ? { sr_a_bp2[6], sr_a_bp3[6], sr_a_ext2[6], sr_a_ext3[6] } : 4'h0 ) |
+		(w606_sel[2] ? { sr_a_bp2[5], sr_a_bp3[5], sr_a_ext2[5], sr_a_ext3[5] } : 4'h0 ) |
+		(w606_sel[3] ? { sr_a_bp2[4], sr_a_bp3[4], sr_a_ext2[4], sr_a_ext3[4] } : 4'h0 ) |
+		(w606_sel[4] ? { sr_a_bp2[3], sr_a_bp3[3], sr_a_ext2[3], sr_a_ext3[3] } : 4'h0 ) |
+		(w606_sel[5] ? { sr_a_bp2[2], sr_a_bp3[2], sr_a_ext2[2], sr_a_ext3[2] } : 4'h0 ) |
+		(w606_sel[6] ? { sr_a_bp2[1], sr_a_bp3[1], sr_a_ext2[1], sr_a_ext3[1] } : 4'h0 ) |
+		(w606_sel[7] ? { sr_a_bp2[0], sr_a_bp3[0], sr_a_ext2[0], sr_a_ext3[0] } : 4'h0 );
 	
 	wire [3:0] w607_m5_1 =
-		(w606_sel[7] ? l261[3:0] : 4'h0) |
-		(w606_sel[6] ? l261[7:4] : 4'h0) |
-		(w606_sel[5] ? l262[3:0] : 4'h0) |
-		(w606_sel[4] ? l262[7:4] : 4'h0) |
-		(w606_sel[3] ? l263[3:0] : 4'h0) |
-		(w606_sel[2] ? l263[7:4] : 4'h0) |
-		(w606_sel[1] ? l264[3:0] : 4'h0) |
-		(w606_sel[0] ? l264[7:4] : 4'h0);
+		(w606_sel[7] ? sr_a_ext0[3:0] : 4'h0) |
+		(w606_sel[6] ? sr_a_ext0[7:4] : 4'h0) |
+		(w606_sel[5] ? sr_a_ext1[3:0] : 4'h0) |
+		(w606_sel[4] ? sr_a_ext1[7:4] : 4'h0) |
+		(w606_sel[3] ? sr_a_ext2[3:0] : 4'h0) |
+		(w606_sel[2] ? sr_a_ext2[7:4] : 4'h0) |
+		(w606_sel[1] ? sr_a_ext3[3:0] : 4'h0) |
+		(w606_sel[0] ? sr_a_ext3[7:4] : 4'h0);
 	
 	wire [3:0] w607_m5_2 =
-		(w606_sel[7] ? l237[3:0] : 4'h0) |
-		(w606_sel[6] ? l237[7:4] : 4'h0) |
-		(w606_sel[5] ? l238[3:0] : 4'h0) |
-		(w606_sel[4] ? l238[7:4] : 4'h0) |
-		(w606_sel[3] ? l239[3:0] : 4'h0) |
-		(w606_sel[2] ? l239[7:4] : 4'h0) |
-		(w606_sel[1] ? l240[3:0] : 4'h0) |
-		(w606_sel[0] ? l240[7:4] : 4'h0);
+		(w606_sel[7] ? sr_a_bp0[3:0] : 4'h0) |
+		(w606_sel[6] ? sr_a_bp0[7:4] : 4'h0) |
+		(w606_sel[5] ? sr_a_bp1[3:0] : 4'h0) |
+		(w606_sel[4] ? sr_a_bp1[7:4] : 4'h0) |
+		(w606_sel[3] ? sr_a_bp2[3:0] : 4'h0) |
+		(w606_sel[2] ? sr_a_bp2[7:4] : 4'h0) |
+		(w606_sel[1] ? sr_a_bp3[3:0] : 4'h0) |
+		(w606_sel[0] ? sr_a_bp3[7:4] : 4'h0);
 	
-	assign w607 =
+	assign planeA_pixel =
 		(~reg_m5 ? w607_m4 : 4'h0) |
-		((reg_m5 & ~l241[3]) ? w607_m5_1 : 4'h0) |
-		((reg_m5 & l241[3]) ? w607_m5_2 : 4'h0);
+		((reg_m5 & ~pixel_cnt[3]) ? w607_m5_1 : 4'h0) |
+		((reg_m5 & pixel_cnt[3]) ? w607_m5_2 : 4'h0);
 	
-	assign w608 = l241[3] | ~reg_m5;
+	assign planeA_full = pixel_cnt[3] | ~reg_m5;
 	
-	assign w609 = w608 & l241[2:0] == 3'h7;
+	assign planeA_wrap = planeA_full & pixel_cnt[2:0] == 3'h7;
 	
-	assign w610 = ~(w609 | w593);
+	assign planeA_not_done = ~(planeA_wrap | hscr_fine_wrap);
 	
-	ym_dlatch_1 dl266(.MCLK(MCLK), .c1(hclk1), .inp(w610), .nval(l266));
+	ym_dlatch_1 dl266(.MCLK(MCLK), .c1(hclk1), .inp(planeA_not_done), .nval(planeA_gate));
 	
-	assign w611 = hclk2 & l266;
+	assign planeA_sr_load = hclk2 & planeA_gate;
 	
-	assign w612 = cell_m4_active | (reg_test1[9] & cpu_pen);
+	assign scroll_fetch_trig = cell_m4_active | (reg_test1[9] & cpu_pen);
 	
-	ym_sr_bit sr267(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w612), .sr_out(l267));
+	ym_sr_bit sr267(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(scroll_fetch_trig), .sr_out(scroll_fetch_pipe1));
 	
-	ym_sr_bit sr268(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l267), .sr_out(l268));
+	ym_sr_bit sr268(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(scroll_fetch_pipe1), .sr_out(scroll_fetch_pipe2));
 	
-	assign w613 = ~(l268 & hclk1);
+	assign scroll_fetch_n = ~(scroll_fetch_pipe2 & hclk1);
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr269(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w607), .data_out(l269));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr269(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(planeA_pixel), .data_out(pxA_pipe1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr270(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l269), .data_out(l270));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr270(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(pxA_pipe1), .data_out(pxA_pipe2));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr271(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ w604, w603 }), .data_out(l271));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr271(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ attr_pal_b1, attr_pal_b0 }), .data_out(palA_pipe1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr272(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l271), .data_out(l272));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr272(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(palA_pipe1), .data_out(palA_pipe2));
 	
-	ym_sr_bit sr273(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w605), .sr_out(l273));
+	ym_sr_bit sr273(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(attr_pri), .sr_out(priA_pipe1));
 	
-	ym_sr_bit sr274(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l273), .sr_out(l274));
+	ym_sr_bit sr274(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(priA_pipe1), .sr_out(priA_pipe2));
 	
-	assign w614 = sub_slot_active | tst_fn4_wr;
+	assign scroll_cell_load = sub_slot_active | tst_fn4_wr;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl275(.MCLK(MCLK), .en(w622), .inp(vram_serial), .val(l275));
+	ym_slatch #(.DATA_WIDTH(8)) sl275(.MCLK(MCLK), .en(ser_tileb2_en3), .inp(vram_serial), .val(tile_b2_bp0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl276(.MCLK(MCLK), .en(w621), .inp(vram_serial), .val(l276));
+	ym_slatch #(.DATA_WIDTH(8)) sl276(.MCLK(MCLK), .en(ser_tileb2_en2), .inp(vram_serial), .val(tile_b2_bp1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl277(.MCLK(MCLK), .en(w620), .inp(vram_serial), .val(l277));
+	ym_slatch #(.DATA_WIDTH(8)) sl277(.MCLK(MCLK), .en(ser_tileb2_en1), .inp(vram_serial), .val(tile_b2_bp2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl278(.MCLK(MCLK), .en(w619), .inp(vram_serial), .val(l278));
+	ym_slatch #(.DATA_WIDTH(8)) sl278(.MCLK(MCLK), .en(ser_tileb2_en0), .inp(vram_serial), .val(tile_b2_bp3));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl279(.MCLK(MCLK), .en(w631), .inp(l275), .val(l279));
+	ym_slatch #(.DATA_WIDTH(8)) sl279(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b2_bp0), .val(tile_b2_bp0_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl280(.MCLK(MCLK), .en(w631), .inp(l276), .val(l280));
+	ym_slatch #(.DATA_WIDTH(8)) sl280(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b2_bp1), .val(tile_b2_bp1_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl281(.MCLK(MCLK), .en(w631), .inp(l277), .val(l281));
+	ym_slatch #(.DATA_WIDTH(8)) sl281(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b2_bp2), .val(tile_b2_bp2_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl282(.MCLK(MCLK), .en(w631), .inp(l278), .val(l282));
+	ym_slatch #(.DATA_WIDTH(8)) sl282(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b2_bp3), .val(tile_b2_bp3_lat));
 	
-	assign w615 = l251 & clk2;
-	assign w616 = l252 & clk2;
-	assign w617 = l253 & clk2;
-	assign w618 = l254 & clk2;
+	assign ser_nt_en0 = nt_b_ser0 & clk2;
+	assign ser_nt_en1 = nt_b_ser1 & clk2;
+	assign ser_nt_en2 = nt_b_ser2 & clk2;
+	assign ser_nt_en3 = nt_b_ser3 & clk2;
 	
-	ym_dlatch_1 dl283(.MCLK(MCLK), .c1(clk1), .inp(w640), .nval(l283));
+	ym_dlatch_1 dl283(.MCLK(MCLK), .c1(clk1), .inp(cell_fetch_start_n), .nval(ser_b2_phase0));
 	
-	ym_sr_bit sr284(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l283), .sr_out(l284));
+	ym_sr_bit sr284(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b2_phase0), .sr_out(ser_b2_phase1));
 	
-	ym_sr_bit sr285(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l284), .sr_out(l285));
+	ym_sr_bit sr285(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b2_phase1), .sr_out(ser_b2_phase2));
 	
-	ym_sr_bit sr286(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l285), .sr_out(l286));
+	ym_sr_bit sr286(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b2_phase2), .sr_out(ser_b2_phase3));
 	
-	assign w619 = l283 & clk2;
-	assign w620 = l284 & clk2;
-	assign w621 = l285 & clk2;
-	assign w622 = l286 & clk2;
+	assign ser_tileb2_en0 = ser_b2_phase0 & clk2;
+	assign ser_tileb2_en1 = ser_b2_phase1 & clk2;
+	assign ser_tileb2_en2 = ser_b2_phase2 & clk2;
+	assign ser_tileb2_en3 = ser_b2_phase3 & clk2;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl287(.MCLK(MCLK), .en(w645), .inp(l279), .val(l287));
+	ym_slatch #(.DATA_WIDTH(8)) sl287(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b2_bp0_lat), .val(sr_b_bp0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl288(.MCLK(MCLK), .en(w645), .inp(l280), .val(l288));
+	ym_slatch #(.DATA_WIDTH(8)) sl288(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b2_bp1_lat), .val(sr_b_bp1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl289(.MCLK(MCLK), .en(w645), .inp(l281), .val(l289));
+	ym_slatch #(.DATA_WIDTH(8)) sl289(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b2_bp2_lat), .val(sr_b_bp2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl290(.MCLK(MCLK), .en(w645), .inp(l282), .val(l290));
+	ym_slatch #(.DATA_WIDTH(8)) sl290(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b2_bp3_lat), .val(sr_b_bp3));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl291(.MCLK(MCLK), .en(w631),
-		.inp({ w587, l222[7], w586[1], l222[6], w586[0], l222[5], w584, l222[3] }), .val(l291));
+	ym_slatch #(.DATA_WIDTH(8)) sl291(.MCLK(MCLK), .en(tileb_load_en),
+		.inp({ tile_pri_bit, tile_pat_byte3[7], tile_pal_bits[1], tile_pat_byte3[6], tile_pal_bits[0], tile_pat_byte3[5], tile_hflip_raw, tile_pat_byte3[3] }), .val(nt_attr_packed_b));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl292(.MCLK(MCLK), .en(w645), .inp(l291), .val(l292));
+	ym_slatch #(.DATA_WIDTH(8)) sl292(.MCLK(MCLK), .en(planeB_sr_load), .inp(nt_attr_packed_b), .val(attr_pipe_b));
 	
-	assign w623 = ~(reg_m5 & reg_vscr);
+	assign vscr_col_inv = ~(reg_m5 & reg_vscr);
 	
-	ym_sr_bit_array #(.DATA_WIDTH(6)) sr293(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_address[6:1]), .data_out(l293));
+	ym_sr_bit_array #(.DATA_WIDTH(6)) sr293(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_address[6:1]), .data_out(vsram_addr_prev));
 	
-	assign w624 = w623 ^ hcnt[3];
+	assign vsram_col_adj = vscr_col_inv ^ hcnt[3];
 	
-	assign w625 = reg_vscr ? hcnt[8:4] : 5'h0;
+	assign vsram_col_hcnt = reg_vscr ? hcnt[8:4] : 5'h0;
 	
-	assign w626 = w569 ? l293 : { w625, w624 };
+	assign vsram_addr_mux = vsram_cram_wr_any ? vsram_addr_prev : { vsram_col_hcnt, vsram_col_adj };
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl294(.MCLK(MCLK), .en(w630), .inp(vram_serial), .val(l294));
+	ym_slatch #(.DATA_WIDTH(8)) sl294(.MCLK(MCLK), .en(ser_b_stg2_en3), .inp(vram_serial), .val(tile_b3_bp0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl295(.MCLK(MCLK), .en(w629), .inp(vram_serial), .val(l295));
+	ym_slatch #(.DATA_WIDTH(8)) sl295(.MCLK(MCLK), .en(ser_b_stg2_en2), .inp(vram_serial), .val(tile_b3_bp1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl296(.MCLK(MCLK), .en(w628), .inp(vram_serial), .val(l296));
+	ym_slatch #(.DATA_WIDTH(8)) sl296(.MCLK(MCLK), .en(ser_b_stg2_en1), .inp(vram_serial), .val(tile_b3_bp2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl297(.MCLK(MCLK), .en(w627), .inp(vram_serial), .val(l297));
+	ym_slatch #(.DATA_WIDTH(8)) sl297(.MCLK(MCLK), .en(ser_b_stg2_en0), .inp(vram_serial), .val(tile_b3_bp3));
 	
-	ym_dlatch_1 dl298(.MCLK(MCLK), .c1(clk1), .inp(w639), .nval(l298));
+	ym_dlatch_1 dl298(.MCLK(MCLK), .c1(clk1), .inp(cell_fetch_n), .nval(ser_b3_phase0));
 	
-	ym_sr_bit sr299(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l298), .sr_out(l299));
+	ym_sr_bit sr299(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b3_phase0), .sr_out(ser_b3_phase1));
 	
-	ym_sr_bit sr300(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l299), .sr_out(l300));
+	ym_sr_bit sr300(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b3_phase1), .sr_out(ser_b3_phase2));
 	
-	ym_sr_bit sr301(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l300), .sr_out(l301));
+	ym_sr_bit sr301(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b3_phase2), .sr_out(ser_b3_phase3));
 	
-	ym_sr_bit sr302(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(l301), .sr_out(l302));
+	ym_sr_bit sr302(.MCLK(MCLK), .c1(clk2), .c2(clk1), .bit_in(ser_b3_phase3), .sr_out(ser_b3_phase4));
 	
-	assign w627 = l298 & clk2;
+	assign ser_b_stg2_en0 = ser_b3_phase0 & clk2;
 	
-	assign w628 = l299 & clk2;
+	assign ser_b_stg2_en1 = ser_b3_phase1 & clk2;
 	
-	assign w629 = l300 & clk2;
+	assign ser_b_stg2_en2 = ser_b3_phase2 & clk2;
 	
-	assign w630 = l301 & clk2;
+	assign ser_b_stg2_en3 = ser_b3_phase3 & clk2;
 	
-	assign w631 = l302 & clk2;
+	assign tileb_load_en = ser_b3_phase4 & clk2;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl303(.MCLK(MCLK), .en(w631), .inp(l294), .val(l303));
+	ym_slatch #(.DATA_WIDTH(8)) sl303(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b3_bp0), .val(tile_b3_bp0_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl304(.MCLK(MCLK), .en(w631), .inp(l295), .val(l304));
+	ym_slatch #(.DATA_WIDTH(8)) sl304(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b3_bp1), .val(tile_b3_bp1_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl305(.MCLK(MCLK), .en(w631), .inp(l296), .val(l305));
+	ym_slatch #(.DATA_WIDTH(8)) sl305(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b3_bp2), .val(tile_b3_bp2_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl306(.MCLK(MCLK), .en(w631), .inp(l297), .val(l306));
+	ym_slatch #(.DATA_WIDTH(8)) sl306(.MCLK(MCLK), .en(tileb_load_en), .inp(tile_b3_bp3), .val(tile_b3_bp3_lat));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl307(.MCLK(MCLK), .en(w645), .inp(l303), .val(l307));
+	ym_slatch #(.DATA_WIDTH(8)) sl307(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b3_bp0_lat), .val(sr_b_ext0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl308(.MCLK(MCLK), .en(w645), .inp(l304), .val(l308));
+	ym_slatch #(.DATA_WIDTH(8)) sl308(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b3_bp1_lat), .val(sr_b_ext1));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl309(.MCLK(MCLK), .en(w645), .inp(l305), .val(l309));
+	ym_slatch #(.DATA_WIDTH(8)) sl309(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b3_bp2_lat), .val(sr_b_ext2));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl310(.MCLK(MCLK), .en(w645), .inp(l306), .val(l310));
+	ym_slatch #(.DATA_WIDTH(8)) sl310(.MCLK(MCLK), .en(planeB_sr_load), .inp(tile_b3_bp3_lat), .val(sr_b_ext3));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(4)) cnt311(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(1'h1), .reset(1'h0), .load(w649), .load_val({~hscroll_neg[3], hscroll_neg[2:0]}), .val(l311));
+		.c_in(1'h1), .reset(1'h0), .load(planeB_cell_load), .load_val({~hscroll_neg[3], hscroll_neg[2:0]}), .val(pixel_cnt_b));
 	
-	wire [2:0] w632_t = l311[2:0];
+	wire [2:0] w632_t = pixel_cnt_b[2:0];
 	
-	assign w632 = w634 ? ~w632_t : w632_t;
+	assign px_col_idx_b = attr_flip_b0_b ? ~w632_t : w632_t;
 	
-	assign w633 = ~(hclk1 & fetch_stage3);
+	assign fetch_stage3_n = ~(hclk1 & fetch_stage3);
 	
-	assign w634 = l311[3] ? l292[0] : l292[1];
-	assign w635 = l311[3] ? l292[2] : l292[3];
-	assign w636 = l311[3] ? l292[4] : l292[5];
-	assign w637 = l311[3] ? l292[6] : l292[7];
+	assign attr_flip_b0_b = pixel_cnt_b[3] ? attr_pipe_b[0] : attr_pipe_b[1];
+	assign attr_pal_b0_b = pixel_cnt_b[3] ? attr_pipe_b[2] : attr_pipe_b[3];
+	assign attr_pal_b1_b = pixel_cnt_b[3] ? attr_pipe_b[4] : attr_pipe_b[5];
+	assign attr_pri_b = pixel_cnt_b[3] ? attr_pipe_b[6] : attr_pipe_b[7];
 	
-	assign w638 = cell_bound_active | (reg_test1[10] & cpu_pen);
+	assign cell_fetch_trig = cell_bound_active | (reg_test1[10] & cpu_pen);
 	
-	ym_sr_bit sr312(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w638), .sr_out(l312));
+	ym_sr_bit sr312(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cell_fetch_trig), .sr_out(cell_fetch_pipe1));
 	
-	ym_sr_bit sr313(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l312), .sr_out(l313));
+	ym_sr_bit sr313(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cell_fetch_pipe1), .sr_out(cell_fetch_pipe2));
 	
-	assign w639 = ~(hclk1 & l313);
+	assign cell_fetch_n = ~(hclk1 & cell_fetch_pipe2);
 	
-	assign w640 = ~(hclk1 & w638);
+	assign cell_fetch_start_n = ~(hclk1 & cell_fetch_trig);
 	
-	assign w641 = { w632[2], ~w632[1], w632[0] };
+	assign px_col_adj_b = { px_col_idx_b[2], ~px_col_idx_b[1], px_col_idx_b[0] };
 	
-	assign w642 = blank_slot_active | (reg_test1[7] & cpu_pen);
+	assign blank_fetch_trig = blank_slot_active | (reg_test1[7] & cpu_pen);
 	
-	ym_sr_bit sr314(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w642), .sr_out(l314));
+	ym_sr_bit sr314(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(blank_fetch_trig), .sr_out(blank_fetch_pipe1));
 	
-	ym_sr_bit sr315(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l314), .sr_out(l315));
+	ym_sr_bit sr315(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(blank_fetch_pipe1), .sr_out(blank_fetch_pipe2));
 	
-	ym_sr_bit sr316(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l315), .sr_out(l316));
+	ym_sr_bit sr316(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(blank_fetch_pipe2), .sr_out(blank_fetch_pipe3));
 	
-	assign w643 = l314 & ~reg_test1[7];
+	assign hscr_fetch_pipe = blank_fetch_pipe1 & ~reg_test1[7];
 	
-	assign w644 = ~(l311 == 4'hf);
+	assign planeB_not_done = ~(pixel_cnt_b == 4'hf);
 	
-	ym_dlatch_1 dl317(.MCLK(MCLK), .c1(hclk1), .inp(w644), .nval(l317));
+	ym_dlatch_1 dl317(.MCLK(MCLK), .c1(hclk1), .inp(planeB_not_done), .nval(planeB_gate));
 	
-	assign w645 = l317 & hclk2;
+	assign planeB_sr_load = planeB_gate & hclk2;
 	
-	assign w646 = l269 != 4'h0;
+	assign planeA_nonzero = pxA_pipe1 != 4'h0;
 	
 	wire [7:0] w641_sel;
 	
-	assign w641_sel[0] = w641 == 3'h0;
-	assign w641_sel[1] = w641 == 3'h1;
-	assign w641_sel[2] = w641 == 3'h2;
-	assign w641_sel[3] = w641 == 3'h3;
-	assign w641_sel[4] = w641 == 3'h4;
-	assign w641_sel[5] = w641 == 3'h5;
-	assign w641_sel[6] = w641 == 3'h6;
-	assign w641_sel[7] = w641 == 3'h7;
+	assign w641_sel[0] = px_col_adj_b == 3'h0;
+	assign w641_sel[1] = px_col_adj_b == 3'h1;
+	assign w641_sel[2] = px_col_adj_b == 3'h2;
+	assign w641_sel[3] = px_col_adj_b == 3'h3;
+	assign w641_sel[4] = px_col_adj_b == 3'h4;
+	assign w641_sel[5] = px_col_adj_b == 3'h5;
+	assign w641_sel[6] = px_col_adj_b == 3'h6;
+	assign w641_sel[7] = px_col_adj_b == 3'h7;
 	
 	wire [3:0] w647_1 =
-		(w641_sel[7] ? l307[3:0] : 4'h0) |
-		(w641_sel[6] ? l307[7:4] : 4'h0) |
-		(w641_sel[5] ? l308[3:0] : 4'h0) |
-		(w641_sel[4] ? l308[7:4] : 4'h0) |
-		(w641_sel[3] ? l309[3:0] : 4'h0) |
-		(w641_sel[2] ? l309[7:4] : 4'h0) |
-		(w641_sel[1] ? l310[3:0] : 4'h0) |
-		(w641_sel[0] ? l310[7:4] : 4'h0);
+		(w641_sel[7] ? sr_b_ext0[3:0] : 4'h0) |
+		(w641_sel[6] ? sr_b_ext0[7:4] : 4'h0) |
+		(w641_sel[5] ? sr_b_ext1[3:0] : 4'h0) |
+		(w641_sel[4] ? sr_b_ext1[7:4] : 4'h0) |
+		(w641_sel[3] ? sr_b_ext2[3:0] : 4'h0) |
+		(w641_sel[2] ? sr_b_ext2[7:4] : 4'h0) |
+		(w641_sel[1] ? sr_b_ext3[3:0] : 4'h0) |
+		(w641_sel[0] ? sr_b_ext3[7:4] : 4'h0);
 	
 	wire [3:0] w647_2 =
-		(w641_sel[7] ? l287[3:0] : 4'h0) |
-		(w641_sel[6] ? l287[7:4] : 4'h0) |
-		(w641_sel[5] ? l288[3:0] : 4'h0) |
-		(w641_sel[4] ? l288[7:4] : 4'h0) |
-		(w641_sel[3] ? l289[3:0] : 4'h0) |
-		(w641_sel[2] ? l289[7:4] : 4'h0) |
-		(w641_sel[1] ? l290[3:0] : 4'h0) |
-		(w641_sel[0] ? l290[7:4] : 4'h0);
+		(w641_sel[7] ? sr_b_bp0[3:0] : 4'h0) |
+		(w641_sel[6] ? sr_b_bp0[7:4] : 4'h0) |
+		(w641_sel[5] ? sr_b_bp1[3:0] : 4'h0) |
+		(w641_sel[4] ? sr_b_bp1[7:4] : 4'h0) |
+		(w641_sel[3] ? sr_b_bp2[3:0] : 4'h0) |
+		(w641_sel[2] ? sr_b_bp2[7:4] : 4'h0) |
+		(w641_sel[1] ? sr_b_bp3[3:0] : 4'h0) |
+		(w641_sel[0] ? sr_b_bp3[7:4] : 4'h0);
 	
-	assign w647 =
-		(l311[3] ? w647_1 : 4'h0) |
-		(~l311[3] ? w647_2 : 4'h0);
+	assign planeB_pixel =
+		(pixel_cnt_b[3] ? w647_1 : 4'h0) |
+		(~pixel_cnt_b[3] ? w647_2 : 4'h0);
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr318(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w647), .data_out(l318));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr318(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(planeB_pixel), .data_out(pxB_pipe1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(4)) sr319(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l318), .data_out(l319));
+	ym_sr_bit_array #(.DATA_WIDTH(4)) sr319(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(pxB_pipe1), .data_out(pxB_pipe2));
 	
-	assign w648 = l318 != 4'h0;
+	assign planeB_nonzero = pxB_pipe1 != 4'h0;
 	
-	ym_sr_bit sr320(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w637), .sr_out(l320));
+	ym_sr_bit sr320(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(attr_pri_b), .sr_out(priB_pipe1));
 	
-	ym_sr_bit sr321(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l320), .sr_out(l321));
+	ym_sr_bit sr321(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(priB_pipe1), .sr_out(priB_pipe2));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr322(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({w636, w635}), .data_out(l322));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr322(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({attr_pal_b1_b, attr_pal_b0_b}), .data_out(palB_pipe1));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(2)) sr323(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(l322), .data_out(l323));
+	ym_sr_bit_array #(.DATA_WIDTH(2)) sr323(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(palB_pipe1), .data_out(palB_pipe2));
 	
-	assign w649 = tst_fn5_wr | pre_wrap_active;
+	assign planeB_cell_load = tst_fn5_wr | pre_wrap_active;
 	
 	// -------------------------------------------------------------------------
 	// VSRAM (Vertical Scroll RAM)
@@ -6500,19 +6497,19 @@ module ym7101
 
 	ym_sr_bit sr602(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_lo_cond), .sr_out(cram_wr_lo));
 	
-	assign pri_spr_or_a = l273 ? spr_out_pri : ~l320;
+	assign pri_spr_or_a = priA_pipe1 ? spr_out_pri : ~priB_pipe1;
 	
-	assign pri_spr_hi_b_hi = ~l273 & spr_out_pri & l320;
+	assign pri_spr_hi_b_hi = ~priA_pipe1 & spr_out_pri & priB_pipe1;
 	
-	assign pri_a_hi_only = l273 & ~spr_out_pri & ~l320;
+	assign pri_a_hi_only = priA_pipe1 & ~spr_out_pri & ~priB_pipe1;
 	
-	assign pri_b_hi_only = ~l273 & ~spr_out_pri & l320;
+	assign pri_b_hi_only = ~priA_pipe1 & ~spr_out_pri & priB_pipe1;
 	
-	assign pri_a_hi_b_hi = l273 & ~spr_out_pri & l320;
+	assign pri_a_hi_b_hi = priA_pipe1 & ~spr_out_pri & priB_pipe1;
 	
-	assign sh_no_priority = sh_mode_active & ~l273 & ~spr_out_pri & ~l320;
+	assign sh_no_priority = sh_mode_active & ~priA_pipe1 & ~spr_out_pri & ~priB_pipe1;
 	
-	assign sh_spr_only = sh_mode_active & ~l273 & spr_out_pri & ~l320;
+	assign sh_spr_only = sh_mode_active & ~priA_pipe1 & spr_out_pri & ~priB_pipe1;
 	
 	assign sh_mode_active = reg_ste & reg_m5;
 	
@@ -6520,9 +6517,9 @@ module ym7101
 	
 	assign spr_transparent = sh_spr_special | ~spr_idx_nonzero;
 	
-	assign spr_opaque = ~w646 & (reg_m5 | spr_idx_nonzero);
+	assign spr_opaque = ~planeA_nonzero & (reg_m5 | spr_idx_nonzero);
 	
-	assign planeb_opaque = ~reg_m5 | ~w648;
+	assign planeb_opaque = ~reg_m5 | ~planeB_nonzero;
 	
 	assign test_layer_spr = reg_test0[8:7] == 2'h1;
 	assign test_layer_a = reg_test0[8:7] == 2'h2;
@@ -6743,183 +6740,183 @@ module ym7101
 	assign b_col[6] = dac_blu_pipe == 3'h6;
 	assign b_col[7] = dac_blu_pipe == 3'h7;
 	
-	assign w1103[0][0] = (normal_intensity & r_col[0]) | (~reg_m5 & r_col[0]) | (~reg_m5 & r_col[1]) | (shadow_level & r_col[0]);
-	assign w1103[0][1] = (shadow_level & r_col[1]);
-	assign w1103[0][2] = (normal_intensity & r_col[1]) | (shadow_level & r_col[2]);
-	assign w1103[0][3] = (shadow_level & r_col[3]);
-	assign w1103[0][4] = (normal_intensity & r_col[2]) | (shadow_level & r_col[4]);
-	assign w1103[0][5] = (~reg_m5 & r_col[2]) | (~reg_m5 & r_col[3]);
-	assign w1103[0][6] = (shadow_level & r_col[5]);
-	assign w1103[0][7] = (normal_intensity & r_col[3]) | (shadow_level & r_col[6]);
-	assign w1103[0][8] = (shadow_level & r_col[7]) | (highlight_flag & r_col[0]);
-	assign w1103[0][9] = (normal_intensity & r_col[4]) | (highlight_flag & r_col[1]);
-	assign w1103[0][10] = (highlight_flag & r_col[2]);
-	assign w1103[0][11] = (~reg_m5 & r_col[4]) | (~reg_m5 & r_col[5]);
-	assign w1103[0][12] = (normal_intensity & r_col[5]) | (highlight_flag & r_col[3]);
-	assign w1103[0][13] = (highlight_flag & r_col[4]);
-	assign w1103[0][14] = (normal_intensity & r_col[6]) | (highlight_flag & r_col[5]);
-	assign w1103[0][15] = (highlight_flag & r_col[6]);
-	assign w1103[0][16] = (normal_intensity & r_col[7]) | (~reg_m5 & r_col[6]) | (~reg_m5 & r_col[7]) | (highlight_flag & r_col[7]);
+	assign dac_thermo[0][0] = (normal_intensity & r_col[0]) | (~reg_m5 & r_col[0]) | (~reg_m5 & r_col[1]) | (shadow_level & r_col[0]);
+	assign dac_thermo[0][1] = (shadow_level & r_col[1]);
+	assign dac_thermo[0][2] = (normal_intensity & r_col[1]) | (shadow_level & r_col[2]);
+	assign dac_thermo[0][3] = (shadow_level & r_col[3]);
+	assign dac_thermo[0][4] = (normal_intensity & r_col[2]) | (shadow_level & r_col[4]);
+	assign dac_thermo[0][5] = (~reg_m5 & r_col[2]) | (~reg_m5 & r_col[3]);
+	assign dac_thermo[0][6] = (shadow_level & r_col[5]);
+	assign dac_thermo[0][7] = (normal_intensity & r_col[3]) | (shadow_level & r_col[6]);
+	assign dac_thermo[0][8] = (shadow_level & r_col[7]) | (highlight_flag & r_col[0]);
+	assign dac_thermo[0][9] = (normal_intensity & r_col[4]) | (highlight_flag & r_col[1]);
+	assign dac_thermo[0][10] = (highlight_flag & r_col[2]);
+	assign dac_thermo[0][11] = (~reg_m5 & r_col[4]) | (~reg_m5 & r_col[5]);
+	assign dac_thermo[0][12] = (normal_intensity & r_col[5]) | (highlight_flag & r_col[3]);
+	assign dac_thermo[0][13] = (highlight_flag & r_col[4]);
+	assign dac_thermo[0][14] = (normal_intensity & r_col[6]) | (highlight_flag & r_col[5]);
+	assign dac_thermo[0][15] = (highlight_flag & r_col[6]);
+	assign dac_thermo[0][16] = (normal_intensity & r_col[7]) | (~reg_m5 & r_col[6]) | (~reg_m5 & r_col[7]) | (highlight_flag & r_col[7]);
 	
-	assign w1103[1][0] = (normal_intensity & g_col[0]) | (~reg_m5 & g_col[0]) | (~reg_m5 & g_col[1]) | (shadow_level & g_col[0]);
-	assign w1103[1][1] = (shadow_level & g_col[1]);
-	assign w1103[1][2] = (normal_intensity & g_col[1]) | (shadow_level & g_col[2]);
-	assign w1103[1][3] = (shadow_level & g_col[3]);
-	assign w1103[1][4] = (normal_intensity & g_col[2]) | (shadow_level & g_col[4]);
-	assign w1103[1][5] = (~reg_m5 & g_col[2]) | (~reg_m5 & g_col[3]);
-	assign w1103[1][6] = (shadow_level & g_col[5]);
-	assign w1103[1][7] = (normal_intensity & g_col[3]) | (shadow_level & g_col[6]);
-	assign w1103[1][8] = (shadow_level & g_col[7]) | (highlight_flag & g_col[0]);
-	assign w1103[1][9] = (normal_intensity & g_col[4]) | (highlight_flag & g_col[1]);
-	assign w1103[1][10] = (highlight_flag & g_col[2]);
-	assign w1103[1][11] = (~reg_m5 & g_col[4]) | (~reg_m5 & g_col[5]);
-	assign w1103[1][12] = (normal_intensity & g_col[5]) | (highlight_flag & g_col[3]);
-	assign w1103[1][13] = (highlight_flag & g_col[4]);
-	assign w1103[1][14] = (normal_intensity & g_col[6]) | (highlight_flag & g_col[5]);
-	assign w1103[1][15] = (highlight_flag & g_col[6]);
-	assign w1103[1][16] = (normal_intensity & g_col[7]) | (~reg_m5 & g_col[6]) | (~reg_m5 & g_col[7]) | (highlight_flag & g_col[7]);
+	assign dac_thermo[1][0] = (normal_intensity & g_col[0]) | (~reg_m5 & g_col[0]) | (~reg_m5 & g_col[1]) | (shadow_level & g_col[0]);
+	assign dac_thermo[1][1] = (shadow_level & g_col[1]);
+	assign dac_thermo[1][2] = (normal_intensity & g_col[1]) | (shadow_level & g_col[2]);
+	assign dac_thermo[1][3] = (shadow_level & g_col[3]);
+	assign dac_thermo[1][4] = (normal_intensity & g_col[2]) | (shadow_level & g_col[4]);
+	assign dac_thermo[1][5] = (~reg_m5 & g_col[2]) | (~reg_m5 & g_col[3]);
+	assign dac_thermo[1][6] = (shadow_level & g_col[5]);
+	assign dac_thermo[1][7] = (normal_intensity & g_col[3]) | (shadow_level & g_col[6]);
+	assign dac_thermo[1][8] = (shadow_level & g_col[7]) | (highlight_flag & g_col[0]);
+	assign dac_thermo[1][9] = (normal_intensity & g_col[4]) | (highlight_flag & g_col[1]);
+	assign dac_thermo[1][10] = (highlight_flag & g_col[2]);
+	assign dac_thermo[1][11] = (~reg_m5 & g_col[4]) | (~reg_m5 & g_col[5]);
+	assign dac_thermo[1][12] = (normal_intensity & g_col[5]) | (highlight_flag & g_col[3]);
+	assign dac_thermo[1][13] = (highlight_flag & g_col[4]);
+	assign dac_thermo[1][14] = (normal_intensity & g_col[6]) | (highlight_flag & g_col[5]);
+	assign dac_thermo[1][15] = (highlight_flag & g_col[6]);
+	assign dac_thermo[1][16] = (normal_intensity & g_col[7]) | (~reg_m5 & g_col[6]) | (~reg_m5 & g_col[7]) | (highlight_flag & g_col[7]);
 	
-	assign w1103[2][0] = (normal_intensity & b_col[0]) | (~reg_m5 & b_col[0]) | (~reg_m5 & b_col[1]) | (shadow_level & b_col[0]);
-	assign w1103[2][1] = (shadow_level & b_col[1]);
-	assign w1103[2][2] = (normal_intensity & b_col[1]) | (shadow_level & b_col[2]);
-	assign w1103[2][3] = (shadow_level & b_col[3]);
-	assign w1103[2][4] = (normal_intensity & b_col[2]) | (shadow_level & b_col[4]);
-	assign w1103[2][5] = (~reg_m5 & b_col[2]) | (~reg_m5 & b_col[3]);
-	assign w1103[2][6] = (shadow_level & b_col[5]);
-	assign w1103[2][7] = (normal_intensity & b_col[3]) | (shadow_level & b_col[6]);
-	assign w1103[2][8] = (shadow_level & b_col[7]) | (highlight_flag & b_col[0]);
-	assign w1103[2][9] = (normal_intensity & b_col[4]) | (highlight_flag & b_col[1]);
-	assign w1103[2][10] = (highlight_flag & b_col[2]);
-	assign w1103[2][11] = (~reg_m5 & b_col[4]) | (~reg_m5 & b_col[5]);
-	assign w1103[2][12] = (normal_intensity & b_col[5]) | (highlight_flag & b_col[3]);
-	assign w1103[2][13] = (highlight_flag & b_col[4]);
-	assign w1103[2][14] = (normal_intensity & b_col[6]) | (highlight_flag & b_col[5]);
-	assign w1103[2][15] = (highlight_flag & b_col[6]);
-	assign w1103[2][16] = (normal_intensity & b_col[7]) | (~reg_m5 & b_col[6]) | (~reg_m5 & b_col[7]) | (highlight_flag & b_col[7]);
+	assign dac_thermo[2][0] = (normal_intensity & b_col[0]) | (~reg_m5 & b_col[0]) | (~reg_m5 & b_col[1]) | (shadow_level & b_col[0]);
+	assign dac_thermo[2][1] = (shadow_level & b_col[1]);
+	assign dac_thermo[2][2] = (normal_intensity & b_col[1]) | (shadow_level & b_col[2]);
+	assign dac_thermo[2][3] = (shadow_level & b_col[3]);
+	assign dac_thermo[2][4] = (normal_intensity & b_col[2]) | (shadow_level & b_col[4]);
+	assign dac_thermo[2][5] = (~reg_m5 & b_col[2]) | (~reg_m5 & b_col[3]);
+	assign dac_thermo[2][6] = (shadow_level & b_col[5]);
+	assign dac_thermo[2][7] = (normal_intensity & b_col[3]) | (shadow_level & b_col[6]);
+	assign dac_thermo[2][8] = (shadow_level & b_col[7]) | (highlight_flag & b_col[0]);
+	assign dac_thermo[2][9] = (normal_intensity & b_col[4]) | (highlight_flag & b_col[1]);
+	assign dac_thermo[2][10] = (highlight_flag & b_col[2]);
+	assign dac_thermo[2][11] = (~reg_m5 & b_col[4]) | (~reg_m5 & b_col[5]);
+	assign dac_thermo[2][12] = (normal_intensity & b_col[5]) | (highlight_flag & b_col[3]);
+	assign dac_thermo[2][13] = (highlight_flag & b_col[4]);
+	assign dac_thermo[2][14] = (normal_intensity & b_col[6]) | (highlight_flag & b_col[5]);
+	assign dac_thermo[2][15] = (highlight_flag & b_col[6]);
+	assign dac_thermo[2][16] = (normal_intensity & b_col[7]) | (~reg_m5 & b_col[6]) | (~reg_m5 & b_col[7]) | (highlight_flag & b_col[7]);
 	
 /*
 	// linear DAC
 	assign DAC_R =
-		(w1103[0][0] ? 8'd0 : 8'd0) |
-		(w1103[0][1] ? 8'd18 : 8'd0) |
-		(w1103[0][2] ? 8'd36 : 8'd0) |
-		(w1103[0][3] ? 8'd54 : 8'd0) |
-		(w1103[0][4] ? 8'd72 : 8'd0) |
-		(w1103[0][5] ? 8'd85 : 8'd0) |
-		(w1103[0][6] ? 8'd91 : 8'd0) |
-		(w1103[0][7] ? 8'd109 : 8'd0) |
-		(w1103[0][8] ? 8'd127 : 8'd0) |
-		(w1103[0][9] ? 8'd145 : 8'd0) |
-		(w1103[0][10] ? 8'd163 : 8'd0) |
-		(w1103[0][11] ? 8'd170 : 8'd0) |
-		(w1103[0][12] ? 8'd182 : 8'd0) |
-		(w1103[0][13] ? 8'd200 : 8'd0) |
-		(w1103[0][14] ? 8'd218 : 8'd0) |
-		(w1103[0][15] ? 8'd236 : 8'd0) |
-		(w1103[0][16] ? 8'd255 : 8'd0);
+		(dac_thermo[0][0] ? 8'd0 : 8'd0) |
+		(dac_thermo[0][1] ? 8'd18 : 8'd0) |
+		(dac_thermo[0][2] ? 8'd36 : 8'd0) |
+		(dac_thermo[0][3] ? 8'd54 : 8'd0) |
+		(dac_thermo[0][4] ? 8'd72 : 8'd0) |
+		(dac_thermo[0][5] ? 8'd85 : 8'd0) |
+		(dac_thermo[0][6] ? 8'd91 : 8'd0) |
+		(dac_thermo[0][7] ? 8'd109 : 8'd0) |
+		(dac_thermo[0][8] ? 8'd127 : 8'd0) |
+		(dac_thermo[0][9] ? 8'd145 : 8'd0) |
+		(dac_thermo[0][10] ? 8'd163 : 8'd0) |
+		(dac_thermo[0][11] ? 8'd170 : 8'd0) |
+		(dac_thermo[0][12] ? 8'd182 : 8'd0) |
+		(dac_thermo[0][13] ? 8'd200 : 8'd0) |
+		(dac_thermo[0][14] ? 8'd218 : 8'd0) |
+		(dac_thermo[0][15] ? 8'd236 : 8'd0) |
+		(dac_thermo[0][16] ? 8'd255 : 8'd0);
 	
 	assign DAC_G =
-		(w1103[1][0] ? 8'd0 : 8'd0) |
-		(w1103[1][1] ? 8'd18 : 8'd0) |
-		(w1103[1][2] ? 8'd36 : 8'd0) |
-		(w1103[1][3] ? 8'd54 : 8'd0) |
-		(w1103[1][4] ? 8'd72 : 8'd0) |
-		(w1103[1][5] ? 8'd85 : 8'd0) |
-		(w1103[1][6] ? 8'd91 : 8'd0) |
-		(w1103[1][7] ? 8'd109 : 8'd0) |
-		(w1103[1][8] ? 8'd127 : 8'd0) |
-		(w1103[1][9] ? 8'd145 : 8'd0) |
-		(w1103[1][10] ? 8'd163 : 8'd0) |
-		(w1103[1][11] ? 8'd170 : 8'd0) |
-		(w1103[1][12] ? 8'd182 : 8'd0) |
-		(w1103[1][13] ? 8'd200 : 8'd0) |
-		(w1103[1][14] ? 8'd218 : 8'd0) |
-		(w1103[1][15] ? 8'd236 : 8'd0) |
-		(w1103[1][16] ? 8'd255 : 8'd0);
+		(dac_thermo[1][0] ? 8'd0 : 8'd0) |
+		(dac_thermo[1][1] ? 8'd18 : 8'd0) |
+		(dac_thermo[1][2] ? 8'd36 : 8'd0) |
+		(dac_thermo[1][3] ? 8'd54 : 8'd0) |
+		(dac_thermo[1][4] ? 8'd72 : 8'd0) |
+		(dac_thermo[1][5] ? 8'd85 : 8'd0) |
+		(dac_thermo[1][6] ? 8'd91 : 8'd0) |
+		(dac_thermo[1][7] ? 8'd109 : 8'd0) |
+		(dac_thermo[1][8] ? 8'd127 : 8'd0) |
+		(dac_thermo[1][9] ? 8'd145 : 8'd0) |
+		(dac_thermo[1][10] ? 8'd163 : 8'd0) |
+		(dac_thermo[1][11] ? 8'd170 : 8'd0) |
+		(dac_thermo[1][12] ? 8'd182 : 8'd0) |
+		(dac_thermo[1][13] ? 8'd200 : 8'd0) |
+		(dac_thermo[1][14] ? 8'd218 : 8'd0) |
+		(dac_thermo[1][15] ? 8'd236 : 8'd0) |
+		(dac_thermo[1][16] ? 8'd255 : 8'd0);
 	
 	assign DAC_B =
-		(w1103[2][0] ? 8'd0 : 8'd0) |
-		(w1103[2][1] ? 8'd18 : 8'd0) |
-		(w1103[2][2] ? 8'd36 : 8'd0) |
-		(w1103[2][3] ? 8'd54 : 8'd0) |
-		(w1103[2][4] ? 8'd72 : 8'd0) |
-		(w1103[2][6] ? 8'd91 : 8'd0) |
-		(w1103[2][5] ? 8'd102 : 8'd0) |
-		(w1103[2][7] ? 8'd109 : 8'd0) |
-		(w1103[2][8] ? 8'd127 : 8'd0) |
-		(w1103[2][9] ? 8'd145 : 8'd0) |
-		(w1103[2][10] ? 8'd163 : 8'd0) |
-		(w1103[2][11] ? 8'd170 : 8'd0) |
-		(w1103[2][12] ? 8'd182 : 8'd0) |
-		(w1103[2][13] ? 8'd200 : 8'd0) |
-		(w1103[2][14] ? 8'd218 : 8'd0) |
-		(w1103[2][15] ? 8'd236 : 8'd0) |
-		(w1103[2][16] ? 8'd255 : 8'd0);
+		(dac_thermo[2][0] ? 8'd0 : 8'd0) |
+		(dac_thermo[2][1] ? 8'd18 : 8'd0) |
+		(dac_thermo[2][2] ? 8'd36 : 8'd0) |
+		(dac_thermo[2][3] ? 8'd54 : 8'd0) |
+		(dac_thermo[2][4] ? 8'd72 : 8'd0) |
+		(dac_thermo[2][6] ? 8'd91 : 8'd0) |
+		(dac_thermo[2][5] ? 8'd102 : 8'd0) |
+		(dac_thermo[2][7] ? 8'd109 : 8'd0) |
+		(dac_thermo[2][8] ? 8'd127 : 8'd0) |
+		(dac_thermo[2][9] ? 8'd145 : 8'd0) |
+		(dac_thermo[2][10] ? 8'd163 : 8'd0) |
+		(dac_thermo[2][11] ? 8'd170 : 8'd0) |
+		(dac_thermo[2][12] ? 8'd182 : 8'd0) |
+		(dac_thermo[2][13] ? 8'd200 : 8'd0) |
+		(dac_thermo[2][14] ? 8'd218 : 8'd0) |
+		(dac_thermo[2][15] ? 8'd236 : 8'd0) |
+		(dac_thermo[2][16] ? 8'd255 : 8'd0);
 */
 	// -------------------------------------------------------------------------
 	// DAC & color output (non-linear)
 	// -------------------------------------------------------------------------
-	// 17-level non-linear RGB DAC. The thermometer-coded w1103[0..2] signals
+	// 17-level non-linear RGB DAC. The thermometer-coded dac_thermo[0..2] signals
 	// (one per color channel) are weighted with non-linear values that model
 	// the voltage divider on the original MegaDrive board. Shadow/highlight
 	// modes shift the intensity range via shadow_flag/highlight_flag flags.
 	// (The commented-out linear DAC above was the original uniform version.)
 	assign DAC_R =
-		(w1103[0][0] ? 8'd0 : 8'd0) |
-		(w1103[0][1] ? 8'd27 : 8'd0) |
-		(w1103[0][2] ? 8'd49 : 8'd0) |
-		(w1103[0][3] ? 8'd67 : 8'd0) |
-		(w1103[0][4] ? 8'd84 : 8'd0) |
-		(w1103[0][5] ? 8'd95 : 8'd0) |
-		(w1103[0][6] ? 8'd100 : 8'd0) |
-		(w1103[0][7] ? 8'd114 : 8'd0) |
-		(w1103[0][8] ? 8'd128 : 8'd0) |
-		(w1103[0][9] ? 8'd142 : 8'd0) |
-		(w1103[0][10] ? 8'd156 : 8'd0) |
-		(w1103[0][11] ? 8'd161 : 8'd0) |
-		(w1103[0][12] ? 8'd172 : 8'd0) |
-		(w1103[0][13] ? 8'd188 : 8'd0) |
-		(w1103[0][14] ? 8'd206 : 8'd0) |
-		(w1103[0][15] ? 8'd228 : 8'd0) |
-		(w1103[0][16] ? 8'd255 : 8'd0);
+		(dac_thermo[0][0] ? 8'd0 : 8'd0) |
+		(dac_thermo[0][1] ? 8'd27 : 8'd0) |
+		(dac_thermo[0][2] ? 8'd49 : 8'd0) |
+		(dac_thermo[0][3] ? 8'd67 : 8'd0) |
+		(dac_thermo[0][4] ? 8'd84 : 8'd0) |
+		(dac_thermo[0][5] ? 8'd95 : 8'd0) |
+		(dac_thermo[0][6] ? 8'd100 : 8'd0) |
+		(dac_thermo[0][7] ? 8'd114 : 8'd0) |
+		(dac_thermo[0][8] ? 8'd128 : 8'd0) |
+		(dac_thermo[0][9] ? 8'd142 : 8'd0) |
+		(dac_thermo[0][10] ? 8'd156 : 8'd0) |
+		(dac_thermo[0][11] ? 8'd161 : 8'd0) |
+		(dac_thermo[0][12] ? 8'd172 : 8'd0) |
+		(dac_thermo[0][13] ? 8'd188 : 8'd0) |
+		(dac_thermo[0][14] ? 8'd206 : 8'd0) |
+		(dac_thermo[0][15] ? 8'd228 : 8'd0) |
+		(dac_thermo[0][16] ? 8'd255 : 8'd0);
 	
 	assign DAC_G =
-		(w1103[1][0] ? 8'd0 : 8'd0) |
-		(w1103[1][1] ? 8'd27 : 8'd0) |
-		(w1103[1][2] ? 8'd49 : 8'd0) |
-		(w1103[1][3] ? 8'd67 : 8'd0) |
-		(w1103[1][4] ? 8'd84 : 8'd0) |
-		(w1103[1][5] ? 8'd95 : 8'd0) |
-		(w1103[1][6] ? 8'd100 : 8'd0) |
-		(w1103[1][7] ? 8'd114 : 8'd0) |
-		(w1103[1][8] ? 8'd128 : 8'd0) |
-		(w1103[1][9] ? 8'd142 : 8'd0) |
-		(w1103[1][10] ? 8'd156 : 8'd0) |
-		(w1103[1][11] ? 8'd161 : 8'd0) |
-		(w1103[1][12] ? 8'd172 : 8'd0) |
-		(w1103[1][13] ? 8'd188 : 8'd0) |
-		(w1103[1][14] ? 8'd206 : 8'd0) |
-		(w1103[1][15] ? 8'd228 : 8'd0) |
-		(w1103[1][16] ? 8'd255 : 8'd0);
+		(dac_thermo[1][0] ? 8'd0 : 8'd0) |
+		(dac_thermo[1][1] ? 8'd27 : 8'd0) |
+		(dac_thermo[1][2] ? 8'd49 : 8'd0) |
+		(dac_thermo[1][3] ? 8'd67 : 8'd0) |
+		(dac_thermo[1][4] ? 8'd84 : 8'd0) |
+		(dac_thermo[1][5] ? 8'd95 : 8'd0) |
+		(dac_thermo[1][6] ? 8'd100 : 8'd0) |
+		(dac_thermo[1][7] ? 8'd114 : 8'd0) |
+		(dac_thermo[1][8] ? 8'd128 : 8'd0) |
+		(dac_thermo[1][9] ? 8'd142 : 8'd0) |
+		(dac_thermo[1][10] ? 8'd156 : 8'd0) |
+		(dac_thermo[1][11] ? 8'd161 : 8'd0) |
+		(dac_thermo[1][12] ? 8'd172 : 8'd0) |
+		(dac_thermo[1][13] ? 8'd188 : 8'd0) |
+		(dac_thermo[1][14] ? 8'd206 : 8'd0) |
+		(dac_thermo[1][15] ? 8'd228 : 8'd0) |
+		(dac_thermo[1][16] ? 8'd255 : 8'd0);
 	
 	assign DAC_B =
-		(w1103[2][0] ? 8'd0 : 8'd0) |
-		(w1103[2][1] ? 8'd27 : 8'd0) |
-		(w1103[2][2] ? 8'd49 : 8'd0) |
-		(w1103[2][3] ? 8'd67 : 8'd0) |
-		(w1103[2][4] ? 8'd84 : 8'd0) |
-		(w1103[2][6] ? 8'd100 : 8'd0) |
-		(w1103[2][5] ? 8'd109 : 8'd0) |
-		(w1103[2][7] ? 8'd114 : 8'd0) |
-		(w1103[2][8] ? 8'd128 : 8'd0) |
-		(w1103[2][9] ? 8'd142 : 8'd0) |
-		(w1103[2][10] ? 8'd156 : 8'd0) |
-		(w1103[2][11] ? 8'd161 : 8'd0) |
-		(w1103[2][12] ? 8'd172 : 8'd0) |
-		(w1103[2][13] ? 8'd188 : 8'd0) |
-		(w1103[2][14] ? 8'd206 : 8'd0) |
-		(w1103[2][15] ? 8'd228 : 8'd0) |
-		(w1103[2][16] ? 8'd255 : 8'd0);
+		(dac_thermo[2][0] ? 8'd0 : 8'd0) |
+		(dac_thermo[2][1] ? 8'd27 : 8'd0) |
+		(dac_thermo[2][2] ? 8'd49 : 8'd0) |
+		(dac_thermo[2][3] ? 8'd67 : 8'd0) |
+		(dac_thermo[2][4] ? 8'd84 : 8'd0) |
+		(dac_thermo[2][6] ? 8'd100 : 8'd0) |
+		(dac_thermo[2][5] ? 8'd109 : 8'd0) |
+		(dac_thermo[2][7] ? 8'd114 : 8'd0) |
+		(dac_thermo[2][8] ? 8'd128 : 8'd0) |
+		(dac_thermo[2][9] ? 8'd142 : 8'd0) |
+		(dac_thermo[2][10] ? 8'd156 : 8'd0) |
+		(dac_thermo[2][11] ? 8'd161 : 8'd0) |
+		(dac_thermo[2][12] ? 8'd172 : 8'd0) |
+		(dac_thermo[2][13] ? 8'd188 : 8'd0) |
+		(dac_thermo[2][14] ? 8'd206 : 8'd0) |
+		(dac_thermo[2][15] ? 8'd228 : 8'd0) |
+		(dac_thermo[2][16] ? 8'd255 : 8'd0);
 	
 	// -------------------------------------------------------------------------
 	// Color RAM (CRAM)
@@ -7199,12 +7196,12 @@ module ym7101
 		(fifo_rd_s1 ? fifo_data_3 : 17'h1ffff) &
 		(nt_m5_fetch ? { nt_base_sel[3:1], 14'h3fff } : 17'h1ffff) &
 		(nt_fetch_active ? { 3'h7, nt_base_sel[0], nt_row_addr, scroll_row_mapped[4:0], pixel_col_pos[4:0], 1'h0 } : 17'h1ffff) &
-		(w643 ? { reg_hs, vcnt_for_hscr, 2'h0 } : 17'h1ffff) & // hscroll
+		(hscr_fetch_pipe ? { reg_hs, vcnt_for_hscr, 2'h0 } : 17'h1ffff) & // hscroll
 		(win_fetch_pipe ? { reg_wd[5:1], win_nt_addr_mux, hcnt[7:4], 2'h0 } : 17'h1ffff) & // window
-		(slot01_fetch_pipe ? { 12'hfff, w577[2:0], ~not_sms_s0_pipe, 1'h0 } : 17'h1ffff) &
-		(slot01_sms_pipe ? { 3'h7, w578, 5'h1f } : 17'h1ffff) &
-		(m5_fetch_flag ? { w579, 14'h3fff } : 17'h1ffff) &
-		(l218 ? { w580, 5'h1f } : 17'h1ffff) &
+		(slot01_fetch_pipe ? { 12'hfff, tile_row_flip[2:0], ~not_sms_s0_pipe, 1'h0 } : 17'h1ffff) &
+		(slot01_sms_pipe ? { 3'h7, pattern_row_lo, 5'h1f } : 17'h1ffff) &
+		(m5_fetch_flag ? { pattern_row_hi, 14'h3fff } : 17'h1ffff) &
+		(slot0_m5_pipe ? { pattern_base, 5'h1f } : 17'h1ffff) &
 		(link_cnt_inc ? { 9'h1ff, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h1ffff) &
 		(m4_attr_phase ? { 3'h7, reg_86_b2, vram_attr_sel[7:1], spr_cnt_m4_bit, spr_cnt_bit_2, spr_cnt_bit_1, spr_cnt_bit_0, ~hcnt[1], 1'h0 } : 17'h1ffff) &
 		(m4_fetch_active ? { 3'h7, reg_at[6:1], 8'hff} : 17'h1ffff) &
@@ -7223,12 +7220,12 @@ module ym7101
 		(fifo_rd_s1 ? 17'h1ffff : 17'h0) |
 		(nt_m5_fetch ? 17'h1c000 : 17'h0) |
 		(nt_fetch_active ? 17'h03fff : 17'h0) |
-		(w643 ? 17'h1ffff : 17'h0) |
+		(hscr_fetch_pipe ? 17'h1ffff : 17'h0) |
 		(win_fetch_pipe ? 17'h1ffff : 17'h0) | 
 		(slot01_fetch_pipe ? 17'h0001f : 17'h0) |
 		(slot01_sms_pipe ? 17'h03fe0 : 17'h0) |
 		(m5_fetch_flag ? 17'h1c000 : 17'h0) |
-		(l218 ? 17'h1ffe0 : 17'h0) |
+		(slot0_m5_pipe ? 17'h1ffe0 : 17'h0) |
 		(link_cnt_inc ? 17'h000ff : 17'h0) |
 		(m4_attr_phase ? 17'h03fff : 17'h0) |
 		(m4_fetch_active ? 17'h03f00 : 17'h0) |
@@ -7256,12 +7253,12 @@ module ym7101
 		(fifo_rd_s1 ? fifo_data_3 : 17'h0) |
 		(nt_m5_fetch ? { nt_base_sel[3:1], 14'h0 } : 17'h0) |
 		(nt_fetch_active ? { 3'h0, nt_base_sel[0], nt_row_addr, scroll_row_mapped[4:0], pixel_col_pos[4:0], 1'h0 } : 17'h0) |
-		(w643 ? { reg_hs, vcnt_for_hscr, 2'h0 } : 17'h0) | // hscroll
+		(hscr_fetch_pipe ? { reg_hs, vcnt_for_hscr, 2'h0 } : 17'h0) | // hscroll
 		(win_fetch_pipe ? { reg_wd[5:1], win_nt_addr_mux, hcnt[7:4], 2'h0 } : 17'h0) | // window
-		(slot01_fetch_pipe ? { 12'h0, w577[2:0], ~not_sms_s0_pipe, 1'h0 } : 17'h0) |
-		(slot01_sms_pipe ? { 3'h0, w578, 5'h0 } : 17'h0) |
-		(m5_fetch_flag ? { w579, 14'h0 } : 17'h0) |
-		(l218 ? { w580, 5'h0 } : 17'h0) |
+		(slot01_fetch_pipe ? { 12'h0, tile_row_flip[2:0], ~not_sms_s0_pipe, 1'h0 } : 17'h0) |
+		(slot01_sms_pipe ? { 3'h0, pattern_row_lo, 5'h0 } : 17'h0) |
+		(m5_fetch_flag ? { pattern_row_hi, 14'h0 } : 17'h0) |
+		(slot0_m5_pipe ? { pattern_base, 5'h0 } : 17'h0) |
 		(link_cnt_inc ? { 9'h0, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h0) |
 		(m4_attr_phase ? { 3'h0, reg_86_b2, vram_attr_sel[7:1], spr_cnt_m4_bit, spr_cnt_bit_2, spr_cnt_bit_1, spr_cnt_bit_0, ~hcnt[1], 1'h0 } : 17'h0) |
 		(m4_fetch_active ? { 3'h0, reg_at[6:1], 8'h0} : 17'h0) |
@@ -7380,8 +7377,8 @@ module ym7101
 	wire [6:0] color_bus_val =
 		(sel_bg_pipe ? { 1'h0, reg_m5 ? reg_col_pal : 2'h1, reg_col_index } : 7'h7f) &
 		(sel_spr_pipe ? { spr_pri_pipe_2, spr_pal_pipe_2, spr_idx_pipe_2 } : 7'h7f) &
-		(sel_b_pipe ? { l321, l323, l319 } : 7'h7f) &
-		(sel_a_pipe ? { l274, l272, l270 } : 7'h7f);
+		(sel_b_pipe ? { priB_pipe2, palB_pipe2, pxB_pipe2 } : 7'h7f) &
+		(sel_a_pipe ? { priA_pipe2, palA_pipe2, pxA_pipe2 } : 7'h7f);
 	
 	reg [6:0] color_bus_mem;
 	
