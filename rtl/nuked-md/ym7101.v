@@ -1034,114 +1034,114 @@ module ym7101
 	wire field_trig_pipe;
 
 	// Scroll plane rendering: tilemap address, tile fetch, pixel serialization
-	wire w513;
-	wire l178;
-	wire w514;
-	wire [7:0] l179; // H-scroll data latch (from reg write)
-	wire [10:0] w515; // 11 bits
-	wire [10:0] l180; // VSRAM read latch (11 bits)
-	wire [10:0] l181;
-	wire [2:0] l182;
-	wire l183; // VSRAM data bus drive
-	wire w516;
-	wire w517;
-	wire [10:0] l184;
-	wire [10:0] l185;
-	wire l186;
-	wire [10:0] w518;
-	wire w519;
-	wire w520;
-	wire [10:0] w521;
-	wire [10:0] w522;
+	wire vsram_latch_en;
+	wire hcnt3_pipe;
+	wire vscroll_reset_en;
+	wire [7:0] sms_vscroll_reg; // H-scroll data latch (from reg write)
+	wire [10:0] vscroll_src_mux; // 11 bits
+	wire [10:0] vsram_b_latch; // VSRAM read latch (11 bits)
+	wire [10:0] vsram_data_pipe;
+	wire [2:0] vsram_hi_pipe;
+	wire vsram_rd_pipe; // VSRAM data bus drive
+	wire vsram_b_latch_en;
+	wire vscroll_init_en;
+	wire [10:0] vscroll_init_val;
+	wire [10:0] vsram_a_latch;
+	wire vscroll_mask_pipe;
+	wire [10:0] vscroll_masked;
+	wire vscroll_mask_cond;
+	wire vscr_per_col_sel;
+	wire [10:0] vscroll_active_val;
+	wire [10:0] vscroll_sum;
 	wire [1:0] reg_hsz; // horizontal scroll size (00=32, 01=64, 11=128)
 	wire [1:0] reg_vsz; // vertical scroll size (00=32, 01=64, 11=128)
-	wire w523;
-	wire w524;
-	wire w525;
-	wire [6:0] w526;
-	wire [6:0] w527;
-	wire [6:0] w528;
-	wire w529;
-	wire w530;
-	wire w531;
+	wire hsz_is_32;
+	wire hsz_is_64;
+	wire hsz_is_128;
+	wire [6:0] vscroll_row;
+	wire [6:0] scroll_row_mapped;
+	wire [6:0] vscroll_col;
+	wire sms_col_wrap;
+	wire sms_col_overflow;
+	wire nt_m5_fetch;
 	// Nametable base address registers
 	wire [3:0] reg_sa; // plane A nametable base (reg 0x82)
 	wire [1:0] reg_nt; // m4 nametable (reg 0x82, SMS mode)
 	wire [3:0] reg_sb; // plane B nametable base (reg 0x84)
-	wire [3:0] w532;
-	wire [1:0] w533;
+	wire [3:0] nt_base_sel;
+	wire [1:0] nt_row_addr;
 	wire reg_8e_b0;
 	wire reg_8e_b4;
-	wire w534;
-	wire [7:0] w535; // 8 bits
-	wire [5:0] w536; // 6 bits
+	wire not_top_border;
+	wire [7:0] vcnt_for_hscr; // 8 bits
+	wire [5:0] win_nt_addr_mux; // 6 bits
 	// Window plane registers
 	wire [5:0] reg_wd; // window nametable base (reg 0x83)
 	wire [6:0] reg_hs; // H-scroll table base (reg 0x8D)
-	wire [7:0] w537;
-	wire w538;
-	wire w539;
-	wire w540;
-	wire w541;
+	wire [7:0] vcnt_shifted;
+	wire h_win_compare;
+	wire h_win_result;
+	wire v_win_compare;
+	wire win_zone_active;
 	wire [4:0] reg_whp; // window H position (reg 0x91)
 	wire reg_rigt;       // window right flag (reg 0x91 bit 7)
 	wire [4:0] reg_wvp; // window V position (reg 0x92)
 	wire reg_down;       // window down flag (reg 0x92 bit 7)
-	wire w542;
-	wire w543;
-	wire w544;
-	wire l187;
-	wire [4:0] l188;
-	wire l189;
-	wire [4:0] l190;
-	wire w545;
-	wire w546;
-	wire w547;
+	wire win_h_lat_en;
+	wire win_v_reset_en;
+	wire win_v_lat_en;
+	wire win_right_lat;
+	wire [4:0] win_hpos_lat;
+	wire win_down_lat;
+	wire [4:0] win_vpos_lat;
+	wire v_below_win;
+	wire h_past_win;
+	wire hscr_lat_en;
 	wire [7:0] reg_88; // m4 scroll
-	wire [7:0] l191;
-	wire [7:0] l192;
-	wire w548;
-	wire w549;
-	wire w550;
-	wire w551;
-	wire w552;
-	wire w553;
-	wire [7:0] l193;
-	wire [9:0] w554;
-	wire [1:0] l194;
-	wire [1:0] l195;
-	wire [6:0] w555;
-	wire l196;
-	wire l197;
-	wire l198;
-	wire l199;
-	wire w556;
-	wire l200;
-	wire w557;
-	wire l201;
-	wire w558;
-	wire w559;
-	wire l202;
-	wire w560;
-	wire l203;
-	wire l204;
-	wire l205;
-	wire w561;
-	wire w562;
-	wire w563;
-	wire w564;
-	wire [3:0] w565;
-	wire w566;
-	wire [1:0] w567;
-	wire w568;
-	wire l206;
-	wire l207;
-	wire l208;
-	wire l209;
-	wire l210;
-	wire l211;
+	wire [7:0] hscr_ser_byte0;
+	wire [7:0] hscr_ser_byte1;
+	wire slot01_any;
+	wire slot2_or_test;
+	wire slot0_sms;
+	wire slot01_sms;
+	wire sms_top_region;
+	wire scroll_enabled;
+	wire [7:0] sms_hscr_lat;
+	wire [9:0] hscroll_neg;
+	wire [1:0] hscr_hi_byte0;
+	wire [1:0] hscr_hi_byte1;
+	wire [6:0] pixel_col_pos;
+	wire slot01_fetch_pipe;
+	wire hcnt3_pipe2;
+	wire not_sms_s0_pipe;
+	wire slot01_sms_pipe;
+	wire planeb_sel_cond;
+	wire planeb_sel;
+	wire non_win_slot3;
+	wire non_win_fetch_pipe;
+	wire nt_fetch_active;
+	wire win_slot3;
+	wire win_fetch_pipe;
+	wire slot3_or_slot2;
+	wire fetch_stage1;
+	wire fetch_stage2;
+	wire fetch_stage3;
+	wire hcnt_high_sel;
+	wire sms_hcnt_inv;
+	wire sms_col_adj;
+	wire hscr_lo_bit;
+	wire [3:0] col_addr_hi;
+	wire m5_fetch_flag;
+	wire [1:0] col_sz_bits;
+	wire hcnt_overflow;
+	wire cram_wr_dly1;
+	wire vsram_hi_wr_dly1;
+	wire vsram_lo_wr_dly1;
+	wire cram_wr_dly2;
+	wire vsram_hi_wr_dly2;
+	wire vsram_lo_wr_dly2;
 	wire w569;
-	wire [5:0] l212; // 6 bits
+	wire [5:0] vsram_idx_pipe; // 6 bits
 	wire l213;
 	wire w570;
 	wire l214;
@@ -4196,70 +4196,70 @@ module ym7101
 	//   5. Pixel shift registers → 4-bit color index output per pixel
 	// Also handles the window plane (overrides plane A in a rectangular region).
 
-	assign w513 = (hclk1 & vscr_active) | reg_test1[7];
+	assign vsram_latch_en = (hclk1 & vscr_active) | reg_test1[7];
 	
-	ym_sr_bit sr178(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt[3]), .sr_out(l178));
+	ym_sr_bit sr178(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt[3]), .sr_out(hcnt3_pipe));
 	
-	assign w514 = hclk1 & active_end & (reg_m5 | vcnt_at_max);
+	assign vscroll_reset_en = hclk1 & active_end & (reg_m5 | vcnt_at_max);
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl179(.MCLK(MCLK), .en(reg_wr_hi), .inp(reg_data_l2[7:0]), .val(l179));
+	ym_slatch #(.DATA_WIDTH(8)) sl179(.MCLK(MCLK), .en(reg_wr_hi), .inp(reg_data_l2[7:0]), .val(sms_vscroll_reg));
 	
-	assign w515 = reg_m5 ? vsram_out : { 3'h0, l179 };
+	assign vscroll_src_mux = reg_m5 ? vsram_out : { 3'h0, sms_vscroll_reg };
 	
-	ym_slatch #(.DATA_WIDTH(11)) sl180(.MCLK(MCLK), .en(w516), .inp(vsram_out), .val(l180));
+	ym_slatch #(.DATA_WIDTH(11)) sl180(.MCLK(MCLK), .en(vsram_b_latch_en), .inp(vsram_out), .val(vsram_b_latch));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(11)) sr181(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ l182, data_rd_pipe }), .data_out(l181));
+	ym_sr_bit_array #(.DATA_WIDTH(11)) sr181(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in({ vsram_hi_pipe, data_rd_pipe }), .data_out(vsram_data_pipe));
 	
-	ym_sr_bit_array #(.DATA_WIDTH(3)) sr182(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[10:8]), .data_out(l182));
+	ym_sr_bit_array #(.DATA_WIDTH(3)) sr182(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vram_data[10:8]), .data_out(vsram_hi_pipe));
 	
-	ym_sr_bit sr183(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l209), .sr_out(l183));
+	ym_sr_bit sr183(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_dly2), .sr_out(vsram_rd_pipe));
 	
-	assign w516 = l209 & hclk1;
+	assign vsram_b_latch_en = cram_wr_dly2 & hclk1;
 	
-	assign w517 = w514 | reg_test1[7];
+	assign vscroll_init_en = vscroll_reset_en | reg_test1[7];
 	
-	ym_slatch #(.DATA_WIDTH(11)) sl184(.MCLK(MCLK), .en(w517), .inp(w515), .val(l184));
+	ym_slatch #(.DATA_WIDTH(11)) sl184(.MCLK(MCLK), .en(vscroll_init_en), .inp(vscroll_src_mux), .val(vscroll_init_val));
 	
-	ym_slatch #(.DATA_WIDTH(11)) sl185(.MCLK(MCLK), .en(w513), .inp(vsram_out), .val(l185));
+	ym_slatch #(.DATA_WIDTH(11)) sl185(.MCLK(MCLK), .en(vsram_latch_en), .inp(vsram_out), .val(vsram_a_latch));
 	
-	ym_sr_bit sr186(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w519), .sr_out(l186));
+	ym_sr_bit sr186(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vscroll_mask_cond), .sr_out(vscroll_mask_pipe));
 	
-	assign w518 = { l184[10:8], l186 ? l184[7:0] : 8'h0 };
+	assign vscroll_masked = { vscroll_init_val[10:8], vscroll_mask_pipe ? vscroll_init_val[7:0] : 8'h0 };
 	
-	assign w519 = ~(hcnt[7:6] == 2'h3 & reg_80_b7);
+	assign vscroll_mask_cond = ~(hcnt[7:6] == 2'h3 & reg_80_b7);
 	
-	assign w520 = reg_m5 & (l178 | reg_vscr);
+	assign vscr_per_col_sel = reg_m5 & (hcnt3_pipe | reg_vscr);
 	
-	assign w521 = w520 ? l185 : w518;
+	assign vscroll_active_val = vscr_per_col_sel ? vsram_a_latch : vscroll_masked;
 	
-	assign w522 = w521 + { 2'h0, vcnt_ext[8:0] };
+	assign vscroll_sum = vscroll_active_val + { 2'h0, vcnt_ext[8:0] };
 	
 	ym_slatch #(.DATA_WIDTH(2)) sl_hsz(.MCLK(MCLK), .en(reg_wr_88), .inp(reg_data_l2[1:0]), .val(reg_hsz));
 	
 	ym_slatch #(.DATA_WIDTH(2)) sl_vsz(.MCLK(MCLK), .en(reg_wr_88), .inp(reg_data_l2[5:4]), .val(reg_vsz));
 	
-	assign w523 = reg_hsz == 2'h0;
+	assign hsz_is_32 = reg_hsz == 2'h0;
 	
-	assign w524 = reg_hsz == 2'h1;
+	assign hsz_is_64 = reg_hsz == 2'h1;
 	
-	assign w525 = reg_hsz == 2'h3;
+	assign hsz_is_128 = reg_hsz == 2'h3;
 	
-	assign w526 = interlace_dblres ? w522[10:4] : w522[9:3];
+	assign vscroll_row = interlace_dblres ? vscroll_sum[10:4] : vscroll_sum[9:3];
 	
-	assign w527 =
-		( w523 ? w528 : 7'h0 ) |
-		( w524 ? { w528[5:0], w555[5] }: 7'h0 ) |
-		( w525 ? { w528[4:0], w555[6:5] } : 7'h0 );
+	assign scroll_row_mapped =
+		( hsz_is_32 ? vscroll_col : 7'h0 ) |
+		( hsz_is_64 ? { vscroll_col[5:0], pixel_col_pos[5] }: 7'h0 ) |
+		( hsz_is_128 ? { vscroll_col[4:0], pixel_col_pos[6:5] } : 7'h0 );
 	
-	wire [2:0] w528_sum = w526[4:2] + { 2'h0, w529 };
+	wire [2:0] w528_sum = vscroll_row[4:2] + { 2'h0, sms_col_wrap };
 	
-	assign w528 = { reg_vsz[1] & w526[6], reg_vsz[0] & w526[5], w528_sum, w526[1:0] };
+	assign vscroll_col = { reg_vsz[1] & vscroll_row[6], reg_vsz[0] & vscroll_row[5], w528_sum, vscroll_row[1:0] };
 	
-	assign w529 = ~reg_m5 & w530;
+	assign sms_col_wrap = ~reg_m5 & sms_col_overflow;
 	
-	assign w530 = w526[4:2] == 3'h7 | w526[5];
+	assign sms_col_overflow = vscroll_row[4:2] == 3'h7 | vscroll_row[5];
 	
-	assign w531 = reg_m5 & w558;
+	assign nt_m5_fetch = reg_m5 & nt_fetch_active;
 	
 	ym_slatch #(.DATA_WIDTH(4)) sl_sa(.MCLK(MCLK), .en(reg_wr_82), .inp(reg_data_l2[6:3]), .val(reg_sa));
 	
@@ -4267,35 +4267,35 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(4)) sl_sb(.MCLK(MCLK), .en(reg_wr_84), .inp(reg_data_l2[3:0]), .val(reg_sb));
 	
-	assign w532 = l200 ? reg_sb : reg_sa;
+	assign nt_base_sel = planeb_sel ? reg_sb : reg_sa;
 	
-	assign w533 = reg_m5 ? w527[6:5] : reg_nt;
+	assign nt_row_addr = reg_m5 ? scroll_row_mapped[6:5] : reg_nt;
 	
 	ym_slatch sl_8e_b0(.MCLK(MCLK), .en(wr_en_8E), .inp(reg_data_l2[0]), .val(reg_8e_b0));
 	
 	ym_slatch sl_8e_b4(.MCLK(MCLK), .en(wr_en_8E), .inp(reg_data_l2[4]), .val(reg_8e_b4));
 	
-	assign w534 = hcnt[8:7] != 2'h3;
+	assign not_top_border = hcnt[8:7] != 2'h3;
 	
-	assign w535 = { reg_hscr ? w537[7:3] : 5'h0, reg_lscr ? w537[2:0] : 3'h0 };
+	assign vcnt_for_hscr = { reg_hscr ? vcnt_shifted[7:3] : 5'h0, reg_lscr ? vcnt_shifted[2:0] : 3'h0 };
 	
-	assign w536 = reg_rs1 ?
-		{ w537[7:3], hcnt[8] } :
-		{ reg_wd[0], w537[7:3] };
+	assign win_nt_addr_mux = reg_rs1 ?
+		{ vcnt_shifted[7:3], hcnt[8] } :
+		{ reg_wd[0], vcnt_shifted[7:3] };
 	
 	ym_slatch #(.DATA_WIDTH(6)) sl_wd(.MCLK(MCLK), .en(reg_wr_83), .inp(reg_data_l2[6:1]), .val(reg_wd));
 	
 	ym_slatch #(.DATA_WIDTH(7)) sl_hs(.MCLK(MCLK), .en(wr_en_8D_m5), .inp(reg_data_l2[6:0]), .val(reg_hs));
 	
-	assign w537 = interlace_dblres ? vcnt_ext[8:1] : vcnt_ext[7:0];
+	assign vcnt_shifted = interlace_dblres ? vcnt_ext[8:1] : vcnt_ext[7:0];
 	
-	assign w538 = w546 ^ ~l187;
+	assign h_win_compare = h_past_win ^ ~win_right_lat;
 	
-	assign w539 = w538 & w534;
+	assign h_win_result = h_win_compare & not_top_border;
 	
-	assign w540 = w545 ^ l189;
+	assign v_win_compare = v_below_win ^ win_down_lat;
 	
-	assign w541 = (w540 | w539) & ~hcnt[3] & reg_m5;
+	assign win_zone_active = (v_win_compare | h_win_result) & ~hcnt[3] & reg_m5;
 	
 	ym_slatch #(.DATA_WIDTH(5)) sl_whp(.MCLK(MCLK), .en(reg_wr_87), .inp(reg_data_l2[4:0]), .val(reg_whp));
 	
@@ -4305,119 +4305,119 @@ module ym7101
 	
 	ym_slatch sl_down(.MCLK(MCLK), .en(reg_wr_86), .inp(reg_data_l2[7]), .val(reg_down));
 	
-	assign w542 = reg_test1[7] | active_end;
+	assign win_h_lat_en = reg_test1[7] | active_end;
 	
-	assign w543 = active_end & (reg_m5 | vcnt_at_max);
+	assign win_v_reset_en = active_end & (reg_m5 | vcnt_at_max);
 	
-	assign w544 = w543 | reg_test1[7];
+	assign win_v_lat_en = win_v_reset_en | reg_test1[7];
 	
-	ym_slatch sl187(.MCLK(MCLK), .en(w542), .inp(reg_rigt), .val(l187));
+	ym_slatch sl187(.MCLK(MCLK), .en(win_h_lat_en), .inp(reg_rigt), .val(win_right_lat));
 	
-	ym_slatch #(.DATA_WIDTH(5)) sl188(.MCLK(MCLK), .en(w542), .inp(reg_whp), .val(l188));
+	ym_slatch #(.DATA_WIDTH(5)) sl188(.MCLK(MCLK), .en(win_h_lat_en), .inp(reg_whp), .val(win_hpos_lat));
 	
-	ym_slatch sl189(.MCLK(MCLK), .en(w544), .inp(reg_down), .val(l189));
+	ym_slatch sl189(.MCLK(MCLK), .en(win_v_lat_en), .inp(reg_down), .val(win_down_lat));
 	
-	ym_slatch #(.DATA_WIDTH(5)) sl190(.MCLK(MCLK), .en(w544), .inp(reg_wvp), .val(l190));
+	ym_slatch #(.DATA_WIDTH(5)) sl190(.MCLK(MCLK), .en(win_v_lat_en), .inp(reg_wvp), .val(win_vpos_lat));
 	
-	assign w545 = w537[7:3] < l190;
+	assign v_below_win = vcnt_shifted[7:3] < win_vpos_lat;
 	
-	assign w546 = l188 <= hcnt[8:4];
+	assign h_past_win = win_hpos_lat <= hcnt[8:4];
 	
-	assign w547 = reg_test1[7] | active_end;
+	assign hscr_lat_en = reg_test1[7] | active_end;
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl_88(.MCLK(MCLK), .en(wr_en_88), .inp(reg_data_l2[7:0]), .val(reg_88));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl191(.MCLK(MCLK), .en(w570), .inp(vram_serial), .val(l191));
+	ym_slatch #(.DATA_WIDTH(8)) sl191(.MCLK(MCLK), .en(w570), .inp(vram_serial), .val(hscr_ser_byte0));
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl192(.MCLK(MCLK), .en(w572), .inp(vram_serial), .val(l192));
+	ym_slatch #(.DATA_WIDTH(8)) sl192(.MCLK(MCLK), .en(w572), .inp(vram_serial), .val(hscr_ser_byte1));
 	
-	assign w548 = slot0_active | slot1_active;
+	assign slot01_any = slot0_active | slot1_active;
 	
-	assign w549 = slot2_active | (reg_test1[8] & cpu_pen);
+	assign slot2_or_test = slot2_active | (reg_test1[8] & cpu_pen);
 	
-	assign w550 = slot0_active & ~reg_m5;
+	assign slot0_sms = slot0_active & ~reg_m5;
 	
-	assign w551 = w550 | slot1_active;
+	assign slot01_sms = slot0_sms | slot1_active;
 	
-	assign w552 = ~(~reg_80_b6 | vcnt_ext[5] | vcnt_ext[6] | vcnt_ext[4] | vcnt_ext[7]);
+	assign sms_top_region = ~(~reg_80_b6 | vcnt_ext[5] | vcnt_ext[6] | vcnt_ext[4] | vcnt_ext[7]);
 	
-	assign w553 = w552 | reg_m5;
+	assign scroll_enabled = sms_top_region | reg_m5;
 	
-	ym_slatch #(.DATA_WIDTH(8)) sl193(.MCLK(MCLK), .en(w547), .inp(reg_88), .val(l193));
+	ym_slatch #(.DATA_WIDTH(8)) sl193(.MCLK(MCLK), .en(hscr_lat_en), .inp(reg_88), .val(sms_hscr_lat));
 	
-	assign w554 = ~(
-		(~w553 ? { 2'h0, l193 } : 10'h0) |
-		(w574 ? { l194, l191 } : 10'h0) |
-		(w575 ? { l195, l192 } : 10'h0)
+	assign hscroll_neg = ~(
+		(~scroll_enabled ? { 2'h0, sms_hscr_lat } : 10'h0) |
+		(w574 ? { hscr_hi_byte0, hscr_ser_byte0 } : 10'h0) |
+		(w575 ? { hscr_hi_byte1, hscr_ser_byte1 } : 10'h0)
 		);
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl194(.MCLK(MCLK), .en(w571), .inp(vram_serial[1:0]), .val(l194));
+	ym_slatch #(.DATA_WIDTH(2)) sl194(.MCLK(MCLK), .en(w571), .inp(vram_serial[1:0]), .val(hscr_hi_byte0));
 	
-	ym_slatch #(.DATA_WIDTH(2)) sl195(.MCLK(MCLK), .en(w573), .inp(vram_serial[1:0]), .val(l195));
+	ym_slatch #(.DATA_WIDTH(2)) sl195(.MCLK(MCLK), .en(w573), .inp(vram_serial[1:0]), .val(hscr_hi_byte1));
 	
-	assign w555 = { w554[9:4], w564 } + { w567, w565, w563 } + 7'h1;
+	assign pixel_col_pos = { hscroll_neg[9:4], hscr_lo_bit } + { col_sz_bits, col_addr_hi, sms_col_adj } + 7'h1;
 	
-	ym_sr_bit sr196(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w548), .sr_out(l196));
+	ym_sr_bit sr196(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot01_any), .sr_out(slot01_fetch_pipe));
 	
-	ym_sr_bit sr197(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt[3]), .sr_out(l197));
+	ym_sr_bit sr197(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(hcnt[3]), .sr_out(hcnt3_pipe2));
 	
-	ym_sr_bit sr198(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~w550), .sr_out(l198));
+	ym_sr_bit sr198(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(~slot0_sms), .sr_out(not_sms_s0_pipe));
 	
-	ym_sr_bit sr199(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w551), .sr_out(l199));
+	ym_sr_bit sr199(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot01_sms), .sr_out(slot01_sms_pipe));
 	
-	assign w556 = reg_m5 & ~reg_test1[8] & w549;
+	assign planeb_sel_cond = reg_m5 & ~reg_test1[8] & slot2_or_test;
 	
-	ym_sr_bit sr200(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w556), .sr_out(l200));
+	ym_sr_bit sr200(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(planeb_sel_cond), .sr_out(planeb_sel));
 	
-	assign w557 = ~w541 & slot3_active;
+	assign non_win_slot3 = ~win_zone_active & slot3_active;
 	
-	ym_sr_bit sr201(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w557), .sr_out(l201));
+	ym_sr_bit sr201(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(non_win_slot3), .sr_out(non_win_fetch_pipe));
 	
-	assign w558 = l200 | l201;
+	assign nt_fetch_active = planeb_sel | non_win_fetch_pipe;
 	
-	assign w559 = slot3_active & w541;
+	assign win_slot3 = slot3_active & win_zone_active;
 	
-	ym_sr_bit sr202(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w559), .sr_out(l202));
+	ym_sr_bit sr202(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(win_slot3), .sr_out(win_fetch_pipe));
 	
-	assign w560 = slot3_active | w549;
+	assign slot3_or_slot2 = slot3_active | slot2_or_test;
 	
-	ym_sr_bit sr203(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w560), .sr_out(l203));
+	ym_sr_bit sr203(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(slot3_or_slot2), .sr_out(fetch_stage1));
 	
-	ym_sr_bit sr204(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l203), .sr_out(l204));
+	ym_sr_bit sr204(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_stage1), .sr_out(fetch_stage2));
 	
-	ym_sr_bit sr205(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l204), .sr_out(l205));
+	ym_sr_bit sr205(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(fetch_stage2), .sr_out(fetch_stage3));
 	
-	assign w561 = reg_rs1 ? w568 : hcnt[8];
+	assign hcnt_high_sel = reg_rs1 ? hcnt_overflow : hcnt[8];
 	
-	assign w562 = ~(w561 | reg_m5);
+	assign sms_hcnt_inv = ~(hcnt_high_sel | reg_m5);
 	
-	assign w563 = w562 & hcnt[3];
+	assign sms_col_adj = sms_hcnt_inv & hcnt[3];
 	
-	assign w564 = w554[3] | reg_m5;
+	assign hscr_lo_bit = hscroll_neg[3] | reg_m5;
 	
-	assign w565 = w561 ? 4'hf : hcnt[7:4];
+	assign col_addr_hi = hcnt_high_sel ? 4'hf : hcnt[7:4];
 	
-	assign w566 = reg_m5 & l199;
+	assign m5_fetch_flag = reg_m5 & slot01_sms_pipe;
 	
-	assign w567 = w561 ? reg_hsz : { w568, hcnt[8] };
+	assign col_sz_bits = hcnt_high_sel ? reg_hsz : { hcnt_overflow, hcnt[8] };
 	
-	assign w568 = hcnt[8] & (hcnt[7] | hcnt[6]);
+	assign hcnt_overflow = hcnt[8] & (hcnt[7] | hcnt[6]);
 	
-	ym_sr_bit sr206(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_sel), .sr_out(l206));
+	ym_sr_bit sr206(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_sel), .sr_out(cram_wr_dly1));
 	
-	ym_sr_bit sr207(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_wr_hi), .sr_out(l207));
+	ym_sr_bit sr207(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_wr_hi), .sr_out(vsram_hi_wr_dly1));
 	
-	ym_sr_bit sr208(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_wr_lo), .sr_out(l208));
+	ym_sr_bit sr208(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_wr_lo), .sr_out(vsram_lo_wr_dly1));
 	
-	ym_sr_bit sr209(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l206), .sr_out(l209));
+	ym_sr_bit sr209(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(cram_wr_dly1), .sr_out(cram_wr_dly2));
 	
-	ym_sr_bit sr210(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l207), .sr_out(l210));
+	ym_sr_bit sr210(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_hi_wr_dly1), .sr_out(vsram_hi_wr_dly2));
 	
-	ym_sr_bit sr211(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l208), .sr_out(l211));
+	ym_sr_bit sr211(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(vsram_lo_wr_dly1), .sr_out(vsram_lo_wr_dly2));
 	
-	assign w569 = l206 | l207 | l208;
+	assign w569 = cram_wr_dly1 | vsram_hi_wr_dly1 | vsram_lo_wr_dly1;
 	
-	ym_sr_bit_array #(.DATA_WIDTH(6)) sr212(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w626), .data_out(l212));
+	ym_sr_bit_array #(.DATA_WIDTH(6)) sr212(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w626), .data_out(vsram_idx_pipe));
 	
 	ym_dlatch_1 dl213(.MCLK(MCLK), .c1(clk1), .inp(~(hclk1 & l316)), .nval(l213));
 	
@@ -4435,11 +4435,11 @@ module ym7101
 	
 	assign w573 = l216 & clk2;
 	
-	assign w574 = ~w541 & reg_m5 & ~hcnt[3];
+	assign w574 = ~win_zone_active & reg_m5 & ~hcnt[3];
 	
-	assign w575 = ~w541 & reg_m5 & hcnt[3];
+	assign w575 = ~win_zone_active & reg_m5 & hcnt[3];
 	
-	assign w576 = l217 ? vcnt_ext[3:0] : w522[3:0];
+	assign w576 = l217 ? vcnt_ext[3:0] : vscroll_sum[3:0];
 	
 	assign w577 = w583 ? ~w576 : w576;
 	
@@ -4449,9 +4449,9 @@ module ym7101
 	
 	assign w580 = interlace_dblres ? { l222[2:0], l221, w577[3] } : { w581, l222[2:0], l221 };
 	
-	assign w581 = l197 ? reg_8e_b4 : reg_8e_b0;
+	assign w581 = hcnt3_pipe2 ? reg_8e_b4 : reg_8e_b0;
 	
-	ym_sr_bit sr217(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(w541), .sr_out(l217));
+	ym_sr_bit sr217(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(win_zone_active), .sr_out(l217));
 	
 	assign w582 = slot0_active & reg_m5;
 	
@@ -4508,7 +4508,7 @@ module ym7101
 	
 	assign w592 = w598 & clk2;
 	
-	ym_slatch #(.DATA_WIDTH(4)) sl236(.MCLK(MCLK), .en(l242), .inp(w554[3:0]), .val(l236));
+	ym_slatch #(.DATA_WIDTH(4)) sl236(.MCLK(MCLK), .en(l242), .inp(hscroll_neg[3:0]), .val(l236));
 	
 	assign w593 = w614 & l236 == 4'hf;
 	
@@ -4780,13 +4780,13 @@ module ym7101
 	ym_slatch #(.DATA_WIDTH(8)) sl310(.MCLK(MCLK), .en(w645), .inp(l306), .val(l310));
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(4)) cnt311(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(1'h1), .reset(1'h0), .load(w649), .load_val({~w554[3], w554[2:0]}), .val(l311));
+		.c_in(1'h1), .reset(1'h0), .load(w649), .load_val({~hscroll_neg[3], hscroll_neg[2:0]}), .val(l311));
 	
 	wire [2:0] w632_t = l311[2:0];
 	
 	assign w632 = w634 ? ~w632_t : w632_t;
 	
-	assign w633 = ~(hclk1 & l205);
+	assign w633 = ~(hclk1 & fetch_stage3);
 	
 	assign w634 = l311[3] ? l292[0] : l292[1];
 	assign w635 = l311[3] ? l292[2] : l292[3];
@@ -4881,7 +4881,7 @@ module ym7101
 	// for a 2-cell (16-pixel) column. Directly indexed by the scroll plane
 	// rendering logic. Dual-ported: write from FIFO, read during tile fetch.
 
-	wire [5:0] vsram_index = l212;
+	wire [5:0] vsram_index = vsram_idx_pipe;
 	
 	always @(posedge MCLK)
 	begin
@@ -4889,10 +4889,10 @@ module ym7101
 		begin
 			if (hclk1) // write cycle
 			begin
-				if (l211)
-					vsram[vsram_index][7:0] <= l181[7:0];
-				if (l210)
-					vsram[vsram_index][10:8] <= l181[10:8];
+				if (vsram_lo_wr_dly2)
+					vsram[vsram_index][7:0] <= vsram_data_pipe[7:0];
+				if (vsram_hi_wr_dly2)
+					vsram[vsram_index][10:8] <= vsram_data_pipe[10:8];
 			end
 			vsram_out <= vsram[vsram_index];
 			if (vsram_index[0])
@@ -7174,7 +7174,7 @@ module ym7101
 		(data_rd_s2 ? { fifo_hi_s2, fifo_out_s2 } : 16'hffff) &
 		(data_rd_s3 ? { fifo_hi_s3, fifo_out_s3 } : 16'hffff) &
 		(data_rd_s0 ? { fifo_hi_s0, fifo_out_s0 } : 16'hffff) &
-		(l183 ? { 5'h1f, l180 } : 16'hffff) &
+		(vsram_rd_pipe ? { 5'h1f, vsram_b_latch } : 16'hffff) &
 		(sat_rd_pipe_2 ? { 5'h1f, sat_field_latch } : 16'hffff) &
 		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'hffff) &
 		(cram_wr_dly_3 ? { 4'hf, cram_rd_latch[8:6], 1'h1, cram_rd_latch[5:3], 1'h1, cram_rd_latch[2:0], 1'h1 } : 16'hffff);
@@ -7184,7 +7184,7 @@ module ym7101
 		(data_rd_s2 ? 16'hffff : 16'h0) |
 		(data_rd_s3 ? 16'hffff : 16'h0) |
 		(data_rd_s0 ? 16'hffff : 16'h0) |
-		(l183 ? 16'h07ff : 16'h0) |
+		(vsram_rd_pipe ? 16'h07ff : 16'h0) |
 		(sat_rd_pipe_2 ? 16'h07ff : 16'h0) |
 		(vram_dma_pipe ? 16'hffff : 16'h0) |
 		(cram_wr_dly_3 ? 16'heee : 16'h0);
@@ -7197,13 +7197,13 @@ module ym7101
 		(fifo_rd_s0 ? fifo_data_1 : 17'h1ffff) &
 		(fifo_rd_s3 ? fifo_data_2 : 17'h1ffff) &
 		(fifo_rd_s1 ? fifo_data_3 : 17'h1ffff) &
-		(w531 ? { w532[3:1], 14'h3fff } : 17'h1ffff) &
-		(w558 ? { 3'h7, w532[0], w533, w527[4:0], w555[4:0], 1'h0 } : 17'h1ffff) &
-		(w643 ? { reg_hs, w535, 2'h0 } : 17'h1ffff) & // hscroll
-		(l202 ? { reg_wd[5:1], w536, hcnt[7:4], 2'h0 } : 17'h1ffff) & // window
-		(l196 ? { 12'hfff, w577[2:0], ~l198, 1'h0 } : 17'h1ffff) &
-		(l199 ? { 3'h7, w578, 5'h1f } : 17'h1ffff) &
-		(w566 ? { w579, 14'h3fff } : 17'h1ffff) &
+		(nt_m5_fetch ? { nt_base_sel[3:1], 14'h3fff } : 17'h1ffff) &
+		(nt_fetch_active ? { 3'h7, nt_base_sel[0], nt_row_addr, scroll_row_mapped[4:0], pixel_col_pos[4:0], 1'h0 } : 17'h1ffff) &
+		(w643 ? { reg_hs, vcnt_for_hscr, 2'h0 } : 17'h1ffff) & // hscroll
+		(win_fetch_pipe ? { reg_wd[5:1], win_nt_addr_mux, hcnt[7:4], 2'h0 } : 17'h1ffff) & // window
+		(slot01_fetch_pipe ? { 12'hfff, w577[2:0], ~not_sms_s0_pipe, 1'h0 } : 17'h1ffff) &
+		(slot01_sms_pipe ? { 3'h7, w578, 5'h1f } : 17'h1ffff) &
+		(m5_fetch_flag ? { w579, 14'h3fff } : 17'h1ffff) &
 		(l218 ? { w580, 5'h1f } : 17'h1ffff) &
 		(link_cnt_inc ? { 9'h1ff, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h1ffff) &
 		(m4_attr_phase ? { 3'h7, reg_86_b2, vram_attr_sel[7:1], spr_cnt_m4_bit, spr_cnt_bit_2, spr_cnt_bit_1, spr_cnt_bit_0, ~hcnt[1], 1'h0 } : 17'h1ffff) &
@@ -7221,13 +7221,13 @@ module ym7101
 		(fifo_rd_s0 ? 17'h1ffff : 17'h0) |
 		(fifo_rd_s3 ? 17'h1ffff : 17'h0) |
 		(fifo_rd_s1 ? 17'h1ffff : 17'h0) |
-		(w531 ? 17'h1c000 : 17'h0) |
-		(w558 ? 17'h03fff : 17'h0) |
+		(nt_m5_fetch ? 17'h1c000 : 17'h0) |
+		(nt_fetch_active ? 17'h03fff : 17'h0) |
 		(w643 ? 17'h1ffff : 17'h0) |
-		(l202 ? 17'h1ffff : 17'h0) | 
-		(l196 ? 17'h0001f : 17'h0) |
-		(l199 ? 17'h03fe0 : 17'h0) |
-		(w566 ? 17'h1c000 : 17'h0) |
+		(win_fetch_pipe ? 17'h1ffff : 17'h0) | 
+		(slot01_fetch_pipe ? 17'h0001f : 17'h0) |
+		(slot01_sms_pipe ? 17'h03fe0 : 17'h0) |
+		(m5_fetch_flag ? 17'h1c000 : 17'h0) |
 		(l218 ? 17'h1ffe0 : 17'h0) |
 		(link_cnt_inc ? 17'h000ff : 17'h0) |
 		(m4_attr_phase ? 17'h03fff : 17'h0) |
@@ -7241,7 +7241,7 @@ module ym7101
 		(data_rd_s2 ? { fifo_hi_s2, fifo_out_s2 } : 16'h0) |
 		(data_rd_s3 ? { fifo_hi_s3, fifo_out_s3 } : 16'h0) |
 		(data_rd_s0 ? { fifo_hi_s0, fifo_out_s0 } : 16'h0) |
-		(l183 ? { 5'h0, l180 } : 16'h0) |
+		(vsram_rd_pipe ? { 5'h0, vsram_b_latch } : 16'h0) |
 		(sat_rd_pipe_2 ? { 5'h0, sat_field_latch } : 16'h0) |
 		(vram_dma_pipe ? { vram_rdata_hi, vram_rdata_lo } : 16'h0) |
 		(cram_wr_dly_3 ? { 4'h0, cram_rd_latch[8:6], 1'h0, cram_rd_latch[5:3], 1'h0, cram_rd_latch[2:0], 1'h0 } : 16'h0);*/
@@ -7254,13 +7254,13 @@ module ym7101
 		(fifo_rd_s0 ? fifo_data_1 : 17'h0) |
 		(fifo_rd_s3 ? fifo_data_2 : 17'h0) |
 		(fifo_rd_s1 ? fifo_data_3 : 17'h0) |
-		(w531 ? { w532[3:1], 14'h0 } : 17'h0) |
-		(w558 ? { 3'h0, w532[0], w533, w527[4:0], w555[4:0], 1'h0 } : 17'h0) |
-		(w643 ? { reg_hs, w535, 2'h0 } : 17'h0) | // hscroll
-		(l202 ? { reg_wd[5:1], w536, hcnt[7:4], 2'h0 } : 17'h0) | // window
-		(l196 ? { 12'h0, w577[2:0], ~l198, 1'h0 } : 17'h0) |
-		(l199 ? { 3'h0, w578, 5'h0 } : 17'h0) |
-		(w566 ? { w579, 14'h0 } : 17'h0) |
+		(nt_m5_fetch ? { nt_base_sel[3:1], 14'h0 } : 17'h0) |
+		(nt_fetch_active ? { 3'h0, nt_base_sel[0], nt_row_addr, scroll_row_mapped[4:0], pixel_col_pos[4:0], 1'h0 } : 17'h0) |
+		(w643 ? { reg_hs, vcnt_for_hscr, 2'h0 } : 17'h0) | // hscroll
+		(win_fetch_pipe ? { reg_wd[5:1], win_nt_addr_mux, hcnt[7:4], 2'h0 } : 17'h0) | // window
+		(slot01_fetch_pipe ? { 12'h0, w577[2:0], ~not_sms_s0_pipe, 1'h0 } : 17'h0) |
+		(slot01_sms_pipe ? { 3'h0, w578, 5'h0 } : 17'h0) |
+		(m5_fetch_flag ? { w579, 14'h0 } : 17'h0) |
 		(l218 ? { w580, 5'h0 } : 17'h0) |
 		(link_cnt_inc ? { 9'h0, 2'h0, sat_link_cnt[4:0], 1'h0 } : 17'h0) |
 		(m4_attr_phase ? { 3'h0, reg_86_b2, vram_attr_sel[7:1], spr_cnt_m4_bit, spr_cnt_bit_2, spr_cnt_bit_1, spr_cnt_bit_0, ~hcnt[1], 1'h0 } : 17'h0) |
